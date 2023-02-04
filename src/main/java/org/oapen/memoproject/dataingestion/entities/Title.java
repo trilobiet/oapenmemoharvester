@@ -1,15 +1,28 @@
 package org.oapen.memoproject.dataingestion.entities;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+@Entity(name = "Title")
 @Table(name="title")
 public class Title {
 	
     @Id
     @Column(name = "id", updatable = false, insertable = true)
-    private String ID;
+    private String Id;
 
     @Column(name = "handle", updatable = false, insertable = true)
     private String handle;
@@ -75,7 +88,7 @@ public class Title {
     private String embargo;
 
     @Column(name = "oapen_identifier")
-    private String identifier;
+    private String identifierOapen;
 
     @Column(name = "oapen_identifier_doi")
     private String identifierDoi;
@@ -100,5 +113,36 @@ public class Title {
 
     @Column(name = "oapen_seriesnumber")
     private String seriesNumber;
+    
+    @ElementCollection
+    @CollectionTable(name="identifier", joinColumns= @JoinColumn(name="id_title"))
+    private List<String> identifiers;
+
+    @ElementCollection
+    @CollectionTable(name="identifier_isbn", joinColumns= @JoinColumn(name="id_title"))
+    private List<String> identifiersISBN;
+
+    @ElementCollection
+    @CollectionTable(name="dc_date_accessioned", joinColumns= @JoinColumn(name="id_title"))
+    private List<String> datesAccessioned;
+    
+    @ElementCollection
+    @CollectionTable(name="dc_language", joinColumns= @JoinColumn(name="id_title"))
+    private List<String> languages;
+    
+    @ElementCollection
+    @CollectionTable(name="dc_subject_other", joinColumns= @JoinColumn(name="id_title"))
+    private List<String> subjectsOther;
+    
+    @ManyToMany(
+    	fetch = FetchType.EAGER, // Eager, because there are only a few.	
+    	cascade = {CascadeType.PERSIST,CascadeType.MERGE} 
+    )
+    @JoinTable(name = "dc_subject_classification",
+        joinColumns = @JoinColumn(name = "id_title"),
+        inverseJoinColumns = @JoinColumn(name = "id_classification")
+    )
+	private Set<Classification> classifications = new HashSet<>();
+    
 
 }

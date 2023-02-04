@@ -2,4 +2,7 @@
 
 A harvester service that populates the OAPEN MEMO database.
 
-Check it out. More to come. It'll be great. 
+- Get last harvest date
+- harvest since last harvest date
+- save as individual records
+- parse records and map to database
