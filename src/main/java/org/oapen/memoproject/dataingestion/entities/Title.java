@@ -14,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity(name = "Title")
@@ -105,7 +106,8 @@ public class Title {
     @Column(name = "oapen_placepublication")
     private String placePublication;
 
-    @Column(name = "oapen_relation_partofbook")
+    // no need for mapping here as long as the data is inserted we need no object reference
+    @Column(name = "oapen_relation_partofbook") 
     private String partOfBook;
 
     @Column(name = "oapen_relation_ispublishedby")
@@ -115,24 +117,35 @@ public class Title {
     private String seriesNumber;
     
     @ElementCollection
-    @CollectionTable(name="identifier", joinColumns= @JoinColumn(name="id_title"))
+    @CollectionTable(name="dc_identifier", joinColumns= @JoinColumn(name="id_title"))
+    @Column(name = "identifier")
     private List<String> identifiers;
 
     @ElementCollection
     @CollectionTable(name="identifier_isbn", joinColumns= @JoinColumn(name="id_title"))
+    @Column(name = "identifier")
     private List<String> identifiersISBN;
 
+    // TODO make this a Date object?
     @ElementCollection
     @CollectionTable(name="dc_date_accessioned", joinColumns= @JoinColumn(name="id_title"))
+    @Column(name = "date")
     private List<String> datesAccessioned;
     
     @ElementCollection
     @CollectionTable(name="dc_language", joinColumns= @JoinColumn(name="id_title"))
+    @Column(name = "language")
     private List<String> languages;
     
     @ElementCollection
     @CollectionTable(name="dc_subject_other", joinColumns= @JoinColumn(name="id_title"))
+    @Column(name = "subject")
     private List<String> subjectsOther;
+    
+    @ManyToOne
+    @JoinColumn(name = "oapen_relation_isPublishedBy")
+    private Publisher publisher;
+    
     
     @ManyToMany(
     	fetch = FetchType.EAGER, // Eager, because there are only a few.	
@@ -143,6 +156,11 @@ public class Title {
         inverseJoinColumns = @JoinColumn(name = "id_classification")
     )
 	private Set<Classification> classifications = new HashSet<>();
+    
+	public void addClassification(Classification classification) {
+        classifications.add(classification);
+        classification.titles.add(this);
+    }
     
 
 }
