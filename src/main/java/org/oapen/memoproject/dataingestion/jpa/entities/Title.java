@@ -122,25 +122,41 @@ public class Title {
     @Column(name = "subject")
     private Set<String> subjectsOther;
 
-    @OneToMany
-    @JoinColumn(name = "id_title", nullable = false)
-    private Set<Identifier> identifiers;
+    @OneToMany(mappedBy = "title", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @Setter(AccessLevel.PRIVATE) // Enforce usage of addIdentifier
+    private Set<Identifier> identifiers = new HashSet<>();
+    
+    public void addIdentifier(Identifier id) {
+    	id.setTitle(this.id);
+    	identifiers.add(id);
+    }
 
-    @OneToMany(mappedBy = "id.title", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "idTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL) // an ExportChunkId!
     @Setter(AccessLevel.PRIVATE) // Enforce usage of addExportChunk
     private Set<ExportChunk> exportChunks = new HashSet<>();
     
     public void addExportChunk(String type, String content) {
     	
     	ExportChunk c = new ExportChunk();
-    	ExportChunkId id = new ExportChunkId();
-    	id.setTitle(this);
-    	id.setType(type);
-    	c.setId(id);
+    	
+    	c.setIdTitle(this.id);
     	c.setContent(content);
+    	c.setType(type);
     	
     	exportChunks.add(c);
     }
+
+    @OneToMany(mappedBy = "idTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @Setter(AccessLevel.PRIVATE) // Enforce usage of addFunding
+    private Set<Funding> fundings = new HashSet<>();
+    
+    public void addFunding(Funding funding) {
+    	
+    	funding.setIdTitle(this.id);
+    	fundings.add(funding);
+    }
+    
+    
     
     @ManyToOne(
        	fetch = FetchType.EAGER,

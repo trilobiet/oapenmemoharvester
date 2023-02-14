@@ -48,8 +48,4 @@ public class Publisher {
 		return true;
 	}
     
-    //@OneToMany(mappedBy = "publisher", cascade = CascadeType.ALL, orphanRemoval = true)
-    //private List<Title> titles;
-    
-    
 }
