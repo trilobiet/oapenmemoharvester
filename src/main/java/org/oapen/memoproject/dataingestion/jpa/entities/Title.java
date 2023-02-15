@@ -27,11 +27,11 @@ import lombok.Setter;
 public class Title {
 	
     @Id
-    @Column(name = "id", updatable = false, insertable = true)
-    private String id;
-
     @Column(name = "handle", updatable = false, insertable = true)
     private String handle;
+
+    @Column(name = "sysid", updatable = false, insertable = true)
+    private String id;
 
     @Column(name = "collection")
     private String collection;
@@ -107,62 +107,67 @@ public class Title {
     private String partOfBook;
 
     @ElementCollection
-    @CollectionTable(name="language", joinColumns= @JoinColumn(name="id_title", nullable = false))
+    @CollectionTable(name="language", joinColumns= @JoinColumn(name="handle_title", nullable = false))
     @Column(name = "language")
     private Set<String> languages;
     
     // TODO make this a Date object?
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name="date_accessioned", joinColumns= @JoinColumn(name="id_title", nullable = false))
+    @CollectionTable(name="date_accessioned", joinColumns= @JoinColumn(name="handle_title", nullable = false))
     @Column(name = "date", nullable = false)
     private Set<String> datesAccessioned;
     
     @ElementCollection
-    @CollectionTable(name="subject_other", joinColumns= @JoinColumn(name="id_title", nullable = false))
+    @CollectionTable(name="subject_other", joinColumns= @JoinColumn(name="handle_title", nullable = false))
     @Column(name = "subject")
     private Set<String> subjectsOther;
 
-    @OneToMany(mappedBy = "title", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Setter(AccessLevel.PRIVATE) // Enforce usage of addIdentifier
     private Set<Identifier> identifiers = new HashSet<>();
     
-    public void addIdentifier(Identifier id) {
-    	id.setTitle(this.id);
-    	identifiers.add(id);
+    public void addIdentifier(Identifier identifier) {
+    	identifier.setHandleTitle(this.handle);
+    	identifiers.add(identifier);
     }
 
-    @OneToMany(mappedBy = "idTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL) // an ExportChunkId!
+    @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL) // an ExportChunkId!
     @Setter(AccessLevel.PRIVATE) // Enforce usage of addExportChunk
     private Set<ExportChunk> exportChunks = new HashSet<>();
     
-    public void addExportChunk(String type, String content) {
+    public void addExportChunk(ExportChunk chunk) {
     	
-    	ExportChunk c = new ExportChunk();
-    	
-    	c.setIdTitle(this.id);
-    	c.setContent(content);
-    	c.setType(type);
-    	
-    	exportChunks.add(c);
+    	chunk.setHandleTitle(this.handle);
+    	exportChunks.add(chunk);
     }
 
-    @OneToMany(mappedBy = "idTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Setter(AccessLevel.PRIVATE) // Enforce usage of addFunding
     private Set<Funding> fundings = new HashSet<>();
     
     public void addFunding(Funding funding) {
     	
-    	funding.setIdTitle(this.id);
+    	funding.setHandleTitle(this.handle);
     	fundings.add(funding);
     }
     
+    
+    @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @Setter(AccessLevel.PRIVATE) // Enforce usage of addFunding
+    private Set<Contribution> contributions = new HashSet<>();
+    
+    public void addContribution(Contribution contribution) {
+    	
+    	contribution.setHandleTitle(this.handle);
+    	contributions.add(contribution);
+    }
     
     
     @ManyToOne(
        	fetch = FetchType.EAGER,
        	cascade = {CascadeType.PERSIST,CascadeType.MERGE} 
     )
-    @JoinColumn(name = "is_published_by", nullable = true)
+    @JoinColumn(name = "handle_publisher", nullable = true)
     private Publisher publisher;
     
     @ManyToMany(
@@ -170,7 +175,7 @@ public class Title {
     	cascade = {CascadeType.PERSIST,CascadeType.MERGE} 
     )
     @JoinTable(name = "subject_classification",
-        joinColumns = @JoinColumn(name = "id_title", nullable = false),
+        joinColumns = @JoinColumn(name = "handle_title", nullable = false),
         inverseJoinColumns = @JoinColumn(name = "code_classification", nullable = false)
     )
 	private Set<Classification> classifications = new HashSet<>();
@@ -204,6 +209,4 @@ public class Title {
 		return true;
 	}
 
-	
-	
 }

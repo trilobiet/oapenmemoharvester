@@ -15,7 +15,7 @@ public class Funder {
 	
 	@Id
     @Column(name = "handle", updatable = false, insertable = true, unique = true)
-    private String id;
+    private String handle;
 	
     @Column(name = "name")
     private String name;
@@ -27,7 +27,7 @@ public class Funder {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((handle == null) ? 0 : handle.hashCode());
 		return result;
 	}
 
@@ -40,10 +40,10 @@ public class Funder {
 		if (getClass() != obj.getClass())
 			return false;
 		Funder other = (Funder) obj;
-		if (id == null) {
-			if (other.id != null)
+		if (handle == null) {
+			if (other.handle != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!handle.equals(other.handle))
 			return false;
 		return true;
 	}

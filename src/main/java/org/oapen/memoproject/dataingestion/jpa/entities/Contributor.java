@@ -15,10 +15,10 @@ public class Contributor {
 	
 	// orcid would be a better id, but it is not always available and will be added later
 	@Id
-    @Column(name = "handle", updatable = false, insertable = true, unique = true)
+    @Column(name = "name", updatable = false, insertable = true, unique = true)
     private String name;
 	
-    @Column(name = "name")
+    @Column(name = "orcid")
     private String orcid;
 
 	@Override

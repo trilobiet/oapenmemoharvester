@@ -19,17 +19,25 @@ public class ExportChunk {
 	
 	@Id @Column
 	private String type;
+
 	@Id @Column
-	private String idTitle;
+	private String handleTitle;
 
 	@Column(name = "content")
     private String content;
-
+	
+	public ExportChunk() {}
+	
+	public ExportChunk(String type, String content) {
+		this.type = type;
+		this.content = content;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((idTitle == null) ? 0 : idTitle.hashCode());
+		result = prime * result + ((handleTitle == null) ? 0 : handleTitle.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
@@ -43,10 +51,10 @@ public class ExportChunk {
 		if (getClass() != obj.getClass())
 			return false;
 		ExportChunk other = (ExportChunk) obj;
-		if (idTitle == null) {
-			if (other.idTitle != null)
+		if (handleTitle == null) {
+			if (other.handleTitle != null)
 				return false;
-		} else if (!idTitle.equals(other.idTitle))
+		} else if (!handleTitle.equals(other.handleTitle))
 			return false;
 		if (type == null) {
 			if (other.type != null)
@@ -55,7 +63,8 @@ public class ExportChunk {
 			return false;
 		return true;
 	}
-	
+
+
 }
 
 
@@ -64,7 +73,7 @@ class ExportChunkId implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public String type;
-	public String idTitle;
+	public String handleTitle;
 	
 	public ExportChunkId() {}
 
@@ -72,7 +81,7 @@ class ExportChunkId implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((idTitle == null) ? 0 : idTitle.hashCode());
+		result = prime * result + ((handleTitle == null) ? 0 : handleTitle.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
@@ -86,10 +95,10 @@ class ExportChunkId implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		ExportChunkId other = (ExportChunkId) obj;
-		if (idTitle == null) {
-			if (other.idTitle != null)
+		if (handleTitle == null) {
+			if (other.handleTitle != null)
 				return false;
-		} else if (!idTitle.equals(other.idTitle))
+		} else if (!handleTitle.equals(other.handleTitle))
 			return false;
 		if (type == null) {
 			if (other.type != null)

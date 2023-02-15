@@ -3,8 +3,6 @@ package org.oapen.memoproject.dataingestion.jpa.entities;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import lombok.Getter;
@@ -22,8 +20,8 @@ public class Identifier {
     @Column(name="identifier_type", nullable = false)
 	private String type;
 
-    @Column(name = "id_title", nullable = false)
-	private String title;
+    @Column(name = "handle_title", nullable = false)
+	private String handleTitle;
     
 	@Override
 	public int hashCode() {
