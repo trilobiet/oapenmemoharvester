@@ -14,7 +14,7 @@ public class XOAIHarvestUrlTests {
 	@Test
 	public void initial_url_should_match_arguments_complete_harvest() {
 		
-		XOAIHarvestUrl url = new XOAIHarvestUrl("https://www.test.com");
+		XOAIUrlComposer url = new XOAIUrlComposer("https://www.test.com");
 
 		String result = "";
 		try { result = url.getUrl().toExternalForm(); } catch (MalformedURLException e) {}
@@ -30,7 +30,7 @@ public class XOAIHarvestUrlTests {
 		LocalDate date = LocalDate.now();
 		String from = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-		XOAIHarvestUrl url = new XOAIHarvestUrl("https://www.test.com", date);
+		XOAIUrlComposer url = new XOAIUrlComposer("https://www.test.com", date);
 
 		String result = "";
 		try { result = url.getUrl().toExternalForm(); } catch (MalformedURLException e) {}
@@ -48,7 +48,7 @@ public class XOAIHarvestUrlTests {
 		String from = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
 		String until = date.plusDays(days).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-		XOAIHarvestUrl url = new XOAIHarvestUrl("https://www.test.com", date, days);
+		XOAIUrlComposer url = new XOAIUrlComposer("https://www.test.com", date, days);
 		
 		String result = "";
 		try { result = url.getUrl().toExternalForm(); } catch (MalformedURLException e) {}
@@ -65,7 +65,7 @@ public class XOAIHarvestUrlTests {
 		int days = 7;
 		String resumptionToken = "xoai/2022-01-21T00:00:00Z///100";
 		
-		XOAIHarvestUrl url = new XOAIHarvestUrl("https://www.test.com", date, days);
+		XOAIUrlComposer url = new XOAIUrlComposer("https://www.test.com", date, days);
 
 		String result = "";
 		try { result = url.getUrl(resumptionToken).toExternalForm(); } catch (MalformedURLException e) {}

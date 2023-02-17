@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.w3c.dom.Document;
 
 @Component
 @Order(value=1)
@@ -26,11 +27,13 @@ public class ApplicationRunner implements CommandLineRunner {
 
 	public void harvest() throws Exception {
 		
-		OAIHarvester harvester = new OAIHarvester(oaiPath,LocalDate.of(2023, 2, 1));
+		OAIHarvester harvester = new OAIHarvester(oaiPath,LocalDate.of(2023, 2, 14));
 		
 		System.out.println("HARVESTING...........................");
 		
-		harvester.harvest();
+		harvester.harvest(
+			doc -> System.out.println(doc.getElementsByTagName("element").getLength())
+		);
 
 	}
 	

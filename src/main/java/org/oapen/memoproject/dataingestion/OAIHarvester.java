@@ -10,106 +10,117 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.javatuples.Pair;
-import org.javatuples.Tuple;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class OAIHarvester {
 	
-	private final XOAIHarvestUrl harvestUrl;
-	
-	DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-	
-	public OAIHarvester(String path) {
+	private final OAIHarvestUrl harvestUrl;
+	private DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+	/**
+	 * @param urlPath OAI path without query string, e.g. <em>https://library.oapen.org/oai/request</em>
+	 */
+	public OAIHarvester(String urlPath) {
 		
-		harvestUrl = new XOAIHarvestUrl(path);
+		harvestUrl = new XOAIUrlComposer(urlPath);
 	}
 
-	public OAIHarvester(String path, LocalDate fromDate) {
+	/**
+	 * @param urlPath OAI path without query string, e.g. <em>https://library.oapen.org/oai/request</em>
+	 * @param fromDate from date for harvesting
+	 */
+	public OAIHarvester(String urlPath, LocalDate fromDate) {
 		
-		harvestUrl = new XOAIHarvestUrl(path, fromDate);
+		harvestUrl = new XOAIUrlComposer(urlPath, fromDate);
 	}
 	
-	public OAIHarvester(String path, LocalDate fromDate, int days) {
+	/**
+	 * @param urlPath OAI path without query string, e.g. <em>https://library.oapen.org/oai/request</em>
+	 * @param fromDate from date for harvesting
+	 * @param days number of days to harvest, starting at fromDate 
+	 */
+	public OAIHarvester(String urlPath, LocalDate fromDate, int days) {
 		
-		harvestUrl = new XOAIHarvestUrl(path, fromDate, days);
+		harvestUrl = new XOAIUrlComposer(urlPath, fromDate, days);
 	}
 
 	
-	public void harvest() throws Exception {
+	/**
+	 * Start harvesting. Harvesting will continue until no more ResumptionTokens are encountered.
+	 * The handler will be invoked for each harvested page. When there are x ResumptionTokens,
+	 * handler will be invoked x + 1 times. 
+	 * 
+	 * @param handler Handler function to process each Document 
+	 * @throws HarvestException
+	 */
+	public void harvest(OAIDocumentHandler handler) throws HarvestException {
 		
-		Pair<Document, Optional<ResumptionToken>> page = getPage(harvestUrl.getUrl());
-		
-		Optional<ResumptionToken> oRst = page.getValue1();
-		
-		while( oRst.isPresent() ) {
-			
-			System.out.println(oRst.get());
-			
-			Thread.sleep(1000);
-			
-			ResumptionToken rst = oRst.get();
-			page = getPage(harvestUrl.getUrl(rst.token));
-
-			oRst = page.getValue1();
-		}
-		
-	}
-	
-	
-	
-	
-	public Pair<Document,Optional<ResumptionToken>> getPage(URL url) throws Exception  {
-
-		Document document = getXml(url);
-
-		Optional<ResumptionToken> resumptionToken = getResumptionToken(document);
-		
-		return Pair.with(document, resumptionToken);
-		
-		
-		/*	
-		
-		try (InputStream is = getInputStream(harvestUrl.getUrl())) {
-			
-			
-			Path path = Path.of(filePath);
-			Path parent = path.getParent();
-			Files.createDirectories(parent);
-			File tmp = File.createTempFile("tmp", "._ml", parent.toFile()); 
-			Files.copy(is, tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			Files.move(tmp.toPath(), path, 
-					StandardCopyOption.REPLACE_EXISTING,
-					StandardCopyOption.ATOMIC_MOVE);
-		}
-		*/
-		
-	}
-	
-	
-	public Document getXml(URL url) throws Exception {
-		
-		URLConnection urlConnection = url.openConnection();
-		urlConnection.addRequestProperty("Accept", "application/xml");
+		Optional<ResumptionToken> oRst = Optional.empty();
 		
 		Document doc;
+		
+		do {
+
+			try {
+
+				Pair<Document, Optional<ResumptionToken>> page;
+				page = getPage(harvestUrl.getUrl(oRst));
+				
+				doc = page.getValue0();
+				oRst = page.getValue1();
+	
+				handler.process(doc);
+	
+				Thread.sleep(1000);
+				
+			} catch (Exception e) {	throw new HarvestException(e);} 
+			
+		} while ( oRst.isPresent() );
+		
+	}
+	
+	
+	/**
+	 * Load an OAI XML document and parse its optional ResumptionToken
+	 * 	 * 
+	 * @param url
+	 * @return A Pair containing the Document and an optional ResumptionToken
+	 * @throws Exception
+	 */
+	private Pair<Document,Optional<ResumptionToken>> getPage(URL url) throws Exception  {
+
+		URLConnection urlConnection = url.openConnection();
+		
+		urlConnection.addRequestProperty("Accept", "application/xml");
+		
+		Document document;
 		
 		try( InputStream is = urlConnection.getInputStream() ) {
 			
 			DocumentBuilder db = dbf.newDocumentBuilder();
-			doc = db.parse(is);
+			document = db.parse(is);
+
+			Optional<ResumptionToken> resumptionToken = getResumptionToken(document);
+			
+			return Pair.with(document, resumptionToken);
 			
 		} catch (Exception e) {
+			
 			throw(e);
 		}
-		
-		return doc;
 		
 	}
 	
 	
-	public Optional<ResumptionToken> getResumptionToken(Document doc) {
+	/** 
+	 * Get a ResumptionToken from a Document, if present
+	 * 
+	 * @param doc the Document
+	 * @return an Optional ResumptionToken
+	 */
+	private Optional<ResumptionToken> getResumptionToken(Document doc) {
 		
 		NodeList nl = doc.getElementsByTagName("resumptionToken");
 		
@@ -123,42 +134,12 @@ public class OAIHarvester {
 				node.getAttributes().getNamedItem("cursor").getTextContent()
 			);
 			
-			return Optional.of(rt);
+			if (node.getTextContent().isEmpty()) return Optional.empty();
+			else return Optional.of(rt);
 		}
 		else return Optional.empty();
 	}
 	
 
-}
-
-
-class ResumptionToken {
-	
-	public final String token;
-	public final Integer listSize;
-	public final Integer cursor;
-	
-	public ResumptionToken(String token, String listSize, String cursor) {
-		this.token = token;
-		this.listSize = parseIntOrNull(listSize);
-		this.cursor = parseIntOrNull(cursor);
-	}
-
-	@Override
-	public String toString() {
-		return "ResumptionToken [token=" + token + ", listSize=" + listSize + ", cursor=" + cursor + "]";
-	}
-	
-	static Integer parseIntOrNull(String s) {
-		
-		try {
-			return Integer.parseInt(s);
-		}
-		catch (NumberFormatException e) {
-			return null;
-		}
-		
-	}
-	
 }
 

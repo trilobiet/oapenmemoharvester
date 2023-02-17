@@ -6,41 +6,57 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-public final class XOAIHarvestUrl {
+/**
+ * A OAPEN Library XOAI request URL constructor. 
+ * <p>A URL can be constructed using fromDate and number of days.
+ * <p>Methods are provided to get the initial URL and URLS for subsequent pages (using a ResumptionToken). 
+ * 
+ * @author acdhirr
+ *
+ */
+public final class XOAIUrlComposer implements OAIHarvestUrl {
 	
 	// https://library.oapen.org/oai/request?verb=ListRecords&metadataPrefix=xoai&from=2023-01-21
 	// https://library.oapen.org/oai/request?verb=ListRecords&resumptionToken=xoai/2022-01-21T00:00:00Z///100
 	
-	private final String baseUrl;
+	private final String urlPath;
 	private final Optional<LocalDate> fromDate; 
 	private final Optional<Integer> days;
 	
-	public XOAIHarvestUrl(String baseUrl) {
+	public XOAIUrlComposer(String urlPath) {
 		super();
-		this.baseUrl = baseUrl;
+		this.urlPath = urlPath;
 		this.fromDate = Optional.empty();
 		this.days = Optional.empty();
 	}
 	
-	public XOAIHarvestUrl(String baseUrl, LocalDate fromDate ) {
+	public XOAIUrlComposer(String urlPath, LocalDate fromDate ) {
 		super();
-		this.baseUrl = baseUrl;
+		this.urlPath = urlPath;
 		this.fromDate = Optional.of(fromDate);
 		this.days = Optional.empty();
 	}
 
-	public XOAIHarvestUrl(String baseUrl, LocalDate fromDate, int days) {
+	public XOAIUrlComposer(String urlPath, LocalDate fromDate, int days) {
 		super();
-		this.baseUrl = baseUrl;
+		this.urlPath = urlPath;
 		this.fromDate = Optional.of(fromDate);
 		this.days = Optional.of(days);
 	}
 	
+	@Override
+	public URL getUrl(Optional<ResumptionToken> rst) throws MalformedURLException {
+		
+		if (rst.isEmpty()) return getUrl();
+		else return getUrl(rst.get().token);
+	}
+	
+	@Override
 	public URL getUrl() throws MalformedURLException {
 		
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(baseUrl);
+		sb.append(urlPath);
 		sb.append("?verb=ListRecords&metadataPrefix=xoai");
 		
 		if (fromDate.isPresent()) {
@@ -61,7 +77,7 @@ public final class XOAIHarvestUrl {
 
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(baseUrl);
+		sb.append(urlPath);
 		sb.append("?verb=ListRecords");
 		sb.append("&resumptionToken=");
 		sb.append(resumptionToken);
