@@ -3,7 +3,6 @@ package org.oapen.memoproject.dataingestion;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -16,36 +15,16 @@ import org.w3c.dom.NodeList;
 
 public class OAIHarvester {
 	
-	private final OAIHarvestUrl harvestUrl;
+	private final OAIURLComposer harvestUrl;
 	private DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
 	/**
 	 * @param urlPath OAI path without query string, e.g. <em>https://library.oapen.org/oai/request</em>
 	 */
-	public OAIHarvester(String urlPath) {
+	public OAIHarvester(OAIURLComposer url) {
 		
-		harvestUrl = new XOAIUrlComposer(urlPath);
+		harvestUrl = url;
 	}
-
-	/**
-	 * @param urlPath OAI path without query string, e.g. <em>https://library.oapen.org/oai/request</em>
-	 * @param fromDate from date for harvesting
-	 */
-	public OAIHarvester(String urlPath, LocalDate fromDate) {
-		
-		harvestUrl = new XOAIUrlComposer(urlPath, fromDate);
-	}
-	
-	/**
-	 * @param urlPath OAI path without query string, e.g. <em>https://library.oapen.org/oai/request</em>
-	 * @param fromDate from date for harvesting
-	 * @param days number of days to harvest, starting at fromDate 
-	 */
-	public OAIHarvester(String urlPath, LocalDate fromDate, int days) {
-		
-		harvestUrl = new XOAIUrlComposer(urlPath, fromDate, days);
-	}
-
 	
 	/**
 	 * Start harvesting. Harvesting will continue until no more ResumptionTokens are encountered.

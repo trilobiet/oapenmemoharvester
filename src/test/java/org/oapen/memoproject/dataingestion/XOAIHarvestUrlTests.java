@@ -14,7 +14,7 @@ public class XOAIHarvestUrlTests {
 	@Test
 	public void initial_url_should_match_arguments_complete_harvest() {
 		
-		XOAIUrlComposer url = new XOAIUrlComposer("https://www.test.com");
+		XOAIFromDateUrlComposer url = new XOAIFromDateUrlComposer("https://www.test.com");
 
 		String result = "";
 		try { result = url.getUrl().toExternalForm(); } catch (MalformedURLException e) {}
@@ -30,7 +30,7 @@ public class XOAIHarvestUrlTests {
 		LocalDate date = LocalDate.now();
 		String from = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-		XOAIUrlComposer url = new XOAIUrlComposer("https://www.test.com", date);
+		XOAIFromDateUrlComposer url = new XOAIFromDateUrlComposer("https://www.test.com", date);
 
 		String result = "";
 		try { result = url.getUrl().toExternalForm(); } catch (MalformedURLException e) {}
@@ -48,7 +48,7 @@ public class XOAIHarvestUrlTests {
 		String from = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
 		String until = date.plusDays(days).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-		XOAIUrlComposer url = new XOAIUrlComposer("https://www.test.com", date, days);
+		XOAIFromDateUrlComposer url = new XOAIFromDateUrlComposer("https://www.test.com", date, days);
 		
 		String result = "";
 		try { result = url.getUrl().toExternalForm(); } catch (MalformedURLException e) {}
@@ -63,13 +63,15 @@ public class XOAIHarvestUrlTests {
 		
 		LocalDate date = LocalDate.now();
 		int days = 7;
-		String resumptionToken = "xoai/2022-01-21T00:00:00Z///100";
+
+		ResumptionToken rst = new ResumptionToken("xoai/2022-01-21T00:00:00Z///100", 100, 0);
 		
-		XOAIUrlComposer url = new XOAIUrlComposer("https://www.test.com", date, days);
+		XOAIFromDateUrlComposer url = new XOAIFromDateUrlComposer("https://www.test.com", date, days);
 
 		String result = "";
-		try { result = url.getUrl(resumptionToken).toExternalForm(); } catch (MalformedURLException e) {}
-		String expected = "https://www.test.com?verb=ListRecords&resumptionToken="+resumptionToken;
+		
+		try { result = url.getUrl(rst).toExternalForm(); } catch (MalformedURLException e) {}
+		String expected = "https://www.test.com?verb=ListRecords&resumptionToken="+rst.token;
 		
 		assertTrue(result.equals(expected));
 	}

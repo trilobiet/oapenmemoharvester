@@ -14,7 +14,7 @@ import java.util.Optional;
  * @author acdhirr
  *
  */
-public final class XOAIUrlComposer implements OAIHarvestUrl {
+public final class XOAIFromDateUrlComposer implements OAIURLComposer {
 	
 	// https://library.oapen.org/oai/request?verb=ListRecords&metadataPrefix=xoai&from=2023-01-21
 	// https://library.oapen.org/oai/request?verb=ListRecords&resumptionToken=xoai/2022-01-21T00:00:00Z///100
@@ -23,22 +23,22 @@ public final class XOAIUrlComposer implements OAIHarvestUrl {
 	private final Optional<LocalDate> fromDate; 
 	private final Optional<Integer> days;
 	
-	public XOAIUrlComposer(String urlPath) {
-		super();
+	public XOAIFromDateUrlComposer(String urlPath) {
+
 		this.urlPath = urlPath;
 		this.fromDate = Optional.empty();
 		this.days = Optional.empty();
 	}
 	
-	public XOAIUrlComposer(String urlPath, LocalDate fromDate ) {
-		super();
+	public XOAIFromDateUrlComposer(String urlPath, LocalDate fromDate ) {
+
 		this.urlPath = urlPath;
 		this.fromDate = Optional.of(fromDate);
 		this.days = Optional.empty();
 	}
 
-	public XOAIUrlComposer(String urlPath, LocalDate fromDate, int days) {
-		super();
+	public XOAIFromDateUrlComposer(String urlPath, LocalDate fromDate, int days) {
+
 		this.urlPath = urlPath;
 		this.fromDate = Optional.of(fromDate);
 		this.days = Optional.of(days);
@@ -48,7 +48,7 @@ public final class XOAIUrlComposer implements OAIHarvestUrl {
 	public URL getUrl(Optional<ResumptionToken> rst) throws MalformedURLException {
 		
 		if (rst.isEmpty()) return getUrl();
-		else return getUrl(rst.get().token);
+		else return getUrl(rst);
 	}
 	
 	@Override
@@ -73,14 +73,15 @@ public final class XOAIUrlComposer implements OAIHarvestUrl {
 		return new URL(sb.toString());
 	}
 
-	public URL getUrl(String resumptionToken) throws MalformedURLException {
+	@Override
+	public URL getUrl(ResumptionToken rst) throws MalformedURLException {
 
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append(urlPath);
 		sb.append("?verb=ListRecords");
 		sb.append("&resumptionToken=");
-		sb.append(resumptionToken);
+		sb.append(rst.token);
 		
 		return new URL(sb.toString());
 	}	

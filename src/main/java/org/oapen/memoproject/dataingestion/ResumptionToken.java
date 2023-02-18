@@ -13,11 +13,19 @@ public class ResumptionToken {
 	public final Integer listSize;
 	public final Integer cursor;
 	
+	public ResumptionToken(String token, int listSize, int cursor) {
+		this.token = token.trim();
+		this.listSize = listSize;
+		this.cursor = cursor;
+	}
+
+	
 	public ResumptionToken(String token, String listSize, String cursor) {
 		this.token = token.trim();
 		this.listSize = parseIntOrNull(listSize);
 		this.cursor = parseIntOrNull(cursor);
 	}
+	
 
 	@Override
 	public String toString() {
