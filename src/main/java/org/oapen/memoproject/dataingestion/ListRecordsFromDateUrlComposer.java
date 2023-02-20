@@ -14,7 +14,7 @@ import java.util.Optional;
  * @author acdhirr
  *
  */
-public final class XOAIFromDateUrlComposer implements OAIURLComposer {
+public final class ListRecordsFromDateUrlComposer implements ListRecordsURLComposer {
 	
 	// https://library.oapen.org/oai/request?verb=ListRecords&metadataPrefix=xoai&from=2023-01-21
 	// https://library.oapen.org/oai/request?verb=ListRecords&resumptionToken=xoai/2022-01-21T00:00:00Z///100
@@ -23,21 +23,21 @@ public final class XOAIFromDateUrlComposer implements OAIURLComposer {
 	private final Optional<LocalDate> fromDate; 
 	private final Optional<Integer> days;
 	
-	public XOAIFromDateUrlComposer(String urlPath) {
+	public ListRecordsFromDateUrlComposer(String urlPath) {
 
 		this.urlPath = urlPath;
 		this.fromDate = Optional.empty();
 		this.days = Optional.empty();
 	}
 	
-	public XOAIFromDateUrlComposer(String urlPath, LocalDate fromDate ) {
+	public ListRecordsFromDateUrlComposer(String urlPath, LocalDate fromDate ) {
 
 		this.urlPath = urlPath;
 		this.fromDate = Optional.of(fromDate);
 		this.days = Optional.empty();
 	}
 
-	public XOAIFromDateUrlComposer(String urlPath, LocalDate fromDate, int days) {
+	public ListRecordsFromDateUrlComposer(String urlPath, LocalDate fromDate, int days) {
 
 		this.urlPath = urlPath;
 		this.fromDate = Optional.of(fromDate);
@@ -45,10 +45,10 @@ public final class XOAIFromDateUrlComposer implements OAIURLComposer {
 	}
 	
 	@Override
-	public URL getUrl(Optional<ResumptionToken> rst) throws MalformedURLException {
+	public URL getUrl(Optional<ResumptionToken> oRst) throws MalformedURLException {
 		
-		if (rst.isEmpty()) return getUrl();
-		else return getUrl(rst);
+		if (oRst.isEmpty()) return getUrl();
+		else return getUrl(oRst.get());
 	}
 	
 	@Override

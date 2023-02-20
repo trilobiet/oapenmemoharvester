@@ -10,7 +10,7 @@ import java.util.Optional;
  * @author acdhirr
  *
  */
-public interface OAIURLComposer {
+public interface ListRecordsURLComposer {
 
 	URL getUrl() throws MalformedURLException;
 	

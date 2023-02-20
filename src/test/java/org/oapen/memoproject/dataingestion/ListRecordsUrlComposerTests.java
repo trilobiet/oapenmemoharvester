@@ -5,16 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
 
-public class XOAIHarvestUrlTests {
+public class ListRecordsUrlComposerTests {
 	
 	@Test
 	public void initial_url_should_match_arguments_complete_harvest() {
 		
-		XOAIFromDateUrlComposer url = new XOAIFromDateUrlComposer("https://www.test.com");
+		ListRecordsFromDateUrlComposer url = new ListRecordsFromDateUrlComposer("https://www.test.com");
 
 		String result = "";
 		try { result = url.getUrl().toExternalForm(); } catch (MalformedURLException e) {}
@@ -30,7 +31,7 @@ public class XOAIHarvestUrlTests {
 		LocalDate date = LocalDate.now();
 		String from = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-		XOAIFromDateUrlComposer url = new XOAIFromDateUrlComposer("https://www.test.com", date);
+		ListRecordsFromDateUrlComposer url = new ListRecordsFromDateUrlComposer("https://www.test.com", date);
 
 		String result = "";
 		try { result = url.getUrl().toExternalForm(); } catch (MalformedURLException e) {}
@@ -48,7 +49,7 @@ public class XOAIHarvestUrlTests {
 		String from = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
 		String until = date.plusDays(days).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-		XOAIFromDateUrlComposer url = new XOAIFromDateUrlComposer("https://www.test.com", date, days);
+		ListRecordsFromDateUrlComposer url = new ListRecordsFromDateUrlComposer("https://www.test.com", date, days);
 		
 		String result = "";
 		try { result = url.getUrl().toExternalForm(); } catch (MalformedURLException e) {}
@@ -66,7 +67,7 @@ public class XOAIHarvestUrlTests {
 
 		ResumptionToken rst = new ResumptionToken("xoai/2022-01-21T00:00:00Z///100", 100, 0);
 		
-		XOAIFromDateUrlComposer url = new XOAIFromDateUrlComposer("https://www.test.com", date, days);
+		ListRecordsFromDateUrlComposer url = new ListRecordsFromDateUrlComposer("https://www.test.com", date, days);
 
 		String result = "";
 		
@@ -76,6 +77,21 @@ public class XOAIHarvestUrlTests {
 		assertTrue(result.equals(expected));
 	}
 	
-	
+
+	@Test
+	public void resumption_empty_url_should_match_arguments() {
+		
+		Optional<ResumptionToken> oRst = Optional.empty();
+		
+		ListRecordsFromDateUrlComposer url = new ListRecordsFromDateUrlComposer("https://www.test.com");
+
+		String result = "";
+		
+		try { result = url.getUrl(oRst).toExternalForm(); } catch (MalformedURLException e) {}
+		String expected = "https://www.test.com?verb=ListRecords&metadataPrefix=xoai";
+		
+		assertTrue(result.equals(expected));
+	}
+
 
 }

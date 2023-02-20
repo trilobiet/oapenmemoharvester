@@ -17,6 +17,8 @@ public class ApplicationRunner implements CommandLineRunner {
 	@Value("${app.path.oaipath}")
 	private String oaiPath;
 	
+	
+	
 
 	@Override
 	public void run(String... args) throws Exception {
@@ -26,17 +28,30 @@ public class ApplicationRunner implements CommandLineRunner {
 
 	public void harvest() throws Exception {
 		
-		OAIURLComposer harvestUrl = new XOAIFromDateUrlComposer(oaiPath,LocalDate.of(2023, 2, 14));
+		ListRecordsURLComposer harvestUrl = new ListRecordsFromDateUrlComposer(oaiPath,LocalDate.of(2023, 2, 14));
 		
-		OAIHarvester harvester = new OAIHarvester(harvestUrl);
+		OAIHarvesterImp harvester = new OAIHarvesterImp(harvestUrl);
 		
 		System.out.println("HARVESTING...........................");
 		
 		harvester.harvest(
-			doc -> System.out.println(doc.getElementsByTagName("element").getLength())
+			doc -> new RecordListHandlerImp().process(doc)
 		);
 
 	}
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	

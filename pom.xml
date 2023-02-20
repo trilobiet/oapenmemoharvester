@@ -81,12 +81,12 @@
         </dependency>
         <!-- END packages needed for @XmlPath binding -->
         
-        
+        <!--
         <dependency>
 			<groupId>org.javatuples</groupId>
 			<artifactId>javatuples</artifactId>
 			<version>1.2</version>
-		</dependency>
+		</dependency> -->
 	
 	</dependencies>
 
