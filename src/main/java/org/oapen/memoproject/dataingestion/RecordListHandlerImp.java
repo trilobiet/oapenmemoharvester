@@ -20,9 +20,12 @@ public final class RecordListHandlerImp implements RecordListHandler {
 		elements.forEach(el -> { 
 			
 			System.out.println(el.getChildNodes().item(1).getChildNodes().item(1).getTextContent());
+			
+			
+			// TODO xpath takes whole document???
 		
 			try {
-				String handle = (String) xpath.evaluate("//element[@name='others']/field[@name='handle']", el, XPathConstants.STRING);
+				String handle = (String) xpath.evaluate(".//element[@name='others']/field[@name='handle']", el, XPathConstants.STRING);
 				System.out.println(handle);
 			} catch (XPathExpressionException e) {
 				// TODO Auto-generated catch block

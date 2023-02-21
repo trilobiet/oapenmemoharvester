@@ -291,6 +291,7 @@
 						</element>
 					</element>
 					<element name="others">
+						<field name="uuid">11111111-3aff-4e7b-9a1c-ce8c75fa9530</field>
 						<field name="handle">20.500.12657/60744</field>
 						<field name="identifier">oai:library.oapen.org:20.500.12657/60744</field>
 						<field name="lastModifyDate">2023-01-21 04:26:17.482</field>
@@ -591,6 +592,7 @@
 						</element>
 					</element>
 					<element name="others">
+						<field name="uuid">22222222-3aff-4e7b-9a1c-ce8c75fa9530</field>
 						<field name="handle">20.500.12657/60840</field>
 						<field name="identifier">oai:library.oapen.org:20.500.12657/60840</field>
 						<field name="lastModifyDate">2023-01-21 04:29:41.338</field>
@@ -603,7 +605,20 @@
 						<element name="oapen.relation.isFundedBy">
 							<field name="uuid">1b71b6aa-ef3b-4897-864f-0f1da4cd2438</field>
 							<field name="handle">20.500.12657/60839</field>
-							<element name="grantor.name"/>
+							<element name="grantor.name">
+								<field name="value">Piet</field>
+							</element>
+							<element name="grantor.program"/>
+							<element name="grantor.number"/>
+							<element name="grantor.acronym"/>
+							<element name="grantor.project"/>
+							<element name="grantor.identifier.fundref"/></element>
+						<element name="oapen.relation.isFundedBy">
+							<field name="uuid">1b71b6aa-ef3b-4897-864f-0f1da4cd2439</field>
+							<field name="handle">20.500.12657/61833</field>
+							<element name="grantor.name">
+								<field name="value">Klaas</field>
+							</element>
 							<element name="grantor.program"/>
 							<element name="grantor.number"/>
 							<element name="grantor.acronym"/>
@@ -873,6 +888,7 @@
 						</element>
 					</element>
 					<element name="others">
+						<field name="uuid">33333333-3aff-4e7b-9a1c-ce8c75fa9530</field>
 						<field name="handle">20.500.12657/60780</field>
 						<field name="identifier">oai:library.oapen.org:20.500.12657/60780</field>
 						<field name="lastModifyDate">2023-01-21 04:27:30.465</field>

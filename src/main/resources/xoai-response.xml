@@ -606,7 +606,20 @@
 						<element name="oapen.relation.isFundedBy">
 							<field name="uuid">1b71b6aa-ef3b-4897-864f-0f1da4cd2438</field>
 							<field name="handle">20.500.12657/60839</field>
-							<element name="grantor.name"/>
+							<element name="grantor.name">
+								<field name="value">Piet</field>
+							</element>
+							<element name="grantor.program"/>
+							<element name="grantor.number"/>
+							<element name="grantor.acronym"/>
+							<element name="grantor.project"/>
+							<element name="grantor.identifier.fundref"/></element>
+						<element name="oapen.relation.isFundedBy">
+							<field name="uuid">1b71b6aa-ef3b-4897-864f-0f1da4cd2439</field>
+							<field name="handle">20.500.12657/61833</field>
+							<element name="grantor.name">
+								<field name="value">Klaas</field>
+							</element>
 							<element name="grantor.program"/>
 							<element name="grantor.number"/>
 							<element name="grantor.acronym"/>

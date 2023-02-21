@@ -57,14 +57,23 @@ public class Title {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "description_other_language")
+    private String descriptionOtherlanguage;
+
     @Column(name = "description_abstract")
     private String descriptionAbstract;
 
     @Column(name = "description_provenance")
     private String descriptionProvenance;
 
+    @Column(name = "terms_abstract")
+    private String termsAbstract;
+
+    @Column(name = "abstract_other_language")
+    private String abstractOtherLanguage;
+
     @Column(name = "is_part_of_series")
-    private String isPartOfSeries;
+    private String partOfSeries;
 
     @Column(name = "title")
     private String title;
@@ -74,15 +83,6 @@ public class Title {
 
     @Column(name = "type")
     private String type;
-
-    @Column(name = "terms_abstract")
-    private String termsAbstract;
-
-    @Column(name = "abstract_other_language")
-    private String abstractOtherLanguage;
-
-    @Column(name = "description_other_language")
-    private String descriptionOtherlanguage;
 
     @Column(name = "chapter_number")
     private String chapterNumber;

@@ -4,6 +4,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.eclipse.persistence.oxm.annotations.XmlPath;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,17 +16,29 @@ import lombok.Setter;
 @Getter @Setter
 @Entity(name = "Funder")
 @Table(name = "Funder")
+@XmlRootElement(name = "element")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Funder {
 	
 	@Id
     @Column(name = "handle", updatable = false, insertable = true, unique = true)
-    private String handle;
+	@XmlPath("field[@name='handle']/text()")
+	private String handle;
 	
     @Column(name = "name")
+    @XmlPath("element[@name='grantor.name']/field/text()")
     private String name;
 
     @Column(name = "acronyms")
+    @XmlPath("element[@name='grantor.acronym']/field/text()")
     private String acronyms;  // a list
+    
+	public Funder() {}
+	
+	public Funder(String handle, String name) {
+		this.handle = handle;
+		this.name = name;
+	}
 
 	@Override
 	public int hashCode() {
@@ -47,5 +64,11 @@ public class Funder {
 			return false;
 		return true;
 	}
-    
+
+	@Override
+	public String toString() {
+		return "Funder [handle=" + handle + ", name=" + name + "]";
+	}
+
+	
 }
