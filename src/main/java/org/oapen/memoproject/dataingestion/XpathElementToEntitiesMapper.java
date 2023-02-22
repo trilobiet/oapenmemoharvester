@@ -1,6 +1,9 @@
 package org.oapen.memoproject.dataingestion;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
@@ -11,7 +14,6 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
-import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
 import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
@@ -32,14 +34,49 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		this.element = element;
 		xpath = XPathFactory.newInstance().newXPath();
 	}
+	
+	
+	private Set<String> getValueSet(String xpathQuery, Element element) throws XPathExpressionException {
+
+		NodeList nodes = (NodeList) xpath.evaluate(xpathQuery, element, XPathConstants.NODESET);
+		
+		Set<String> values = new HashSet<>();
+		
+		for (int i=0; i < nodes.getLength(); i++) {
+        	
+        	Node node = nodes.item(i);
+        	values.add(node.getTextContent());
+        }
+		
+		return values;
+	}
+	
+	private Optional<String> getValue(String xpathQuery, Element element) throws XPathExpressionException {
+
+		Node node = (Node) xpath.evaluate(xpathQuery, element, XPathConstants.NODE);
+		
+		if (node != null) 
+			return Optional.of(node.getTextContent());
+		else 
+			return Optional.empty();
+	}
+	
 
 	@Override
 	public Set<Classification> getClassifications() {
 		
-		// TODO
-		//NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='classification']//field/text()", element, XPathConstants.NODESET);
-		//return nodes;
-		return null;
+		try {
+			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='classification']//field/text()", element, XPathConstants.NODESET);
+			List<String> lines = new ArrayList<>(); 
+
+			for (int i=0; i<nodes.getLength(); i++) 
+				lines.add(nodes.item(i).getTextContent());
+			
+			return MapperUtils.parseClassifications(lines);
+			
+		} catch (Exception e) {
+			throw new MappingException("Could not parse classifications");
+		}
 	}
 
 	@Override
@@ -52,16 +89,16 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	public Set<Funder> getFunders() {
 
 		try {
-			NodeList fundernodes = (NodeList) xpath.evaluate(".//element[@name='oapen.relation.isFundedBy']", element, XPathConstants.NODESET);
-			JAXBContext funderContext = JAXBContext.newInstance(Funder.class);
-			Unmarshaller unmarshaller = funderContext.createUnmarshaller();
+			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='oapen.relation.isFundedBy']", element, XPathConstants.NODESET);
+			JAXBContext jaxbContext = JAXBContext.newInstance(Funder.class);
+			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			
 			Set<Funder> funders = new HashSet<>();
 			
-			for (int i=0; i < fundernodes.getLength(); i++) {
+			for (int i=0; i < nodes.getLength(); i++) {
 	        	
-	        	Node fundernode = fundernodes.item(i);
-	        	Funder funder = (Funder) unmarshaller.unmarshal(fundernode);
+	        	Node node = nodes.item(i);
+	        	Funder funder = (Funder) unmarshaller.unmarshal(node);
 	        	funders.add(funder);
 	        }
 			
@@ -72,23 +109,32 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		}
 		
 	}
-
-	@Override
-	public Set<Funder> getFundings() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	
+	
 	@Override
 	public Set<Identifier> getIdentifiers() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Set<Contribution> getContributions() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		try {
+			NodeList nodesOnix = (NodeList) xpath.evaluate(".//element[@name='identifier']//field[starts-with(text(),'ONIX')]", element, XPathConstants.NODESET);
+			NodeList nodesDoi = (NodeList) xpath.evaluate(".//element[@name='doi']//field[@name='value']", element, XPathConstants.NODESET);
+			NodeList nodesIsbn = (NodeList) xpath.evaluate(".//element[@name='isbn']//field[@name='value']", element, XPathConstants.NODESET);
+			//NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='identifier' or @name='isbn']/element[not(@name='uri')]//field[@name='value']", element, XPathConstants.NODESET);
+			
+			Set<Identifier> identifiers = new HashSet<>();
+			
+			for (int i=0; i < nodesOnix.getLength(); i++) {
+	        	
+	        	Node node = nodesOnix.item(i);
+	        	Identifier identifier = new Identifier(node.getTextContent(),"LALALA");
+	        	identifiers.add(identifier);
+	        }
+			
+			return identifiers;
+		}	
+		catch (Exception e)	{
+			throw new MappingException("Could not parse identifiers");
+		}
+		
 	}
 
 	@Override
@@ -99,14 +145,22 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 
 	@Override
 	public Set<String> getLanguages() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		try {
+			return getValueSet(".//element[@name='language']//field[@name='value']", element);
+		} catch (Exception e) {
+			throw new MappingException("Could not parse languages");
+		}
 	}
 
 	@Override
 	public Set<String> getSubjectsOther() {
-		// TODO Auto-generated method stub
-		return null;
+
+		try {
+			return getValueSet(".//element[@name='subject']//element[@name='other']//field[@name='value']", element);
+		} catch (Exception e) {
+			throw new MappingException("Could not parse other subjects");
+		}
 	}
 
 	@Override
@@ -116,20 +170,20 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	}
 
 	@Override
-	public Publisher getPublisher() {
+	public Optional<Publisher> getPublisher() {
 		
 		try {
-			NodeList publishernodes = (NodeList) xpath.evaluate(".//element[@name='oapen.relation.isPublishedBy']", element, XPathConstants.NODESET);
-			JAXBContext publisherContext = JAXBContext.newInstance(Publisher.class);
-			Unmarshaller unmarshaller = publisherContext.createUnmarshaller();
+			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='oapen.relation.isPublishedBy']", element, XPathConstants.NODESET);
+			JAXBContext jaxbContext = JAXBContext.newInstance(Publisher.class);
+			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			
-			if (publishernodes.getLength() > 0) {
+			if (nodes.getLength() > 0) {
 	        	
-	        	Node publishernode = publishernodes.item(0);
-	        	Publisher publisher = (Publisher) unmarshaller.unmarshal(publishernode);
-	        	return publisher;
+	        	Node node = nodes.item(0);
+	        	Publisher publisher = (Publisher) unmarshaller.unmarshal(node);
+	        	return Optional.of(publisher);
 	        }
-			else throw new MappingException("No publisher found");
+			else return Optional.empty(); 
 		}	
 		catch (Exception e)	{
 			throw new MappingException("Could not parse publisher");
@@ -138,165 +192,163 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	}
 
 	@Override
-	public String getHandle() {
+	public Optional<String> getHandle() {
 		try {
-			Node n = (Node) xpath.evaluate(".//element[@name='others']/field[@name='handle']", element, XPathConstants.NODE);
-			return n.getTextContent();
+			return getValue(".//element[@name='others']/field[@name='handle']", element);
 		} catch (XPathExpressionException e) {
 			throw new MappingException("Could not parse handle");
 		}
 	}
 
 	@Override
-	public String getSysId() {
+	public Optional<String> getSysId() {
 		try {
-			Node n = (Node) xpath.evaluate(".//element[@name='others']/field[@name='uuid']", element, XPathConstants.NODE);
-			return n.getTextContent();
-		} catch (XPathExpressionException e) {
-			throw new MappingException("Could not parse handle");
+			return getValue(".//element[@name='others']/field[@name='uuid']", element);
+		} catch (Exception e) {
+			throw new MappingException("Could not parse sysId (uuid)");
 		}
 	}
 
 	@Override
-	public String getCollection() {
+	public Optional<String> getCollection() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getDownloadUrl() {
+	public Optional<String> getDownloadUrl() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getThumbnail() {
+	public Optional<String> getThumbnail() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getLicense() {
+	public Optional<String> getLicense() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getWebshopUrl() {
+	public Optional<String> getWebshopUrl() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getDateAvailable() {
+	public Optional<String> getDateAvailable() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getDateIssued() {
+	public Optional<String> getDateIssued() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getDescription() {
+	public Optional<String> getDescription() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getDescriptionOtherLanguage() {
+	public Optional<String> getDescriptionOtherLanguage() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getDescriptionAbstract() {
+	public Optional<String> getDescriptionAbstract() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getDescriptionProvenance() {
+	public Optional<String> getDescriptionProvenance() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getTermsAbstract() {
+	public Optional<String> getTermsAbstract() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getAbstractOtherLanguage() {
+	public Optional<String> getAbstractOtherLanguage() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getPartOfSeries() {
+	public Optional<String> getPartOfSeries() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getTitle() {
+	public Optional<String> getTitle() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getTitleAlternative() {
+	public Optional<String> getTitleAlternative() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getType() {
+	public Optional<String> getType() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getChapterNumber() {
+	public Optional<String> getChapterNumber() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getEmbargo() {
+	public Optional<String> getEmbargo() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getImprint() {
+	public Optional<String> getImprint() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getPages() {
+	public Optional<String> getPages() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getPlacePublication() {
+	public Optional<String> getPlacePublication() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getSeriesNumber() {
+	public Optional<String> getSeriesNumber() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getPartOfBook() {
+	public Optional<String> getPartOfBook() {
 		// TODO Auto-generated method stub
 		return null;
 	}

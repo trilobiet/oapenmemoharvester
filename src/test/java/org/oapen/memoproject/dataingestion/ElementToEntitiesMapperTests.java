@@ -3,6 +3,7 @@ package org.oapen.memoproject.dataingestion;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,7 +12,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
+import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -40,13 +43,13 @@ public class ElementToEntitiesMapperTests {
 	@Test
 	public void should_find_handler() throws MappingException {
 
-		assertEquals("20.500.12657/60840", mapper.getHandle());
+		assertEquals("20.500.12657/60840", mapper.getHandle().get());
 	}
 	
 	@Test
 	public void should_find_sysId() throws MappingException {
 
-		assertEquals("22222222-3aff-4e7b-9a1c-ce8c75fa9530", mapper.getSysId());
+		assertEquals("22222222-3aff-4e7b-9a1c-ce8c75fa9530", mapper.getSysId().get());
 	}
 
 
@@ -54,7 +57,7 @@ public class ElementToEntitiesMapperTests {
 	public void should_find_publisher() throws MappingException {
 		
 		Publisher expectedPublisher = new Publisher("20.500.12657/22488","Springer Nature");
-		Publisher foundPublisher = mapper.getPublisher();
+		Publisher foundPublisher = mapper.getPublisher().get();
 		
 		assertEquals(expectedPublisher, foundPublisher);
 	}
@@ -71,5 +74,55 @@ public class ElementToEntitiesMapperTests {
 		assertTrue(foundFunders.containsAll(expectedFunders));
 	}
 	
+
+	@Test
+	public void should_find_classifications() throws MappingException {
+		
+		Classification expectedClassification = new Classification("UYQ", "Artificial intelligence");
+		Set<Classification> foundClassifications = mapper.getClassifications();
+		
+		//foundClassifications.forEach(System.out::println);
+		
+		assertTrue(foundClassifications.size()==9);
+		assertTrue(foundClassifications.contains(expectedClassification));
+	}
+
+	@Test
+	public void should_find_languages() throws MappingException {
+		
+		Set<String> expectedLanguages = new HashSet<>(Arrays.asList("fre","eng","ger"));
+		Set<String> foundLanguages = mapper.getLanguages();
+		
+		assertTrue(foundLanguages.containsAll(expectedLanguages));
+	}
+
+	@Test
+	public void should_find_other_subjects() throws MappingException {
+		
+		Set<String> expectedSubjects = new HashSet<>(Arrays.asList("Hyperparameter Tuning", "Hyperparameters", "Tuning", "Deep Neural Networks", "Reinforcement Learning", "Machine Learning"));
+		Set<String> foundSubjects = mapper.getSubjectsOther();
+		
+		assertTrue(foundSubjects.containsAll(expectedSubjects));
+	}
+
+		
+	@Test
+	public void should_find_identifiers() throws MappingException {
+		
+		Set<Identifier> ids = mapper.getIdentifiers();
+		
+		ids.forEach(System.out::println);
+		
+		/*
+		Identifier id1 = new Identifier()
+		
+		Set<String> expectedSubjects = new HashSet<>(Arrays.asList("Hyperparameter Tuning", "Hyperparameters", "Tuning", "Deep Neural Networks", "Reinforcement Learning", "Machine Learning"));
+		Set<String> foundSubjects = mapper.getSubjectsOther();
+		
+		assertTrue(foundSubjects.containsAll(expectedSubjects));
+		*/
+		assert(true);
+	}
+
 	
 }

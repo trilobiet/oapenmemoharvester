@@ -343,6 +343,13 @@
 					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.lyncode.com/xoai http://www.lyncode.com/xsd/xoai.xsd">
 					<element name="dc">
 						<element name="contributor">
+							<element name="author">
+								<element name="none">
+									<field name="value">Gerritsen, Gerrit</field>
+									<field name="authority">19380db3-36e6-41d5-a660-14ddb9cda0cc</field>
+									<field name="confidence">300</field>
+								</element>
+							</element>
 							<element name="editor">
 								<element name="none">
 									<field name="value">Bartz, Eva</field>
@@ -363,7 +370,9 @@
 						<element name="date">
 							<element name="accessioned">
 								<element name="none">
-									<field name="value">2023-01-20T16:54:39Z</field>
+									<field name="value">2010-12-31 23:55:55</field>
+									<field name="value">2019-12-10 14:46:32</field>
+									<field name="value">2020-04-01T15:37:45Z</field>
 								</element>
 							</element>
 							<element name="available">
@@ -378,6 +387,13 @@
 							</element>
 						</element>
 						<element name="identifier">
+							<element name="none">
+								<field name="value">340049</field>
+							</element>
+							<element name="en_US">
+								<field name="value">OCN: 630533012</field>
+								<field name="value">647791994</field>
+							</element>
 							<element name="none">
 								<field name="value">ONIX_20230120_9789811951701_42</field>
 							</element>
@@ -396,8 +412,12 @@
 						</element>
 						<element name="language">
 							<element name="none">
+								<field name="originalValue">French</field>
+								<field name="value">fre</field>
 								<field name="originalValue">English</field>
 								<field name="value">eng</field>
+								<field name="originalValue">German</field>
+								<field name="value">ger</field>
 							</element>
 						</element>
 						<element name="subject">
@@ -443,6 +463,12 @@
 									<field name="value">10.1007/978-981-19-5170-1</field>
 								</element>
 							</element>
+							<element name="ocn">
+								<element name="none">
+									<field name="value">630533012</field>
+									<field name="value">647791994</field>
+								</element>
+							</element>	
 						</element>
 						<element name="relation">
 							<element name="isPublishedBy">

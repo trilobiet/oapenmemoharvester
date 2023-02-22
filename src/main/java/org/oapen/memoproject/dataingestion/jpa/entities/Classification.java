@@ -20,6 +20,13 @@ public class Classification {
     @Column(name = "description")
     private String description;
     
+	public Classification() {}
+
+	public Classification(String code, String description) {
+		this.code = code;
+		this.description = description;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -45,4 +52,11 @@ public class Classification {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "Classification [" + code + ": " + description + "]";
+	}
+
+	
+	
 }

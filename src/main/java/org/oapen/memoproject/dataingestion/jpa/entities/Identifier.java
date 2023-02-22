@@ -23,6 +23,13 @@ public class Identifier {
     @Column(name = "handle_title", nullable = false)
 	private String handleTitle;
     
+	public Identifier() {}
+
+    public Identifier(String id, String type) {
+		this.id = id;
+		this.type = type;
+	}
+    
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -52,6 +59,11 @@ public class Identifier {
 		} else if (!type.equals(other.type))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Identifier [id=" + id + ", type=" + type + ", handleTitle=" + handleTitle + "]";
 	}
 
 }	

@@ -398,8 +398,12 @@
 						</element>
 						<element name="language">
 							<element name="none">
+								<field name="originalValue">French</field>
+								<field name="value">fre</field>
 								<field name="originalValue">English</field>
 								<field name="value">eng</field>
+								<field name="originalValue">German</field>
+								<field name="value">ger</field>
 							</element>
 						</element>
 						<element name="subject">
