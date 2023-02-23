@@ -64,6 +64,7 @@ public class JpaTests {
 	
 	@Test @Order(2)
 	public void should_find_no_titles_if_repository_is_empty() {
+		
 		titleRepository.deleteAll();
 		List<Title> titles = titleRepository.findAll();
 		assertTrue(titles.isEmpty());

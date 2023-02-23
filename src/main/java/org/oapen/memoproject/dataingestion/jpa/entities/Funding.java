@@ -7,6 +7,12 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.eclipse.persistence.oxm.annotations.XmlPath;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,12 +25,23 @@ import lombok.Setter;
 @Entity(name = "Funding")
 @Table(name = "Funding")
 @IdClass(FundingId.class)
+@XmlRootElement(name = "element")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Funding {
 	
 	/* Combined key of three fields
 	 * See https://www.baeldung.com/jpa-composite-primary-keys */
 	@Id @Column(name="handle_funder",nullable=false)
+	@XmlPath("field[@name='handle']/text()")
 	private String handleFunder;
+	
+	/*
+	 *  We need this uuid field to find associated funding data (grant.number etc) 
+	 *  elsewhere in the xml document, but we do not widh to persist this uuid. 
+	 */
+	@Transient
+	@XmlPath("field[@name='uuid']/text()")
+	private String uuid;
 	
 	@Id @Column(name="handle_title",nullable=false)
 	private String handleTitle;
@@ -73,6 +90,12 @@ public class Funding {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "Funding [handleFunder=" + handleFunder + ", grantNumber=" + grantNumber + ", grantProgram="
+				+ grantProgram + ", grantProject=" + grantProject + ", grantAcronym=" + grantAcronym + "]";
+	}
+	
 }
 
 class FundingId implements Serializable {

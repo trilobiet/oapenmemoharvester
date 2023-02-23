@@ -14,9 +14,11 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
+import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
 import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
+import org.oapen.memoproject.dataingestion.jpa.entities.Funding;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
 import org.springframework.data.mapping.MappingException;
@@ -78,12 +80,60 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 			throw new MappingException("Could not parse classifications");
 		}
 	}
-
+	
+	
 	@Override
 	public Set<Contributor> getContributors() {
-		// TODO Auto-generated method stub
-		return null;
+
+		try {
+			Set<Contributor> contributors = new HashSet<>();
+			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='contributor']//field[@name='value']", element, XPathConstants.NODESET);
+			
+			for (int i=0; i<nodes.getLength(); i++) 
+				contributors.add( new Contributor(nodes.item(i).getTextContent()));
+			
+			return contributors;
+		}	
+		catch (Exception e)	{
+			throw new MappingException("Could not parse contributors");
+		}
 	}
+	
+	
+	private Set<Contribution> nodeListToContributionSet(NodeList nodes, String role) {
+		
+		Set<Contribution> set = new HashSet<>();
+		
+		for (int i=0; i < nodes.getLength(); i++) {
+        	
+        	Node node = nodes.item(i);
+        	Contribution member = new Contribution(node.getTextContent(),role);
+        	set.add(member);
+        }
+		
+		return set;
+	}
+	
+	@Override
+	public Set<Contribution> getContributions() {
+		
+		try {
+			Set<Contribution> contributions = new HashSet<>();
+			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='contributor']/element[@name='author']//field[@name='value']", element, XPathConstants.NODESET);
+			contributions.addAll(nodeListToContributionSet(nodes, "author"));
+			nodes = (NodeList) xpath.evaluate(".//element[@name='contributor']/element[@name='editor']//field[@name='value']", element, XPathConstants.NODESET);
+			contributions.addAll(nodeListToContributionSet(nodes, "editor"));
+			nodes = (NodeList) xpath.evaluate(".//element[@name='contributor']/element[@name='advisor']//field[@name='value']", element, XPathConstants.NODESET);
+			contributions.addAll(nodeListToContributionSet(nodes, "advisor"));
+			nodes = (NodeList) xpath.evaluate(".//element[@name='contributor']/element[@name='other']//field[@name='value']", element, XPathConstants.NODESET);
+			contributions.addAll(nodeListToContributionSet(nodes, "other"));
+			return contributions;
+		}	
+		catch (Exception e)	{
+			throw new MappingException("Could not parse contributors");
+		}
+	}
+	
 
 	@Override
 	public Set<Funder> getFunders() {
@@ -107,27 +157,80 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		catch (Exception e)	{
 			throw new MappingException("Could not parse funders");
 		}
-		
 	}
 	
 	
 	@Override
+	public Set<Funding> getFundings() throws org.oapen.memoproject.dataingestion.MappingException {
+
+		try {
+			Set<Funding> fundings = new HashSet<>();
+			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='oapen.relation.isFundedBy']", element, XPathConstants.NODESET);
+			JAXBContext jaxbContext = JAXBContext.newInstance(Funding.class);
+			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+			
+			for (int i=0; i < nodes.getLength(); i++ ) {
+	        	
+	        	Node node = nodes.item(i);
+	        	Funding funding = (Funding) unmarshaller.unmarshal(node);
+	        	fundings.add(funding);
+	        }
+			
+			for (Funding funding: fundings) {
+				
+				String uuid = funding.getUuid();
+				
+				Node node = (Node) xpath.evaluate(".//element[@name='oapen.grant.number']//field[@name='parentValue' and text()='" + uuid + "']/../field[@name='originalValue']", element, XPathConstants.NODE);
+				if (node != null) funding.setGrantNumber(node.getTextContent());
+				
+				node = (Node) xpath.evaluate(".//element[@name='oapen.grant.program']//field[@name='parentValue' and text()='" + uuid + "']/../field[@name='originalValue']", element, XPathConstants.NODE);
+				if (node != null)
+					funding.setGrantProgram(node.getTextContent());
+				
+			}
+			
+			return fundings;
+		}	
+		catch (Exception e)	{
+			e.printStackTrace();
+			throw new MappingException("Could not parse fundings");
+		}
+	}
+
+	
+	private Set<Identifier> nodeListToIdentifierSet(NodeList nodes, String type) {
+		
+		Set<Identifier> set = new HashSet<>();
+		
+		for (int i=0; i < nodes.getLength(); i++) {
+        	
+        	Node node = nodes.item(i);
+        	Identifier member = new Identifier(node.getTextContent(),type);
+        	set.add(member);
+        }
+		
+		return set;
+	}
+ 	
+	@Override
 	public Set<Identifier> getIdentifiers() {
 		
 		try {
-			NodeList nodesOnix = (NodeList) xpath.evaluate(".//element[@name='identifier']//field[starts-with(text(),'ONIX')]", element, XPathConstants.NODESET);
-			NodeList nodesDoi = (NodeList) xpath.evaluate(".//element[@name='doi']//field[@name='value']", element, XPathConstants.NODESET);
-			NodeList nodesIsbn = (NodeList) xpath.evaluate(".//element[@name='isbn']//field[@name='value']", element, XPathConstants.NODESET);
-			//NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='identifier' or @name='isbn']/element[not(@name='uri')]//field[@name='value']", element, XPathConstants.NODESET);
-			
 			Set<Identifier> identifiers = new HashSet<>();
-			
-			for (int i=0; i < nodesOnix.getLength(); i++) {
-	        	
-	        	Node node = nodesOnix.item(i);
-	        	Identifier identifier = new Identifier(node.getTextContent(),"LALALA");
-	        	identifiers.add(identifier);
-	        }
+			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='identifier']//field[starts-with(text(),'ONIX')]", element, XPathConstants.NODESET);
+			identifiers.addAll(nodeListToIdentifierSet(nodes,"ONIX"));
+			nodes = (NodeList) xpath.evaluate(".//element[@name='identifier']//field[starts-with(text(),'OCN')]", element, XPathConstants.NODESET);
+			identifiers.addAll(nodeListToIdentifierSet(nodes,"OCN"));
+			nodes = (NodeList) xpath.evaluate(".//element[@name='doi']//field[@name='value']", element, XPathConstants.NODESET);
+			identifiers.addAll(nodeListToIdentifierSet(nodes,"DOI"));
+			nodes = (NodeList) xpath.evaluate(".//element[@name='isbn']//field[@name='value']", element, XPathConstants.NODESET);
+			identifiers.addAll(nodeListToIdentifierSet(nodes,"ISBN"));
+			nodes = (NodeList) xpath.evaluate(".//element[@name='issn']//field[@name='value']", element, XPathConstants.NODESET);
+			identifiers.addAll(nodeListToIdentifierSet(nodes,"ISSN"));
+			nodes = (NodeList) xpath.evaluate(".//element[@name='identifier']/element[@name='none']//field[@name='value']", element, XPathConstants.NODESET);
+			identifiers.addAll(nodeListToIdentifierSet(nodes,"UNKNOWN"));
+			nodes = (NodeList) xpath.evaluate(".//element[@name='identifier']//field[@name='value']", element, XPathConstants.NODESET);
+			identifiers.addAll(nodeListToIdentifierSet(nodes,"UNKNOWN"));
 			
 			return identifiers;
 		}	

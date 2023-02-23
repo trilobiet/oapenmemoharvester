@@ -390,6 +390,11 @@
 							<element name="none">
 								<field name="value">340049</field>
 							</element>
+							<element name="issn">
+								<element name="none">
+									<field name="value">2612-8020</field>
+								</element>
+							</element>							
 							<element name="en_US">
 								<field name="value">OCN: 630533012</field>
 								<field name="value">647791994</field>
@@ -632,11 +637,17 @@
 							<field name="uuid">1b71b6aa-ef3b-4897-864f-0f1da4cd2438</field>
 							<field name="handle">20.500.12657/60839</field>
 							<element name="grantor.name">
-								<field name="value">Piet</field>
+								<field name="value">Austrian Science Fund</field>
 							</element>
 							<element name="grantor.program"/>
 							<element name="grantor.number"/>
-							<element name="grantor.acronym"/>
+							<element name="grantor.acronym">
+								<field name="value">Fonds zur Förderung der Wissenschaftlichen Forschung</field>
+								<field name="value">FWF Der Wissenschaftsfonds</field>
+								<field name="value">FWF Austrian Science Fund</field>
+								<field name="value">FWF</field>
+								<field name="value">FFWF</field>
+							</element>
 							<element name="grantor.project"/>
 							<element name="grantor.identifier.fundref"/></element>
 						<element name="oapen.relation.isFundedBy">
@@ -645,9 +656,9 @@
 							<element name="grantor.name">
 								<field name="value">Klaas</field>
 							</element>
-							<element name="grantor.program"/>
+							<element name="grantor.program">Program 1</element>
 							<element name="grantor.number"/>
-							<element name="grantor.acronym"/>
+							<element name="grantor.acronym">K.L.A.A.S.</element>
 							<element name="grantor.project"/>
 							<element name="grantor.identifier.fundref"/></element>
 						<element name="oapen.relation.isPublishedBy">
@@ -663,10 +674,17 @@
 							<element name="parentInfo">
 								<field name="parentField">oapen.relation.isFundedBy</field>
 								<field name="parentValue">1b71b6aa-ef3b-4897-864f-0f1da4cd2438</field>
-								<field name="originalValue">[...]</field>
+								<field name="originalValue">10BP12_185527</field>
 							</element>
 						</element>
-					</element>
+						<element name="oapen.grant.program">
+							<element name="parentInfo">
+								<field name="parentField">oapen.relation.isFundedBy</field>
+								<field name="parentValue">1b71b6aa-ef3b-4897-864f-0f1da4cd2438</field>
+								<field name="originalValue">Open Access Books</field>
+							</element>
+						</element>
+					</element>					
 				</metadata>
 			</metadata>
 		</record>

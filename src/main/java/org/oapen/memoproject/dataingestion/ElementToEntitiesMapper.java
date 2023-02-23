@@ -4,9 +4,11 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
+import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
 import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
+import org.oapen.memoproject.dataingestion.jpa.entities.Funding;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
 
@@ -14,7 +16,9 @@ public interface ElementToEntitiesMapper {
 	
 	Set<Classification> getClassifications() throws MappingException;
 	Set<Contributor> getContributors() throws MappingException;
+	Set<Contribution> getContributions() throws MappingException;
 	Set<Funder> getFunders() throws MappingException;
+	Set<Funding> getFundings() throws MappingException;
 	Set<Identifier> getIdentifiers() throws MappingException;
 	Set<ExportChunk> getExportChunks() throws MappingException;
 

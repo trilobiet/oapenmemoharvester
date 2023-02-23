@@ -4,11 +4,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.eclipse.persistence.oxm.annotations.XmlPath;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,12 +21,17 @@ public class Contributor {
     @Column(name = "orcid")
     private String orcid;
 
+	public Contributor() {}
+		
+	public Contributor(String name) {
+		this.name = name;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((orcid == null) ? 0 : orcid.hashCode());
 		return result;
 	}
 
@@ -49,12 +49,12 @@ public class Contributor {
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
-		if (orcid == null) {
-			if (other.orcid != null)
-				return false;
-		} else if (!orcid.equals(other.orcid))
-			return false;
 		return true;
 	}
-    
+
+	@Override
+	public String toString() {
+		return "Contributor [name=" + name + "]";
+	}
+
 }

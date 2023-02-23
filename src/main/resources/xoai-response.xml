@@ -383,6 +383,11 @@
 							<element name="none">
 								<field name="value">ONIX_20230120_9789811951701_42</field>
 							</element>
+							<element name="issn">
+								<element name="none">
+									<field name="value">2612-8020</field>
+								</element>
+							</element>							
 							<element name="uri">
 								<element name="none">
 									<field name="value">https://library.oapen.org/handle/20.500.12657/60840</field>
