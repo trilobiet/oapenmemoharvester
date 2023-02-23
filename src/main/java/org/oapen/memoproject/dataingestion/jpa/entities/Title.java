@@ -141,14 +141,30 @@ public class Title {
     	exportChunks.add(chunk);
     }
 
-    @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @Setter(AccessLevel.PRIVATE) // Enforce usage of addFunding
-    private Set<Funding> fundings = new HashSet<>();
     
-    public void addFunding(Funding funding) {
+    @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @Setter(AccessLevel.PRIVATE) // Enforce usage of addGrantData
+    private Set<GrantData> grantdata = new HashSet<>();
+    
+    public void addGrantData(GrantData grantfield) {
     	
-    	funding.setHandleTitle(this.handle);
-    	fundings.add(funding);
+    	grantfield.setHandleTitle(this.handle);
+    	grantdata.add(grantfield);
+    }
+    
+    
+    @ManyToMany(
+    	fetch = FetchType.EAGER, // Eager, because there are only a few.	
+    	cascade = {CascadeType.PERSIST,CascadeType.MERGE} 
+    )
+    @JoinTable(name = "funding",
+        joinColumns = @JoinColumn(name = "handle_title", nullable = false),
+        inverseJoinColumns = @JoinColumn(name = "handle_funder", nullable = false)
+    )
+	private Set<Funder> funders = new HashSet<>();
+    
+	public void addFunder(Funder funder) {
+        funders.add(funder);
     }
     
     

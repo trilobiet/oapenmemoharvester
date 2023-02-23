@@ -18,7 +18,7 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
 import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
-import org.oapen.memoproject.dataingestion.jpa.entities.Funding;
+import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
 import org.springframework.data.mapping.MappingException;
@@ -160,25 +160,36 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	}
 	
 	
+	
+	// TODO Grant data: grant.number, grant.program, grant.project and grant.acronym
 	@Override
-	public Set<Funding> getFundings() throws org.oapen.memoproject.dataingestion.MappingException {
+	public Set<GrantData> getGrantData() {
+		
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	/*
+	@Override
+	public Set<Grant> getFundings() throws org.oapen.memoproject.dataingestion.MappingException {
 
 		try {
-			Set<Funding> fundings = new HashSet<>();
+			Set<Grant> fundings = new HashSet<>();
 			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='oapen.relation.isFundedBy']", element, XPathConstants.NODESET);
-			JAXBContext jaxbContext = JAXBContext.newInstance(Funding.class);
+			JAXBContext jaxbContext = JAXBContext.newInstance(Grant.class);
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			
 			for (int i=0; i < nodes.getLength(); i++ ) {
 	        	
 	        	Node node = nodes.item(i);
-	        	Funding funding = (Funding) unmarshaller.unmarshal(node);
+	        	Grant funding = (Grant) unmarshaller.unmarshal(node);
 	        	fundings.add(funding);
 	        }
 			
-			for (Funding funding: fundings) {
+			for (Grant funding: fundings) {
 				
 				String uuid = funding.getUuid();
+				
 				
 				Node node = (Node) xpath.evaluate(".//element[@name='oapen.grant.number']//field[@name='parentValue' and text()='" + uuid + "']/../field[@name='originalValue']", element, XPathConstants.NODE);
 				if (node != null) funding.setGrantNumber(node.getTextContent());
@@ -196,7 +207,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 			throw new MappingException("Could not parse fundings");
 		}
 	}
-
+	*/
 	
 	private Set<Identifier> nodeListToIdentifierSet(NodeList nodes, String type) {
 		

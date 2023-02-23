@@ -4,7 +4,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -30,10 +29,14 @@ public class Funder {
     @XmlPath("element[@name='grantor.name']/field/text()")
     private String name;
 
-    //TODO a Set
+    //TODO a Set in ONE field (pipe separated)
     @Column(name = "acronyms")
     @XmlPath("element[@name='grantor.acronym']/field/text()")
     private String acronyms;  // a list
+    
+    @Column(name = "number")
+    @XmlPath("element[@name='grantor.number']/field/text()")
+    private String number;  // a list
     
 	public Funder() {}
 	

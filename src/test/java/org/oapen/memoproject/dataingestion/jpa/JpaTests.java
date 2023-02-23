@@ -16,7 +16,7 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
 import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
-import org.oapen.memoproject.dataingestion.jpa.entities.Funding;
+import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
@@ -40,9 +40,6 @@ public class JpaTests {
 	TitleRepository titleRepository;
 
 	@Autowired
-	FunderRepository funderRepository;
-
-	@Autowired
 	ContributorRepository contributorRepository;
 	
 	
@@ -50,15 +47,12 @@ public class JpaTests {
 	public void delete() {
 		
 		titleRepository.deleteAll();
-		funderRepository.deleteAll();
 		contributorRepository.deleteAll();
 		
 		List<Title> titles = titleRepository.findAll();
-		List<Funder> funders = funderRepository.findAll();
 		List<Contributor> contributors = contributorRepository.findAll();
 		
 		assertTrue(titles.isEmpty());
-		assertTrue(funders.isEmpty());
 		assertTrue(contributors.isEmpty());
 	}
 	
@@ -192,7 +186,7 @@ public class JpaTests {
 	
 	
 	@Test @Order(8)
-	public void should_save_funding() {
+	public void should_save_funder() {
 		
 		Title title1 = new Title();
 		title1.setId("0008");
@@ -202,19 +196,13 @@ public class JpaTests {
 		Funder funder = new Funder();
 		funder.setHandle("funder1");
 		funder.setName("ERCEEEE");
+		funder.setNumber("1234567");
 		
-		funderRepository.save(funder);
-		
-		Funding f = Funding.builder()
-			.handleFunder(funder.getHandle())
-			.grantNumber("grant12345")
-			.build();
-		
-		title1.addFunding(f);
+		title1.addFunder(funder);
 		
 		Title t1saved = titleRepository.save(title1);
 
-		assertTrue(t1saved.getFundings().size() == 1);
+		assertTrue(t1saved.getFunders().size() == 1);
 	}	
 	
 
@@ -297,4 +285,25 @@ public class JpaTests {
 		assertTrue(t1saved.getContributions().contains(c));
 
 	}	
+	
+	
+	@Test @Order(13)
+	public void should_save_grant_data() {
+		
+		Title title1 = new Title();
+		title1.setId("0013");
+		title1.setHandle("hndl13");
+		
+		GrantData grantData1 = new GrantData("number","grant123");
+		GrantData grantData2 = new GrantData("project","project456");
+		
+		title1.addGrantData(grantData1);
+		title1.addGrantData(grantData2);
+		
+		Title t1saved = titleRepository.save(title1);
+		
+		assertTrue(t1saved.getGrantdata().size() == 2);
+	}	
+	
+	
 }

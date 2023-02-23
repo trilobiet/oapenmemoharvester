@@ -8,7 +8,7 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
 import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
-import org.oapen.memoproject.dataingestion.jpa.entities.Funding;
+import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
 
@@ -18,7 +18,7 @@ public interface ElementToEntitiesMapper {
 	Set<Contributor> getContributors() throws MappingException;
 	Set<Contribution> getContributions() throws MappingException;
 	Set<Funder> getFunders() throws MappingException;
-	Set<Funding> getFundings() throws MappingException;
+	Set<GrantData> getGrantData() throws MappingException;
 	Set<Identifier> getIdentifiers() throws MappingException;
 	Set<ExportChunk> getExportChunks() throws MappingException;
 

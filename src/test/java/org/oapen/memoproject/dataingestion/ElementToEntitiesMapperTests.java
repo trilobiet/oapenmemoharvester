@@ -16,7 +16,7 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
-import org.oapen.memoproject.dataingestion.jpa.entities.Funding;
+import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
 import org.w3c.dom.Document;
@@ -78,17 +78,18 @@ public class ElementToEntitiesMapperTests {
 	}
 
 	
+	// TODO
 	@Test
-	public void should_find_fundings() throws MappingException {
+	public void should_find_grant_data() throws MappingException {
 		
-		Set<Funding> expectedFundings = new HashSet<>();
-		expectedFundings.add(Funding.builder().handleFunder("20.500.12657/61833").build());
+		Set<GrantData> expectedGrantData = new HashSet<>();
+		expectedGrantData.add( new GrantData("Number","10BP12_185527"));
 		
-		Set<Funding> foundFundings = mapper.getFundings();
+		Set<GrantData> foundGrants = mapper.getGrantData();
 		
-		foundFundings.forEach(System.out::println);
+		foundGrants.forEach(System.out::println);
 		
-		assertTrue(foundFundings.containsAll(expectedFundings));
+		assertTrue(foundGrants.containsAll(expectedGrantData));
 	}
 	
 
