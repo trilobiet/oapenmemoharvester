@@ -74,16 +74,18 @@ public class ElementToEntitiesMapperTests {
 		
 		Set<Funder> foundFunders = mapper.getFunders();
 		
+		foundFunders.forEach(f -> System.out.println(f.getAcronyms()));
+		
 		assertTrue(foundFunders.containsAll(expectedFunders));
 	}
 
 	
-	// TODO
 	@Test
 	public void should_find_grant_data() throws MappingException {
 		
 		Set<GrantData> expectedGrantData = new HashSet<>();
-		expectedGrantData.add( new GrantData("Number","10BP12_185527"));
+		expectedGrantData.add(new GrantData("number","10BP12_185527"));
+		expectedGrantData.add(new GrantData("program","Open Access Books"));
 		
 		Set<GrantData> foundGrants = mapper.getGrantData();
 		
@@ -154,7 +156,7 @@ public class ElementToEntitiesMapperTests {
 		
 		Set<Identifier> ids = mapper.getIdentifiers();
 		
-		// ids.forEach(System.out::println);
+		ids.forEach(System.out::println);
 		
 		/*
 		Identifier id1 = new Identifier()

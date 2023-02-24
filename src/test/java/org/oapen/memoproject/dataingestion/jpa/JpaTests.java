@@ -1,11 +1,14 @@
 package org.oapen.memoproject.dataingestion.jpa;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -193,15 +196,24 @@ public class JpaTests {
 		title1.setHandle("hndl8");
 		title1.setTitle("TESTJE8");
 		
+		// removes doubles
+		Set<String> acronyms = new HashSet<>(Arrays.asList("acr3","acr1","acr2","acr2"));
+		
 		Funder funder = new Funder();
 		funder.setHandle("funder1");
 		funder.setName("ERCEEEE");
 		funder.setNumber("1234567");
+		funder.setAcronyms(acronyms);
 		
 		title1.addFunder(funder);
 		
 		Title t1saved = titleRepository.save(title1);
-
+		Optional<Funder> f2 = t1saved.getFunders().stream().filter(f -> f.getHandle().equals("funder1")).findFirst(); 
+		
+		System.out.println(f2.get().getAcronymsJoined());
+		System.out.println(f2.get().getAcronyms());
+		
+		assertTrue(f2.isPresent() && f2.get().getAcronyms().size()==3 && f2.get().getAcronyms().contains("acr3"));	
 		assertTrue(t1saved.getFunders().size() == 1);
 	}	
 	

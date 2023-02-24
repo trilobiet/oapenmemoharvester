@@ -160,54 +160,53 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	}
 	
 	
+	private Set<GrantData> nodeListToGrantDataSet(NodeList nodes, String property) {
+		
+		Set<GrantData> set = new HashSet<>();
+		
+		for (int i=0; i < nodes.getLength(); i++) {
+        	
+        	Node node = nodes.item(i);
+        	String value = node.getTextContent();
+        	if (!value.equals("[...]")) {  // ignore incomplete data
+        		GrantData member = new GrantData(property, node.getTextContent());
+        		set.add(member);
+        	}	
+        }
+		
+		return set;
+	}
 	
 	// TODO Grant data: grant.number, grant.program, grant.project and grant.acronym
 	@Override
 	public Set<GrantData> getGrantData() {
 		
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/*
-	@Override
-	public Set<Grant> getFundings() throws org.oapen.memoproject.dataingestion.MappingException {
-
 		try {
-			Set<Grant> fundings = new HashSet<>();
-			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='oapen.relation.isFundedBy']", element, XPathConstants.NODESET);
-			JAXBContext jaxbContext = JAXBContext.newInstance(Grant.class);
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+			Set<GrantData> grantdata = new HashSet<>();
 			
-			for (int i=0; i < nodes.getLength(); i++ ) {
-	        	
-	        	Node node = nodes.item(i);
-	        	Grant funding = (Grant) unmarshaller.unmarshal(node);
-	        	fundings.add(funding);
-	        }
+			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='oapen.grant.number']//field[@name='originalValue']", element, XPathConstants.NODESET);
+			grantdata.addAll(nodeListToGrantDataSet(nodes, "number"));
+			nodes = (NodeList) xpath.evaluate(".//element[@name='grant']/element[@name='number']//field[@name='value']", element, XPathConstants.NODESET);
+			grantdata.addAll(nodeListToGrantDataSet(nodes, "number"));
 			
-			for (Grant funding: fundings) {
-				
-				String uuid = funding.getUuid();
-				
-				
-				Node node = (Node) xpath.evaluate(".//element[@name='oapen.grant.number']//field[@name='parentValue' and text()='" + uuid + "']/../field[@name='originalValue']", element, XPathConstants.NODE);
-				if (node != null) funding.setGrantNumber(node.getTextContent());
-				
-				node = (Node) xpath.evaluate(".//element[@name='oapen.grant.program']//field[@name='parentValue' and text()='" + uuid + "']/../field[@name='originalValue']", element, XPathConstants.NODE);
-				if (node != null)
-					funding.setGrantProgram(node.getTextContent());
-				
-			}
+			nodes = (NodeList) xpath.evaluate(".//element[@name='oapen.grant.program']//field[@name='originalValue']", element, XPathConstants.NODESET);
+			grantdata.addAll(nodeListToGrantDataSet(nodes, "program"));
+			nodes = (NodeList) xpath.evaluate(".//element[@name='grant']/element[@name='program']//field[@name='value']", element, XPathConstants.NODESET);
+			grantdata.addAll(nodeListToGrantDataSet(nodes, "program"));
 			
-			return fundings;
+			nodes = (NodeList) xpath.evaluate(".//element[@name='grant']/element[@name='project']//field[@name='value']", element, XPathConstants.NODESET);
+			grantdata.addAll(nodeListToGrantDataSet(nodes, "project"));
+			
+			nodes = (NodeList) xpath.evaluate(".//element[@name='grant']/element[@name='acronym']//field[@name='value']", element, XPathConstants.NODESET);
+			grantdata.addAll(nodeListToGrantDataSet(nodes, "acronym"));
+
+			return grantdata;
 		}	
 		catch (Exception e)	{
-			e.printStackTrace();
-			throw new MappingException("Could not parse fundings");
+			throw new MappingException("Could not parse grant data");
 		}
 	}
-	*/
+	
 	
 	private Set<Identifier> nodeListToIdentifierSet(NodeList nodes, String type) {
 		

@@ -83,6 +83,11 @@ public class GrantData {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "GrantData [property=" + property + ", value=" + value + "]";
+	}
 	
 }
 

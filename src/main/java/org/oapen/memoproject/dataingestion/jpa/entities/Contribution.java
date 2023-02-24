@@ -32,7 +32,7 @@ public class Contribution {
 	public Contribution() {}
 
 	public Contribution(String name, String role) {
-		super();
+
 		this.contributorName = name;
 		this.role = role;
 	}

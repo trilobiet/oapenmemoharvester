@@ -26,7 +26,9 @@
 						<element name="date">
 							<element name="accessioned">
 								<element name="none">
-									<field name="value">2023-01-19T22:17:58Z</field>
+									<field name="value">2010-12-31 23:55:55</field>
+									<field name="value">2019-12-10 14:46:32</field>
+									<field name="value">2020-04-01T15:37:45Z</field>
 								</element>
 							</element>
 							<element name="available">
@@ -658,7 +660,10 @@
 							</element>
 							<element name="grantor.program">Program 1</element>
 							<element name="grantor.number"/>
-							<element name="grantor.acronym">K.L.A.A.S.</element>
+							<element name="grantor.acronym">
+								<field name="value">K.L.A.A.S.</field>
+								<field name="value">K.L.S.</field>
+							</element>
 							<element name="grantor.project"/>
 							<element name="grantor.identifier.fundref"/></element>
 						<element name="oapen.relation.isPublishedBy">

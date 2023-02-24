@@ -1,9 +1,15 @@
 package org.oapen.memoproject.dataingestion.jpa.entities;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -29,10 +35,12 @@ public class Funder {
     @XmlPath("element[@name='grantor.name']/field/text()")
     private String name;
 
-    //TODO a Set in ONE field (pipe separated)
-    @Column(name = "acronyms")
+    @Transient // Setter for Xpath mapper (Non-persisted, the concatenated acronymsList is persisted)
     @XmlPath("element[@name='grantor.acronym']/field/text()")
-    private String acronyms;  // a list
+    private Set<String> acronyms; 
+    
+    @Column(name = "acronyms")
+    private String acronymsJoined;
     
     @Column(name = "number")
     @XmlPath("element[@name='grantor.number']/field/text()")
@@ -43,6 +51,18 @@ public class Funder {
 	public Funder(String handle, String name) {
 		this.handle = handle;
 		this.name = name;
+	}
+	
+	public void setAcronyms(Set<String> acronyms) {
+		
+		this.acronyms = acronyms;
+		// Also set the concatenated persistence value (alphabetically)
+		this.acronymsJoined = acronyms.stream().sorted().collect(Collectors.joining("||"));
+	}
+	
+	public List<String> getAcronyms() {
+		
+		return Arrays.asList(acronymsJoined.split("\\|\\|"));
 	}
 
 	@Override
