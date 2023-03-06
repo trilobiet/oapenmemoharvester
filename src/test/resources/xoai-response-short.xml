@@ -661,7 +661,8 @@
 							<element name="grantor.program">Program 1</element>
 							<element name="grantor.number"/>
 							<element name="grantor.acronym">
-								<field name="value">K.L.A.A.S.</field>
+								<field name="value">K.L.S.</field>
+								<field name="value">K.L.X.A.S.</field>
 								<field name="value">K.L.S.</field>
 							</element>
 							<element name="grantor.project"/>

@@ -64,6 +64,10 @@ public class ExportChunk {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "ExportChunk [type=" + type + ", content=" + content + "]";
+	}
 
 }
 

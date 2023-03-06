@@ -1,5 +1,6 @@
 package org.oapen.memoproject.dataingestion;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
 
@@ -24,7 +25,7 @@ public interface ElementToEntitiesMapper {
 
 	Set<String> getLanguages() throws MappingException;
 	Set<String> getSubjectsOther() throws MappingException;
-	Set<String> getDatesAccessioned() throws MappingException;
+	Set<LocalDate> getDatesAccessioned() throws MappingException;
 
 	Optional<Publisher> getPublisher() throws MappingException;
 	

@@ -3,6 +3,7 @@ package org.oapen.memoproject.dataingestion;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
+import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
 import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
@@ -149,25 +151,39 @@ public class ElementToEntitiesMapperTests {
 	}
 	
 	
-	
 	@Test
-	// TODO
 	public void should_find_identifiers() throws MappingException {
 		
 		Set<Identifier> ids = mapper.getIdentifiers();
 		
 		ids.forEach(System.out::println);
 		
-		/*
-		Identifier id1 = new Identifier()
+		Identifier id1 = new Identifier("9789811951701","ISBN");
 		
-		Set<String> expectedSubjects = new HashSet<>(Arrays.asList("Hyperparameter Tuning", "Hyperparameters", "Tuning", "Deep Neural Networks", "Reinforcement Learning", "Machine Learning"));
-		Set<String> foundSubjects = mapper.getSubjectsOther();
-		
-		assertTrue(foundSubjects.containsAll(expectedSubjects));
-		*/
-		assert(true);
+		assertTrue(ids.size()==9);
+		assertTrue(ids.contains(id1));
 	}
 
+	@Test
+	public void should_find_datesAccesioned() throws MappingException {
+		
+		Set<LocalDate> dates = mapper.getDatesAccessioned();
+		
+		dates.forEach(System.out::println);
+		
+		LocalDate d = LocalDate.of(2019, 12, 10); 
+		
+		assertTrue(dates.size()==3);
+		assertTrue(dates.contains(d));
+	}
 	
+	@Test
+	public void should_find_exportChunks() throws MappingException {
+		
+		Set<ExportChunk> chunks = mapper.getExportChunks();
+
+		chunks.forEach(System.out::println);
+
+		assertTrue(chunks.size()==4);
+	}
 }

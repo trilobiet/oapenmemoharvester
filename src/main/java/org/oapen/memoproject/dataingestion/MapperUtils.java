@@ -1,7 +1,10 @@
 package org.oapen.memoproject.dataingestion;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -12,7 +15,7 @@ import org.w3c.dom.NodeList;
 public final class MapperUtils {
 	
 	
-	public static Set<Classification> parseClassifications(List<String> lines) {
+	public final static Set<Classification> parseClassifications(List<String> lines) {
 		
 		Set<Classification> categories = lines
 			.stream().map( line ->	
@@ -34,7 +37,7 @@ public final class MapperUtils {
      * Provides a NodeList of multiple nodelists
      * http://www.java2s.com/example/java-utility-method/xml-nodelist/combine-final-nodelist...-nls-aaf92.html
      */
-    public static NodeList combine(final NodeList... nls) {
+    public final static NodeList combine(final NodeList... nls) {
 
         return new NodeList() {
         	
@@ -66,12 +69,55 @@ public final class MapperUtils {
      * @param s
      * @return true if s is a UUID
      */
-    public boolean isUUID(String s) {
+    public final static boolean isUUID(String s) {
     	
     	final String UUID_STRING =
     		    "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
     	
     	return s.matches(UUID_STRING);
     }
-	
+    
+    
+    public final static Optional<LocalDate> parseDate(String d) {
+    	
+	     try {
+	        return Optional.of(LocalDate.parse(d.substring(0,10)));
+	     }
+	     catch(Exception e){
+	        return Optional.empty();
+	     }
+    }
+    
+    
+    public final static String stringify(NodeList nodes) {
+    	
+    	if (nodes == null) return "(nodes is null!)";
+    	
+    	List<String> ns = new ArrayList<>();
+    	
+    	for (int i=0; i<nodes.getLength(); i++) {
+    		ns.add(nodes.item(i).getTextContent());
+    	}
+    	
+    	return ns.stream().collect(Collectors.joining(", "));
+    }
+    
+    
+    public final static String exportChunkType(String url) {
+    	
+    	if (url == null)
+    		return "UNKNOWN";
+    	else if (url.endsWith("marc.xml"))
+    		return "MARCXML";
+    	else if (url.endsWith(".xml") && url.contains("onix"))
+    		return "ONIX";
+    	else if (url.endsWith(".ris"))
+    		return "RIS";
+    	else if (url.endsWith(".tsv"))
+    		return "KBART";
+    	else 
+    		return "UNKNOWN"; 
+    	
+    }
+    
 }

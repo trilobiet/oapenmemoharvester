@@ -1,5 +1,6 @@
 package org.oapen.memoproject.dataingestion.jpa.entities;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -109,18 +110,18 @@ public class Title {
     @ElementCollection
     @CollectionTable(name="language", joinColumns= @JoinColumn(name="handle_title", nullable = false))
     @Column(name = "language")
-    private Set<String> languages;
+    private Set<String> languages = new HashSet<>();
     
     // TODO make this a Date object?
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="date_accessioned", joinColumns= @JoinColumn(name="handle_title", nullable = false))
     @Column(name = "date", nullable = false)
-    private Set<String> datesAccessioned;
+    private Set<LocalDate> datesAccessioned = new HashSet<>();
     
     @ElementCollection
     @CollectionTable(name="subject_other", joinColumns= @JoinColumn(name="handle_title", nullable = false))
     @Column(name = "subject")
-    private Set<String> subjectsOther;
+    private Set<String> subjectsOther = new HashSet<>();
 
     @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Setter(AccessLevel.PRIVATE) // Enforce usage of addIdentifier

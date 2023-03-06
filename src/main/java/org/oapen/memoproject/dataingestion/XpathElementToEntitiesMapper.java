@@ -1,5 +1,6 @@
 package org.oapen.memoproject.dataingestion;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -233,6 +234,10 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 			identifiers.addAll(nodeListToIdentifierSet(nodes,"OCN"));
 			nodes = (NodeList) xpath.evaluate(".//element[@name='doi']//field[@name='value']", element, XPathConstants.NODESET);
 			identifiers.addAll(nodeListToIdentifierSet(nodes,"DOI"));
+			nodes = (NodeList) xpath.evaluate(".//element[@name='uri']//field[@name='value']", element, XPathConstants.NODESET);
+			identifiers.addAll(nodeListToIdentifierSet(nodes,"URI"));
+			nodes = (NodeList) xpath.evaluate(".//element[@name='ocn']//field[@name='value']", element, XPathConstants.NODESET);
+			identifiers.addAll(nodeListToIdentifierSet(nodes,"OCN"));
 			nodes = (NodeList) xpath.evaluate(".//element[@name='isbn']//field[@name='value']", element, XPathConstants.NODESET);
 			identifiers.addAll(nodeListToIdentifierSet(nodes,"ISBN"));
 			nodes = (NodeList) xpath.evaluate(".//element[@name='issn']//field[@name='value']", element, XPathConstants.NODESET);
@@ -252,8 +257,27 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 
 	@Override
 	public Set<ExportChunk> getExportChunks() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		NodeList nodes = null;
+
+		try {
+			Set<ExportChunk> set = new HashSet<>();
+			
+			nodes = (NodeList) xpath.evaluate(".//*[.='EXPORT']/..//element[@name='bitstream']/field[@name='url']", element, XPathConstants.NODESET);
+
+			for (int i=0; i < nodes.getLength(); i++) {
+	        	
+	        	Node node = nodes.item(i);
+	        	String url = node.getTextContent();
+	        	ExportChunk member = new ExportChunk(MapperUtils.exportChunkType(url), url);
+	        	set.add(member);
+	        }
+			return set;
+			
+		}	
+		catch (Exception e)	{
+			throw new MappingException("Could not parse exportChunks " + MapperUtils.stringify(nodes));
+		}
 	}
 
 	@Override
@@ -277,9 +301,27 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	}
 
 	@Override
-	public Set<String> getDatesAccessioned() {
-		// TODO Auto-generated method stub
-		return null;
+	public Set<LocalDate> getDatesAccessioned() {
+		
+		NodeList nodes = null;
+
+		try {
+			nodes = (NodeList) xpath.evaluate(".//element[@name='date']/element[@name='accessioned']//field[@name='value']", element, XPathConstants.NODESET);
+			
+			Set<LocalDate> set = new HashSet<>();
+			
+			for (int i=0; i < nodes.getLength(); i++) {
+	        	
+	        	Node node = nodes.item(i);
+	        	String dateText = node.getTextContent();
+	        	LocalDate date = MapperUtils.parseDate(dateText).orElseThrow();
+	        	set.add(date);
+	        }
+			
+			return set;
+		} catch (Exception e) {
+			throw new MappingException("Could not parse accessioned dates " + MapperUtils.stringify(nodes));
+		}
 	}
 
 	@Override
