@@ -110,13 +110,6 @@
 						</element>
 					</element>
 					<element name="oapen">
-						<element name="abstract">
-							<element name="otherlanguage">
-								<element name="none">
-									<field name="value">Während der Zeit des historischen Kolonialismus wurden in Völkerkundemuseen komplexe Formen rassistischer und religiöser Diskriminierung institutionalisiert, z.B. in den dort gültigen Ästhetik- und Kunstbegriffen. Viele der heutigen Museumsangestellten erklären sich deswegen zu Reformen bereit. Doch können sie sich tatsächlich vom Kolonialismus trennen? Ist eine Dekolonisation ethnologischer Museen mit kolonialer Beute je abschließend möglich? Am Beispiel umstrittener Heiligtümer lebender Kulturen untersucht Christoph Balzar das Verfahren der Musealisierung durch die Linse der Diskriminierungskritik. Im Fokus stehen dabei die Sammlungen der »Staatlichen Museen zu Berlin«.</field>
-								</element>
-							</element>
-						</element>
 						<element name="identifier">
 							<element name="doi">
 								<element name="none">
@@ -427,6 +420,13 @@
 								<field name="value">ger</field>
 							</element>
 						</element>
+						<element name="relation">
+							<element name="ispartofseries">
+								<element name="none">
+									<field name="value">Cultural Heritage Studies</field>
+								</element>
+							</element>
+						</element>
 						<element name="subject">
 							<element name="classification">
 								<element name="none">
@@ -463,7 +463,21 @@
 							</element>
 						</element>
 					</element>
+					<element name="dcterms">
+						<element name="abstract">
+							<element name="none">
+								<field name="value">Simplified Signs presents a system of manual sign communication intended for special populations who have had limited success mastering spoken or full sign languages. It is the culmination of over twenty years of research and development by the authors. The Simplified Sign System has been developed and tested for ease of sign comprehension, memorization, and formation by limiting the complexity of the motor skills required to form each sign, and by ensuring that each sign visually resembles the meaning it conveys.Volume 1 outlines the research underpinning and informing the project, and places the Simplified Sign System in a wider context of sign usage, historically and by different populations. Volume 2 presents the lexicon of signs, totalling approximately 1000 signs, each with a clear illustration and a written description of how the sign is formed, as well as a memory aid that connects the sign visually to the meaning that it conveys. While the Simplified Sign System originally was developed to meet the needs of persons with intellectual disabilities, cerebral palsy, autism, or aphasia, it may also assist the communication needs of a wider audience – such as healthcare professionals, aid workers, military personnel , travellers or parents, and children who have not yet mastered spoken language.  The system also has been shown to enhance learning for individuals studying a foreign language. Lucid and comprehensive, this work constitutes a valuable resource that will enhance the communicative interactions of many different people, and will be of great interest to researchers and educators alike.</field>
+							</element>
+						</element>
+					</element>
 					<element name="oapen">
+						<element name="abstract">
+							<element name="otherlanguage">
+								<element name="none">
+									<field name="value">Während der Zeit des historischen Kolonialismus wurden in Völkerkundemuseen komplexe Formen rassistischer und religiöser Diskriminierung institutionalisiert, z.B. in den dort gültigen Ästhetik- und Kunstbegriffen. Viele der heutigen Museumsangestellten erklären sich deswegen zu Reformen bereit. Doch können sie sich tatsächlich vom Kolonialismus trennen? Ist eine Dekolonisation ethnologischer Museen mit kolonialer Beute je abschließend möglich? Am Beispiel umstrittener Heiligtümer lebender Kulturen untersucht Christoph Balzar das Verfahren der Musealisierung durch die Linse der Diskriminierungskritik. Im Fokus stehen dabei die Sammlungen der »Staatlichen Museen zu Berlin«.</field>
+								</element>
+							</element>
+						</element>
 						<element name="identifier">
 							<element name="doi">
 								<element name="none">
@@ -498,6 +512,13 @@
 								</element>
 							</element>
 						</element>
+						<element name="description">
+							<element name="otherlanguage">
+								<element name="none">
+									<field name="value">Just a test string</field>
+								</element>
+							</element>
+						</element>	
 						<element name="imprint">
 							<element name="none">
 								<field name="value">Springer Nature Singapore</field>
@@ -506,6 +527,18 @@
 						<element name="pages">
 							<element name="none">
 								<field name="value">323</field>
+							</element>
+						</element>
+						<element name="series">
+							<element name="number">
+								<element name="none">
+									<field name="value">12345</field>
+								</element>
+							</element>
+						</element>
+						<element name="chapternumber">
+							<element name="none">
+								<field name="value">23</field>
 							</element>
 						</element>
 						<element name="place">
@@ -635,6 +668,13 @@
 						<field name="mail">info@oapen.org</field>
 					</element>
 					<element name="linkedItemsMetadata">
+			            <element name="oapen.relation.isPartOfBook">
+				            <field name="uuid">e39d422d-dc90-47a3-8a26-cb55259c943b</field>
+				            <field name="handle">20.500.12657/48278</field>
+				            <element name="dc.title">
+					            <field name="value">Knots</field>
+				            </element>
+			            </element>					
 						<element name="oapen.relation.isFundedBy">
 							<field name="uuid">1b71b6aa-ef3b-4897-864f-0f1da4cd2438</field>
 							<field name="handle">20.500.12657/60839</field>
@@ -960,5 +1000,17 @@
 				</metadata>
 			</metadata>
 		</record>
+		<record>
+			<header>
+				<identifier>oai:library.oapen.org:20.500.12657/00000</identifier>
+				<setSpec>col_20.500.12657_6</setSpec>
+			</header>
+			<metadata>
+				<metadata
+					xmlns="http://www.lyncode.com/xoai"
+					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.lyncode.com/xoai http://www.lyncode.com/xsd/xoai.xsd">
+				</metadata>
+			</metadata>
+		</record>			
 	</ListRecords>
 </OAI-PMH>

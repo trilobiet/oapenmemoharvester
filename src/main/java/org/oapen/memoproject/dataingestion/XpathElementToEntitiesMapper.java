@@ -39,7 +39,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	}
 	
 	
-	private Set<String> getValueSet(String xpathQuery, Element element) throws XPathExpressionException {
+	private Set<String> getValueSet(String xpathQuery) throws XPathExpressionException {
 
 		NodeList nodes = (NodeList) xpath.evaluate(xpathQuery, element, XPathConstants.NODESET);
 		
@@ -54,22 +54,33 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		return values;
 	}
 	
-	private Optional<String> getValue(String xpathQuery, Element element) throws XPathExpressionException {
+	private Optional<String> getValue(String xpathQuery, String errorMessage) {
 
-		Node node = (Node) xpath.evaluate(xpathQuery, element, XPathConstants.NODE);
+		Node node;
 		
-		if (node != null) 
-			return Optional.of(node.getTextContent());
-		else 
-			return Optional.empty();
+		try {
+			node = (Node) xpath.evaluate(xpathQuery, element, XPathConstants.NODE);
+			
+			if (node != null) 
+				return Optional.of(node.getTextContent());
+			else 
+				return Optional.empty();
+			
+		} catch (XPathExpressionException e) {
+			
+			throw new MappingException(errorMessage);
+		}
+		
 	}
 	
 
 	@Override
 	public Set<Classification> getClassifications() {
 		
+		final String path = ".//element[@name='classification']//field/text()";
+		
 		try {
-			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='classification']//field/text()", element, XPathConstants.NODESET);
+			NodeList nodes = (NodeList) xpath.evaluate(path, element, XPathConstants.NODESET);
 			List<String> lines = new ArrayList<>(); 
 
 			for (int i=0; i<nodes.getLength(); i++) 
@@ -85,10 +96,12 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	
 	@Override
 	public Set<Contributor> getContributors() {
+		
+		final String path = ".//element[@name='contributor']//field[@name='value']";
 
 		try {
 			Set<Contributor> contributors = new HashSet<>();
-			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='contributor']//field[@name='value']", element, XPathConstants.NODESET);
+			NodeList nodes = (NodeList) xpath.evaluate(path, element, XPathConstants.NODESET);
 			
 			for (int i=0; i<nodes.getLength(); i++) 
 				contributors.add( new Contributor(nodes.item(i).getTextContent()));
@@ -138,9 +151,11 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 
 	@Override
 	public Set<Funder> getFunders() {
+		
+		final String path = ".//element[@name='oapen.relation.isFundedBy']"; 
 
 		try {
-			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='oapen.relation.isFundedBy']", element, XPathConstants.NODESET);
+			NodeList nodes = (NodeList) xpath.evaluate(path, element, XPathConstants.NODESET);
 			JAXBContext jaxbContext = JAXBContext.newInstance(Funder.class);
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			
@@ -258,12 +273,14 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	@Override
 	public Set<ExportChunk> getExportChunks() {
 		
+		String path = ".//*[.='EXPORT']/..//element[@name='bitstream']/field[@name='url']";
+		
 		NodeList nodes = null;
 
 		try {
 			Set<ExportChunk> set = new HashSet<>();
 			
-			nodes = (NodeList) xpath.evaluate(".//*[.='EXPORT']/..//element[@name='bitstream']/field[@name='url']", element, XPathConstants.NODESET);
+			nodes = (NodeList) xpath.evaluate(path, element, XPathConstants.NODESET);
 
 			for (int i=0; i < nodes.getLength(); i++) {
 	        	
@@ -284,7 +301,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	public Set<String> getLanguages() {
 		
 		try {
-			return getValueSet(".//element[@name='language']//field[@name='value']", element);
+			return getValueSet(".//element[@name='language']//field[@name='value']");
 		} catch (Exception e) {
 			throw new MappingException("Could not parse languages");
 		}
@@ -294,7 +311,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	public Set<String> getSubjectsOther() {
 
 		try {
-			return getValueSet(".//element[@name='subject']//element[@name='other']//field[@name='value']", element);
+			return getValueSet(".//element[@name='subject']//element[@name='other']//field[@name='value']");
 		} catch (Exception e) {
 			throw new MappingException("Could not parse other subjects");
 		}
@@ -345,167 +362,217 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		}
 		
 	}
+	
 
 	@Override
 	public Optional<String> getHandle() {
-		try {
-			return getValue(".//element[@name='others']/field[@name='handle']", element);
-		} catch (XPathExpressionException e) {
-			throw new MappingException("Could not parse handle");
-		}
+		
+		final String path = ".//element[@name='others']/field[@name='handle']";
+		final String msg = "Could not parse handle";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getSysId() {
-		try {
-			return getValue(".//element[@name='others']/field[@name='uuid']", element);
-		} catch (Exception e) {
-			throw new MappingException("Could not parse sysId (uuid)");
-		}
+		
+		final String path = ".//element[@name='others']/field[@name='uuid']";
+		final String msg = "Could not parse sysId (uuid)";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getCollection() {
-		// TODO Auto-generated method stub
-		return null;
+
+		final String path = ".//header/setSpec[starts-with(text(),'col')]";
+		final String msg = "Could not parse collection";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getDownloadUrl() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//*[.='ORIGINAL']/..//element[@name='bitstream']/field[@name='url']";
+		final String msg = "Could not parse downloadUrl";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getThumbnail() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//*[.='THUMBNAIL']/..//element[@name='bitstream']/field[@name='url']";
+		final String msg = "Could not parse thumbnail";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getLicense() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//*[.='ORIGINAL']/..//element[@name='bitstream']/field[@name='rightsuri']";
+		final String msg = "Could not parse license";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getWebshopUrl() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//*[.='ORIGINAL']/..//element[@name='bitstream']/field[@name='dcidentifierurlwebshop']";
+		final String msg = "Could not parse webshopUrl";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getDateAvailable() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='dc']/element[@name='date']/element[@name='available']//field[@name='value']";
+		final String msg = "Could not parse dateAvailable";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getDateIssued() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='dc']/element[@name='date']/element[@name='issued']//field[@name='value']";
+		final String msg = "Could not parse dateIssued";
+		return getValue(path, msg);
 	}
 
+	// TODO This field seems always empty
 	@Override
 	public Optional<String> getDescription() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//TODO";
+		final String msg = "Could not parse description";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getDescriptionOtherLanguage() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='oapen']/element[@name='description']/element[@name='otherlanguage']//field[@name='value']";
+		final String msg = "Could not parse descriptionOtherLanguage";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getDescriptionAbstract() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='dc']/element[@name='description']/element[@name='abstract']//field[@name='value']";
+		final String msg = "Could not parse descriptionAbstract";
+		return getValue(path, msg);
 	}
 
+	// TODO Not available in XOAI output
 	@Override
 	public Optional<String> getDescriptionProvenance() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//TODO";
+		final String msg = "Could not parse descriptionProvenance";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getTermsAbstract() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='dcterms']/element[@name='abstract']//field[@name='value']";
+		final String msg = "Could not parse termsAbstract";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getAbstractOtherLanguage() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='oapen']/element[@name='abstract']/element[@name='otherlanguage']//field[@name='value']";
+		final String msg = "Could not parse abstractOtherLanguage";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getPartOfSeries() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='ispartofseries']//field[@name='value']";
+		final String msg = "Could not parse partOfSeries";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getTitle() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='dc']/element[@name='title']//field[@name='value']";
+		final String msg = "Could not parse title";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getTitleAlternative() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='dc']/element[@name='title']/element[@name='alternative']//field[@name='value']";
+		final String msg = "Could not parse titleAlternative";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getType() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='dc']/element[@name='type']//field[@name='value']";
+		final String msg = "Could not parse type";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getChapterNumber() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='chapternumber']//field[@name='value']";
+		final String msg = "Could not parse chapterNumber";
+		return getValue(path, msg);
 	}
 
+	// TODO This field is always empty
 	@Override
 	public Optional<String> getEmbargo() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//TODO";
+		final String msg = "Could not parse embargo";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getImprint() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='imprint']//field[@name='value']";
+		final String msg = "Could not parse imprint";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getPages() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='pages']//field[@name='value']";
+		final String msg = "Could not parse 'pages'";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getPlacePublication() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='place']/element[@name='publication']//field[@name='value']";
+		final String msg = "Could not parse placePublication";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getSeriesNumber() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='series']/element[@name='number']//field[@name='value']";
+		final String msg = "Could not parse seriesNumber";
+		return getValue(path, msg);
 	}
 
 	@Override
 	public Optional<String> getPartOfBook() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		final String path = ".//element[@name='oapen.relation.isPartOfBook']/field[@name='handle']";
+		final String msg = "Could not parse partOfBook";
+		return getValue(path, msg);
 	}
 
 }

@@ -33,7 +33,66 @@ public final class MapperUtils {
 	}
 
 	
-	/**
+    /**
+     * Test if a string is a UUID
+     * 
+     * @param s
+     * @return true if s is a UUID
+     */
+    public final static boolean isUUID(String s) {
+    	
+    	final String UUID_STRING =
+    		    "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
+    	
+    	return s != null && s.matches(UUID_STRING);
+    }
+    
+    
+    public final static Optional<LocalDate> parseDate(String d) {
+    	
+	     try {
+	        return Optional.of(LocalDate.parse(d.substring(0,10)));
+	     }
+	     catch(Exception e){
+	        return Optional.empty();
+	     }
+    }
+    
+    
+    public final static String exportChunkType(String url) {
+    	
+    	if (url == null)
+    		return "UNKNOWN";
+    	else if (url.endsWith("marc.xml"))
+    		return "MARCXML";
+    	else if (url.endsWith(".xml") && url.contains("onix"))
+    		return "ONIX";
+    	else if (url.endsWith(".ris"))
+    		return "RIS";
+    	else if (url.endsWith(".tsv"))
+    		return "KBART";
+    	else 
+    		return "UNKNOWN"; 
+    	
+    }
+
+
+    public final static String stringify(NodeList nodes) {
+    	
+    	if (nodes == null) return "(nodes is null!)";
+    	
+    	List<String> ns = new ArrayList<>();
+    	
+    	for (int i=0; i<nodes.getLength(); i++) {
+    		ns.add(nodes.item(i).getTextContent());
+    	}
+    	
+    	return ns.stream().collect(Collectors.joining(", "));
+    }
+    
+    
+    
+    /**
      * Provides a NodeList of multiple nodelists
      * http://www.java2s.com/example/java-utility-method/xml-nodelist/combine-final-nodelist...-nls-aaf92.html
      */
@@ -63,61 +122,7 @@ public final class MapperUtils {
         };
     }	
     
-    /**
-     * Test if a string is a UUID
-     * 
-     * @param s
-     * @return true if s is a UUID
-     */
-    public final static boolean isUUID(String s) {
-    	
-    	final String UUID_STRING =
-    		    "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
-    	
-    	return s.matches(UUID_STRING);
-    }
     
     
-    public final static Optional<LocalDate> parseDate(String d) {
-    	
-	     try {
-	        return Optional.of(LocalDate.parse(d.substring(0,10)));
-	     }
-	     catch(Exception e){
-	        return Optional.empty();
-	     }
-    }
-    
-    
-    public final static String stringify(NodeList nodes) {
-    	
-    	if (nodes == null) return "(nodes is null!)";
-    	
-    	List<String> ns = new ArrayList<>();
-    	
-    	for (int i=0; i<nodes.getLength(); i++) {
-    		ns.add(nodes.item(i).getTextContent());
-    	}
-    	
-    	return ns.stream().collect(Collectors.joining(", "));
-    }
-    
-    
-    public final static String exportChunkType(String url) {
-    	
-    	if (url == null)
-    		return "UNKNOWN";
-    	else if (url.endsWith("marc.xml"))
-    		return "MARCXML";
-    	else if (url.endsWith(".xml") && url.contains("onix"))
-    		return "ONIX";
-    	else if (url.endsWith(".ris"))
-    		return "RIS";
-    	else if (url.endsWith(".tsv"))
-    		return "KBART";
-    	else 
-    		return "UNKNOWN"; 
-    	
-    }
     
 }

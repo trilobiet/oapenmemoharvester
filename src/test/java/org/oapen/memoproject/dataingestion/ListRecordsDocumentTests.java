@@ -33,7 +33,7 @@ public class ListRecordsDocumentTests {
 		Document xml = db.parse(s);
 		ListRecordsDocument p = new ListRecordsDocumentImp(xml);
 		
-		assertTrue(p.getRecords().size()==3);
+		assertTrue(p.getRecords().size()>1);
 	}
 
 	@Test

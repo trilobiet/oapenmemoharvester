@@ -3,10 +3,9 @@ package org.oapen.memoproject.dataingestion;
 import java.util.List;
 
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.w3c.dom.Element;
 
 public final class RecordListHandlerImp implements RecordListHandler {
@@ -22,15 +21,16 @@ public final class RecordListHandlerImp implements RecordListHandler {
 			System.out.println(el.getChildNodes().item(1).getChildNodes().item(1).getTextContent());
 			
 			
-			// TODO xpath takes whole document???
-		
+			ElementToEntitiesMapper m = new XpathElementToEntitiesMapper(el);
+			
+			Title title = new Title();
 			try {
-				String handle = (String) xpath.evaluate(".//element[@name='others']/field[@name='handle']", el, XPathConstants.STRING);
-				System.out.println(handle);
-			} catch (XPathExpressionException e) {
+				title.setHandle(m.getHandle().get());
+			} catch (MappingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 			
 				
 		});
