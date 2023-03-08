@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.lang.NonNull;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +17,8 @@ public class Contributor {
 	
 	// orcid would be a better id, but it is not always available and will be added later
 	@Id
-    @Column(name = "name", updatable = false, insertable = true, unique = true)
+    @Column(name = "name", updatable = false, insertable = true)
+	@NonNull
     private String name;
 	
     @Column(name = "orcid")

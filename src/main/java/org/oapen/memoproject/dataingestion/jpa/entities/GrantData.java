@@ -37,7 +37,7 @@ public class GrantData {
 	@Id @Column(name = "value")
     private String value;
 
-	@Id @Column(name="handle_title")
+	@Id @Column(name="handle_title") 
 	private String handleTitle;
 	
 	public GrantData() {}

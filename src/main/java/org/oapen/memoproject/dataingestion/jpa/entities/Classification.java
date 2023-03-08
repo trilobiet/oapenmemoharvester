@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.lang.NonNull;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,9 +17,11 @@ public class Classification {
 	
 	@Id
     @Column(name = "code", updatable = false, insertable = true)
+	@NonNull
     private String code;
 
     @Column(name = "description")
+    @NonNull
     private String description;
     
 	public Classification() {}

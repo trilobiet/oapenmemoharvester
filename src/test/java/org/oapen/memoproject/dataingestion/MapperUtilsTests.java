@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 
@@ -56,7 +57,7 @@ public class MapperUtilsTests {
 		assertTrue(d4.isEmpty());
 		
 	}
-
+	
 	
 	@Test 
 	void testExportChunkType() {
@@ -67,5 +68,20 @@ public class MapperUtilsTests {
 		assertTrue(MapperUtils.exportChunkType("https://path.to/12345.marc.xml").equals("MARCXML"));
 		assertTrue(MapperUtils.exportChunkType("https://path.to/12345.abc").equals("UNKNOWN"));
 	}
+	
+	
+	@Test
+	@Disabled
+	// TODO
+	void testStringifyNodeList() {
+	}
+
+	
+	@Test
+	@Disabled
+	// TODO
+	void testCombineNodeLists() {
+	}
+	
 	
 }

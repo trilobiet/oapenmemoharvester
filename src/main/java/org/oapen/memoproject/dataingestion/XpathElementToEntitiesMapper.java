@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -22,6 +23,7 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
 import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
+import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.springframework.data.mapping.MappingException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -39,38 +41,55 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	}
 	
 	
-	private Set<String> getValueSet(String xpathQuery) throws XPathExpressionException {
-
-		NodeList nodes = (NodeList) xpath.evaluate(xpathQuery, element, XPathConstants.NODESET);
+	private Optional<Node> getNode(String xpathQuery) {
+		
+		try {
+			Node n = (Node) xpath.evaluate(xpathQuery, element, XPathConstants.NODE);
+			if (n != null) return Optional.of(n);
+			else return Optional.empty();
+		} catch (XPathExpressionException e) {
+			// XPATH expressions are hard coded, so if they erred we would already know
+			return Optional.empty();
+		}
+	}
+	
+	
+	private Optional<NodeList> getNodeList(String xpathQuery) {
+		
+		try {
+			return Optional.of( (NodeList) xpath.evaluate(xpathQuery, element, XPathConstants.NODESET) );
+		} catch (XPathExpressionException e) {
+			// XPATH expressions are hard coded, so if they erred we would already know
+			return Optional.empty();
+		}
+	}
+	
+	
+	private Set<String> getTextValueSet(String xpathQuery) {
 		
 		Set<String> values = new HashSet<>();
 		
-		for (int i=0; i < nodes.getLength(); i++) {
-        	
-        	Node node = nodes.item(i);
-        	values.add(node.getTextContent());
-        }
+		getNodeList(xpathQuery).ifPresent(nodes -> {
+
+			for (int i=0; i < nodes.getLength(); i++) {
+	        	
+	        	Node node = nodes.item(i);
+	        	values.add(node.getTextContent());
+	        }
+		});
 		
 		return values;
 	}
 	
-	private Optional<String> getValue(String xpathQuery, String errorMessage) {
+	
+	private Optional<String> getTextValue(String xpathQuery) {
 
-		Node node;
+		Optional<Node> node = getNode(xpathQuery);
 		
-		try {
-			node = (Node) xpath.evaluate(xpathQuery, element, XPathConstants.NODE);
-			
-			if (node != null) 
-				return Optional.of(node.getTextContent());
-			else 
-				return Optional.empty();
-			
-		} catch (XPathExpressionException e) {
-			
-			throw new MappingException(errorMessage);
-		}
-		
+		if (node.isPresent())
+			return Optional.of(node.get().getTextContent());
+		else 
+			return Optional.empty();
 	}
 	
 
@@ -78,19 +97,19 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	public Set<Classification> getClassifications() {
 		
 		final String path = ".//element[@name='classification']//field/text()";
+		Set<Classification> classifications = new HashSet<>();
 		
-		try {
-			NodeList nodes = (NodeList) xpath.evaluate(path, element, XPathConstants.NODESET);
+		getNodeList(path).ifPresent(nodes -> {
+			
 			List<String> lines = new ArrayList<>(); 
 
 			for (int i=0; i<nodes.getLength(); i++) 
 				lines.add(nodes.item(i).getTextContent());
 			
-			return MapperUtils.parseClassifications(lines);
-			
-		} catch (Exception e) {
-			throw new MappingException("Could not parse classifications");
-		}
+			classifications.addAll(MapperUtils.parseClassifications(lines));
+		}); 
+		
+		return classifications;
 	}
 	
 	
@@ -98,19 +117,14 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	public Set<Contributor> getContributors() {
 		
 		final String path = ".//element[@name='contributor']//field[@name='value']";
-
-		try {
-			Set<Contributor> contributors = new HashSet<>();
-			NodeList nodes = (NodeList) xpath.evaluate(path, element, XPathConstants.NODESET);
-			
+		Set<Contributor> contributors = new HashSet<>();
+		
+		getNodeList(path).ifPresent(nodes -> {
 			for (int i=0; i<nodes.getLength(); i++) 
 				contributors.add( new Contributor(nodes.item(i).getTextContent()));
-			
-			return contributors;
-		}	
-		catch (Exception e)	{
-			throw new MappingException("Could not parse contributors");
-		}
+		});
+
+		return contributors;
 	}
 	
 	
@@ -128,24 +142,23 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		return set;
 	}
 	
+	
 	@Override
 	public Set<Contribution> getContributions() {
 		
-		try {
-			Set<Contribution> contributions = new HashSet<>();
-			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='contributor']/element[@name='author']//field[@name='value']", element, XPathConstants.NODESET);
-			contributions.addAll(nodeListToContributionSet(nodes, "author"));
-			nodes = (NodeList) xpath.evaluate(".//element[@name='contributor']/element[@name='editor']//field[@name='value']", element, XPathConstants.NODESET);
-			contributions.addAll(nodeListToContributionSet(nodes, "editor"));
-			nodes = (NodeList) xpath.evaluate(".//element[@name='contributor']/element[@name='advisor']//field[@name='value']", element, XPathConstants.NODESET);
-			contributions.addAll(nodeListToContributionSet(nodes, "advisor"));
-			nodes = (NodeList) xpath.evaluate(".//element[@name='contributor']/element[@name='other']//field[@name='value']", element, XPathConstants.NODESET);
-			contributions.addAll(nodeListToContributionSet(nodes, "other"));
-			return contributions;
-		}	
-		catch (Exception e)	{
-			throw new MappingException("Could not parse contributors");
-		}
+		final String authorPath = ".//element[@name='contributor']/element[@name='author']//field[@name='value']";
+		final String editorPath = ".//element[@name='contributor']/element[@name='editor']//field[@name='value']";
+		final String advisorPath = ".//element[@name='contributor']/element[@name='advisor']//field[@name='value']";
+		final String otherPath = ".//element[@name='contributor']/element[@name='other']//field[@name='value']";
+
+		Set<Contribution> contributions = new HashSet<>();
+		
+		getNodeList(authorPath).ifPresent(nodes -> contributions.addAll(nodeListToContributionSet(nodes, "author")));
+		getNodeList(editorPath).ifPresent(nodes -> contributions.addAll(nodeListToContributionSet(nodes, "editor")));
+		getNodeList(advisorPath).ifPresent(nodes -> contributions.addAll(nodeListToContributionSet(nodes, "advisor")));
+		getNodeList(otherPath).ifPresent(nodes -> contributions.addAll(nodeListToContributionSet(nodes, "other")));
+		
+		return contributions;
 	}
 	
 
@@ -153,26 +166,27 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	public Set<Funder> getFunders() {
 		
 		final String path = ".//element[@name='oapen.relation.isFundedBy']"; 
-
-		try {
-			NodeList nodes = (NodeList) xpath.evaluate(path, element, XPathConstants.NODESET);
-			JAXBContext jaxbContext = JAXBContext.newInstance(Funder.class);
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			
-			Set<Funder> funders = new HashSet<>();
-			
-			for (int i=0; i < nodes.getLength(); i++) {
-	        	
-	        	Node node = nodes.item(i);
-	        	Funder funder = (Funder) unmarshaller.unmarshal(node);
-	        	funders.add(funder);
-	        }
-			
-			return funders;
-		}	
-		catch (Exception e)	{
-			throw new MappingException("Could not parse funders");
-		}
+		Set<Funder> funders = new HashSet<>();
+		
+		getNodeList(path).ifPresent(nodes -> {
+		
+			try {
+				JAXBContext jaxbContext = JAXBContext.newInstance(Funder.class);
+				Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+				
+				for (int i=0; i < nodes.getLength(); i++) {
+		        	
+		        	Node node = nodes.item(i);
+		        	Funder funder = (Funder) unmarshaller.unmarshal(node);
+		        	funders.add(funder);
+		        }
+			} catch (JAXBException e) {
+				// TODO log
+			}
+				
+		});
+		
+		return funders;
 	}
 	
 	
@@ -197,30 +211,23 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	@Override
 	public Set<GrantData> getGrantData() {
 		
-		try {
-			Set<GrantData> grantdata = new HashSet<>();
-			
-			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='oapen.grant.number']//field[@name='originalValue']", element, XPathConstants.NODESET);
-			grantdata.addAll(nodeListToGrantDataSet(nodes, "number"));
-			nodes = (NodeList) xpath.evaluate(".//element[@name='grant']/element[@name='number']//field[@name='value']", element, XPathConstants.NODESET);
-			grantdata.addAll(nodeListToGrantDataSet(nodes, "number"));
-			
-			nodes = (NodeList) xpath.evaluate(".//element[@name='oapen.grant.program']//field[@name='originalValue']", element, XPathConstants.NODESET);
-			grantdata.addAll(nodeListToGrantDataSet(nodes, "program"));
-			nodes = (NodeList) xpath.evaluate(".//element[@name='grant']/element[@name='program']//field[@name='value']", element, XPathConstants.NODESET);
-			grantdata.addAll(nodeListToGrantDataSet(nodes, "program"));
-			
-			nodes = (NodeList) xpath.evaluate(".//element[@name='grant']/element[@name='project']//field[@name='value']", element, XPathConstants.NODESET);
-			grantdata.addAll(nodeListToGrantDataSet(nodes, "project"));
-			
-			nodes = (NodeList) xpath.evaluate(".//element[@name='grant']/element[@name='acronym']//field[@name='value']", element, XPathConstants.NODESET);
-			grantdata.addAll(nodeListToGrantDataSet(nodes, "acronym"));
+		final String grantNumberPath1 = ".//element[@name='oapen.grant.number']//field[@name='originalValue']";
+		final String grantNumberPath2 = ".//element[@name='grant']/element[@name='number']//field[@name='value']";
+		final String grantProgramPath1 = ".//element[@name='oapen.grant.program']//field[@name='originalValue']";
+		final String grantProgramPath2 = ".//element[@name='grant']/element[@name='program']//field[@name='value']";
+		final String grantProjectPath = ".//element[@name='grant']/element[@name='project']//field[@name='value']";
+		final String grantAcronymPath = ".//element[@name='grant']/element[@name='acronym']//field[@name='value']";
+		
+		Set<GrantData> grantdata = new HashSet<>();
+		
+		getNodeList(grantNumberPath1).ifPresent(nodes -> grantdata.addAll(nodeListToGrantDataSet(nodes, "number")));
+		getNodeList(grantNumberPath2).ifPresent(nodes -> grantdata.addAll(nodeListToGrantDataSet(nodes, "number")));
+		getNodeList(grantProgramPath1).ifPresent(nodes -> grantdata.addAll(nodeListToGrantDataSet(nodes, "program")));
+		getNodeList(grantProgramPath2).ifPresent(nodes -> grantdata.addAll(nodeListToGrantDataSet(nodes, "program")));
+		getNodeList(grantProjectPath).ifPresent(nodes -> grantdata.addAll(nodeListToGrantDataSet(nodes, "project")));
+		getNodeList(grantAcronymPath).ifPresent(nodes -> grantdata.addAll(nodeListToGrantDataSet(nodes, "acronym")));
 
-			return grantdata;
-		}	
-		catch (Exception e)	{
-			throw new MappingException("Could not parse grant data");
-		}
+		return grantdata;
 	}
 	
 	
@@ -237,6 +244,11 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		
 		return set;
 	}
+	
+	
+	
+	// TODO rewrite below here 
+	
  	
 	@Override
 	public Set<Identifier> getIdentifiers() {
@@ -301,7 +313,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	public Set<String> getLanguages() {
 		
 		try {
-			return getValueSet(".//element[@name='language']//field[@name='value']");
+			return getTextValueSet(".//element[@name='language']//field[@name='value']");
 		} catch (Exception e) {
 			throw new MappingException("Could not parse languages");
 		}
@@ -311,7 +323,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	public Set<String> getSubjectsOther() {
 
 		try {
-			return getValueSet(".//element[@name='subject']//element[@name='other']//field[@name='value']");
+			return getTextValueSet(".//element[@name='subject']//element[@name='other']//field[@name='value']");
 		} catch (Exception e) {
 			throw new MappingException("Could not parse other subjects");
 		}
@@ -363,77 +375,124 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		
 	}
 	
+	@Override
+	public Optional<Title> getItem() {
+	
+		Optional<Title> r = Optional.empty();
+		
+		Optional<String> sysId = getSysId();
+		Optional<String> handle = getHandle();
+		
+		if (sysId.isPresent() && handle.isPresent()) {
+		
+			Title title = new Title(getSysId().get(),getHandle().get());
+			
+			getAbstractOtherLanguage().ifPresent(value -> title.setAbstractOtherLanguage(value));
+			getChapterNumber().ifPresent(value -> title.setChapterNumber(value));
+			getCollection().ifPresent(value -> title.setCollection(value));
+			getDateAvailable().ifPresent(value -> title.setDateAvailable(value));
+			getDateIssued().ifPresent(value -> title.setDateIssued(value));
+			getDescription().ifPresent(value -> title.setDescription(value));
+			getDescriptionAbstract().ifPresent(value -> title.setDescriptionAbstract(value));
+			getDescriptionOtherLanguage().ifPresent(value -> title.setDescriptionOtherlanguage(value));
+			getDescriptionProvenance().ifPresent(value -> title.setDescriptionProvenance(value));
+			getDownloadUrl().ifPresent(value -> title.setDownloadUrl(value));
+			getEmbargo().ifPresent(value -> title.setEmbargo(value));
+			getImprint().ifPresent(value -> title.setImprint(value));
+			getLicense().ifPresent(value -> title.setLicense(value));
+			getPages().ifPresent(value -> title.setPages(value));
+			getPartOfBook().ifPresent(value -> title.setPartOfBook(value));
+			getPartOfSeries().ifPresent(value -> title.setPartOfSeries(value));
+			getPlacePublication().ifPresent(value -> title.setPlacePublication(value));
+			getSeriesNumber().ifPresent(value -> title.setSeriesNumber(value));
+			getTermsAbstract().ifPresent(value -> title.setTermsAbstract(value));
+			getThumbnail().ifPresent(value -> title.setThumbnail(value));
+			getTitle().ifPresent(value -> title.setTitle(value));
+			getTitleAlternative().ifPresent(value -> title.setTitleAlternative(value));
+			getType().ifPresent(value -> title.setType(value));
+			getWebshopUrl().ifPresent(value -> title.setWebshopUrl(value));
+			
+			getPublisher().ifPresent(title::setPublisher);
+			
+			title.setClassifications(getClassifications());
+			title.setContributions(getContributions());
+			title.setDatesAccessioned(getDatesAccessioned());
+			title.setExportChunks(getExportChunks());
+			title.setFunders(getFunders());
+			title.setGrantData(getGrantData());
+			title.setIdentifiers(getIdentifiers());
+			title.setLanguages(getLanguages());
+			title.setSubjectsOther(getSubjectsOther());
+			
+			r = Optional.of(title);
+		}	
+		
+		return r;
+		
+	}
+	
 
 	@Override
 	public Optional<String> getHandle() {
 		
 		final String path = ".//element[@name='others']/field[@name='handle']";
-		final String msg = "Could not parse handle";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getSysId() {
 		
 		final String path = ".//element[@name='others']/field[@name='uuid']";
-		final String msg = "Could not parse sysId (uuid)";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getCollection() {
 
 		final String path = ".//header/setSpec[starts-with(text(),'col')]";
-		final String msg = "Could not parse collection";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getDownloadUrl() {
 		
 		final String path = ".//*[.='ORIGINAL']/..//element[@name='bitstream']/field[@name='url']";
-		final String msg = "Could not parse downloadUrl";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getThumbnail() {
 		
 		final String path = ".//*[.='THUMBNAIL']/..//element[@name='bitstream']/field[@name='url']";
-		final String msg = "Could not parse thumbnail";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getLicense() {
 		
 		final String path = ".//*[.='ORIGINAL']/..//element[@name='bitstream']/field[@name='rightsuri']";
-		final String msg = "Could not parse license";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getWebshopUrl() {
 		
 		final String path = ".//*[.='ORIGINAL']/..//element[@name='bitstream']/field[@name='dcidentifierurlwebshop']";
-		final String msg = "Could not parse webshopUrl";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getDateAvailable() {
 		
 		final String path = ".//element[@name='dc']/element[@name='date']/element[@name='available']//field[@name='value']";
-		final String msg = "Could not parse dateAvailable";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getDateIssued() {
 		
 		final String path = ".//element[@name='dc']/element[@name='date']/element[@name='issued']//field[@name='value']";
-		final String msg = "Could not parse dateIssued";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	// TODO This field seems always empty
@@ -441,24 +500,21 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	public Optional<String> getDescription() {
 		
 		final String path = ".//TODO";
-		final String msg = "Could not parse description";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getDescriptionOtherLanguage() {
 		
 		final String path = ".//element[@name='oapen']/element[@name='description']/element[@name='otherlanguage']//field[@name='value']";
-		final String msg = "Could not parse descriptionOtherLanguage";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getDescriptionAbstract() {
 		
 		final String path = ".//element[@name='dc']/element[@name='description']/element[@name='abstract']//field[@name='value']";
-		final String msg = "Could not parse descriptionAbstract";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	// TODO Not available in XOAI output
@@ -466,64 +522,56 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	public Optional<String> getDescriptionProvenance() {
 		
 		final String path = ".//TODO";
-		final String msg = "Could not parse descriptionProvenance";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getTermsAbstract() {
 		
 		final String path = ".//element[@name='dcterms']/element[@name='abstract']//field[@name='value']";
-		final String msg = "Could not parse termsAbstract";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getAbstractOtherLanguage() {
 		
 		final String path = ".//element[@name='oapen']/element[@name='abstract']/element[@name='otherlanguage']//field[@name='value']";
-		final String msg = "Could not parse abstractOtherLanguage";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getPartOfSeries() {
 		
 		final String path = ".//element[@name='ispartofseries']//field[@name='value']";
-		final String msg = "Could not parse partOfSeries";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getTitle() {
 		
 		final String path = ".//element[@name='dc']/element[@name='title']//field[@name='value']";
-		final String msg = "Could not parse title";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getTitleAlternative() {
 		
 		final String path = ".//element[@name='dc']/element[@name='title']/element[@name='alternative']//field[@name='value']";
-		final String msg = "Could not parse titleAlternative";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getType() {
 		
 		final String path = ".//element[@name='dc']/element[@name='type']//field[@name='value']";
-		final String msg = "Could not parse type";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getChapterNumber() {
 		
 		final String path = ".//element[@name='chapternumber']//field[@name='value']";
-		final String msg = "Could not parse chapterNumber";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	// TODO This field is always empty
@@ -531,48 +579,42 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	public Optional<String> getEmbargo() {
 		
 		final String path = ".//TODO";
-		final String msg = "Could not parse embargo";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getImprint() {
 		
 		final String path = ".//element[@name='imprint']//field[@name='value']";
-		final String msg = "Could not parse imprint";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getPages() {
 		
 		final String path = ".//element[@name='pages']//field[@name='value']";
-		final String msg = "Could not parse 'pages'";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getPlacePublication() {
 		
 		final String path = ".//element[@name='place']/element[@name='publication']//field[@name='value']";
-		final String msg = "Could not parse placePublication";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getSeriesNumber() {
 		
 		final String path = ".//element[@name='series']/element[@name='number']//field[@name='value']";
-		final String msg = "Could not parse seriesNumber";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 	@Override
 	public Optional<String> getPartOfBook() {
 		
 		final String path = ".//element[@name='oapen.relation.isPartOfBook']/field[@name='handle']";
-		final String msg = "Could not parse partOfBook";
-		return getValue(path, msg);
+		return getTextValue(path);
 	}
 
 }

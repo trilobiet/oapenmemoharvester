@@ -8,6 +8,8 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
 
+import org.springframework.lang.NonNull;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,13 +22,16 @@ public class Contribution {
 	/* Combined key of three fields
 	 * See https://www.baeldung.com/jpa-composite-primary-keys */
 	
-	@Id @Column(name="name_contributor",nullable=false)
+	@Id @Column(name="name_contributor")
+	@NonNull
 	public String contributorName;
 	
-	@Id @Column(name="handle_title",nullable=false)
+	@Id @Column(name="handle_title")
+	@NonNull
 	public String handleTitle;
 	
-	@Id @Column(name="role",nullable=false)
+	@Id @Column(name="role")
+	@NonNull
 	public String role;
 	
 	public Contribution() {}

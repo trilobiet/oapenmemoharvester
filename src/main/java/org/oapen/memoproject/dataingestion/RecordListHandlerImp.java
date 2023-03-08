@@ -1,6 +1,7 @@
 package org.oapen.memoproject.dataingestion;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
@@ -18,14 +19,17 @@ public final class RecordListHandlerImp implements RecordListHandler {
 		
 		elements.forEach(el -> { 
 			
-			System.out.println(el.getChildNodes().item(1).getChildNodes().item(1).getTextContent());
+			//System.out.println(el.getChildNodes().item(1).getChildNodes().item(1).getTextContent());
 			
 			
 			ElementToEntitiesMapper m = new XpathElementToEntitiesMapper(el);
 			
-			Title title = new Title();
+			//Title title = new Title();
 			try {
-				title.setHandle(m.getHandle().get());
+				Optional<String> handle = m.getHandle();
+				Optional<String> sysId = m.getSysId();
+				
+				//title.setHandle(m.getHandle().get());
 			} catch (MappingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -34,6 +38,14 @@ public final class RecordListHandlerImp implements RecordListHandler {
 			
 				
 		});
+		
+		
+	}
+	
+	
+	public boolean isValidRecord(Element element) {
+		
+		return true;
 		
 		
 	}

@@ -18,7 +18,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -101,7 +100,7 @@ public class Title {
     private String placePublication;
 
     @Column(name = "series_number")
-    private String series_number;
+    private String seriesNumber;
     
     // no need for mapping here as long as the data is inserted we need no object reference
     @Column(name = "part_of_book") 
@@ -124,33 +123,53 @@ public class Title {
     private Set<String> subjectsOther = new HashSet<>();
 
     @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @Setter(AccessLevel.PRIVATE) // Enforce usage of addIdentifier
     private Set<Identifier> identifiers = new HashSet<>();
     
+    public void setIdentifiers(Set<Identifier> values) {
+    	identifiers.clear();
+    	values.forEach(this::addIdentifier);
+    }
+    
     public void addIdentifier(Identifier identifier) {
-    	identifier.setHandleTitle(this.handle);
-    	identifiers.add(identifier);
+    	
+    	if (identifier != null) {
+    		identifier.setHandleTitle(this.handle);
+    		identifiers.add(identifier);
+    	}	
     }
 
     @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL) // an ExportChunkId!
-    @Setter(AccessLevel.PRIVATE) // Enforce usage of addExportChunk
     private Set<ExportChunk> exportChunks = new HashSet<>();
+    
+    public void setExportChunks(Set<ExportChunk> values) {
+    	exportChunks.clear();
+    	values.forEach(this::addExportChunk);
+    }
     
     public void addExportChunk(ExportChunk chunk) {
     	
-    	chunk.setHandleTitle(this.handle);
-    	exportChunks.add(chunk);
+    	if (chunk != null) {
+    		chunk.setHandleTitle(this.handle);
+    		exportChunks.add(chunk);
+    	}
+    	
     }
 
     
     @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @Setter(AccessLevel.PRIVATE) // Enforce usage of addGrantData
     private Set<GrantData> grantdata = new HashSet<>();
+    
+    public void setGrantData(Set<GrantData> values) {
+    	grantdata.clear();
+    	values.forEach(this::addGrantData);
+    }
     
     public void addGrantData(GrantData grantfield) {
     	
-    	grantfield.setHandleTitle(this.handle);
-    	grantdata.add(grantfield);
+    	if (grantfield != null) {
+    		grantfield.setHandleTitle(this.handle);
+    		grantdata.add(grantfield);
+    	}	
     }
     
     
@@ -164,19 +183,31 @@ public class Title {
     )
 	private Set<Funder> funders = new HashSet<>();
     
+    public void setFunders(Set<Funder> values) {
+    	
+    	values.forEach(this::addFunder);
+    }
+    
 	public void addFunder(Funder funder) {
-        funders.add(funder);
+        
+		if (funder != null) funders.add(funder);
     }
     
     
     @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @Setter(AccessLevel.PRIVATE) // Enforce usage of addFunding
     private Set<Contribution> contributions = new HashSet<>();
+    
+    public void setContributions(Set<Contribution> values) {
+    	contributions.clear();
+    	values.forEach(this::addContribution);
+    }
     
     public void addContribution(Contribution contribution) {
     	
-    	contribution.setHandleTitle(this.handle);
-    	contributions.add(contribution);
+    	if (contribution != null) {
+    		contribution.setHandleTitle(this.handle);
+    		contributions.add(contribution);
+    	}	
     }
     
     
@@ -187,6 +218,7 @@ public class Title {
     @JoinColumn(name = "handle_publisher", nullable = true)
     private Publisher publisher;
     
+   
     @ManyToMany(
     	fetch = FetchType.EAGER, // Eager, because there are only a few.	
     	cascade = {CascadeType.PERSIST,CascadeType.MERGE} 
@@ -197,10 +229,25 @@ public class Title {
     )
 	private Set<Classification> classifications = new HashSet<>();
     
+    public void setClassifications(Set<Classification> values) {
+
+    	values.forEach(this::addClassification);
+    }
+    
 	public void addClassification(Classification classification) {
-        classifications.add(classification);
+		
+		if (classification != null) classifications.add(classification);
     }
 
+	// Constructors
+	public Title() {}
+	
+	public Title(String id, String handle) {
+
+		this.handle = handle;
+		this.id = id;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -225,5 +272,17 @@ public class Title {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "Title [id=" + id + ", handle=" + handle + ", publisher:" + (publisher!=null)
+				+ ", datesAccessioned:" + datesAccessioned.size() + ", identifiers:" + identifiers.size()
+				+ ", exportChunks:" + exportChunks.size() + ", grantdata:" + grantdata.size() + ", funders:" + funders.size()
+				+ ", contributions:" + contributions.size() + ", classifications:"
+				+ classifications.size() + "]";
+	}
+	
+	
+	
 
 }

@@ -8,6 +8,8 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
 
+import org.springframework.lang.NonNull;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,10 +19,10 @@ import lombok.Setter;
 @IdClass(ExportChunkId.class)
 public class ExportChunk {
 	
-	@Id @Column
+	@Id @Column	@NonNull
 	private String type;
 
-	@Id @Column
+	@Id @Column	@NonNull
 	private String handleTitle;
 
 	@Column(name = "content")

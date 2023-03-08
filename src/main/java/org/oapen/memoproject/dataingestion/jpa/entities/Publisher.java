@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.eclipse.persistence.oxm.annotations.XmlPath;
+import org.springframework.lang.NonNull;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +21,7 @@ import lombok.Setter;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Publisher {
 	
-	@Id
+	@Id @NonNull
     @Column(name = "handle", updatable = false, insertable = true, unique = true)
 	@XmlPath("field[@name='handle']/text()")
     private String handle;

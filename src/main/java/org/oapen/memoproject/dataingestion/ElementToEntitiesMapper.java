@@ -12,6 +12,7 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
 import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
+import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 
 public interface ElementToEntitiesMapper {
 	
@@ -55,5 +56,7 @@ public interface ElementToEntitiesMapper {
 	Optional<String> getPlacePublication() throws MappingException;
 	Optional<String> getSeriesNumber() throws MappingException;
 	Optional<String> getPartOfBook() throws MappingException;
+	
+	Optional<Title> getItem();
 
 }

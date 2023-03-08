@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -22,6 +23,7 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
 import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
+import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -338,5 +340,17 @@ public class ElementToEntitiesMapperTests {
 		//chunks.forEach(System.out::println);
 
 		assertTrue(chunks.size()==4);
+	}
+	
+	
+	@Test
+	public void should_find_title_object() {
+		
+		Optional<Title> title = mapper1.getItem();
+		
+		System.out.println(title);
+		
+		assertTrue(title.isPresent());
+		
 	}
 }

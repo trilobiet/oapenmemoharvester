@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.eclipse.persistence.oxm.annotations.XmlPath;
+import org.springframework.lang.NonNull;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -23,12 +24,12 @@ import lombok.Setter;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Funder {
 	
-	@Id
-    @Column(name = "handle", updatable = false, insertable = true, unique = true)
+	@Id @NonNull
+    @Column(name = "handle", updatable = false, insertable = true)
 	@XmlPath("field[@name='handle']/text()")
 	private String handle;
 
-    @Column(name = "name")
+    @Column(name = "name") @NonNull
     @XmlPath("element[@name='grantor.name']/field/text()")
     private String name;
 
