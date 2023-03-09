@@ -29,6 +29,12 @@ public class Contributor {
 	public Contributor(String name) {
 		this.name = name;
 	}
+	
+	public boolean isComplete() {
+		
+		return (name != null && !name.isBlank());
+	}
+	
 
 	@Override
 	public int hashCode() {

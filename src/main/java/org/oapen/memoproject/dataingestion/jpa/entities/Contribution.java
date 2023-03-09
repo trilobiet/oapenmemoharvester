@@ -42,6 +42,12 @@ public class Contribution {
 		this.role = role;
 	}
 	
+	public boolean isComplete() {
+		
+		return (contributorName != null && !contributorName.isBlank() && role != null && !role.isBlank());
+	}
+	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

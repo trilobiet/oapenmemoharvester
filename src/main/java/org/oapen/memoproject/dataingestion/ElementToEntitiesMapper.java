@@ -1,6 +1,5 @@
 package org.oapen.memoproject.dataingestion;
 
-import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
 
@@ -16,47 +15,42 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 
 public interface ElementToEntitiesMapper {
 	
-	Set<Classification> getClassifications() throws MappingException;
-	Set<Contributor> getContributors() throws MappingException;
-	Set<Contribution> getContributions() throws MappingException;
-	Set<Funder> getFunders() throws MappingException;
-	Set<GrantData> getGrantData() throws MappingException;
-	Set<Identifier> getIdentifiers() throws MappingException;
-	Set<ExportChunk> getExportChunks() throws MappingException;
+	Set<Classification> getClassifications();
+	Set<Contributor> getContributors();
+	Set<Contribution> getContributions();
+	Set<Funder> getFunders();
+	Set<GrantData> getGrantData();
+	Set<Identifier> getIdentifiers();
+	Set<ExportChunk> getExportChunks();
 
-	Set<String> getLanguages() throws MappingException;
-	Set<String> getSubjectsOther() throws MappingException;
-	Set<LocalDate> getDatesAccessioned() throws MappingException;
+	Set<String> getLanguages();
+	Set<String> getSubjectsOther();
 
-	Optional<Publisher> getPublisher() throws MappingException;
+	Optional<Publisher> getPublisher();
+	Optional<Integer> getYearAvailable();
 	
-	Optional<String> getHandle() throws MappingException;
-	Optional<String> getSysId() throws MappingException;
-	Optional<String> getCollection() throws MappingException;
-	Optional<String> getDownloadUrl() throws MappingException;
-	Optional<String> getThumbnail() throws MappingException;
-	Optional<String> getLicense() throws MappingException;
-	Optional<String> getWebshopUrl() throws MappingException;
-	Optional<String> getDateAvailable() throws MappingException;
-	Optional<String> getDateIssued() throws MappingException;
-	Optional<String> getDescription() throws MappingException;
-	Optional<String> getDescriptionOtherLanguage() throws MappingException;
-	Optional<String> getDescriptionAbstract() throws MappingException;
-	Optional<String> getDescriptionProvenance() throws MappingException;
-	Optional<String> getTermsAbstract() throws MappingException;
-	Optional<String> getAbstractOtherLanguage() throws MappingException;
-	Optional<String> getPartOfSeries() throws MappingException;
-	Optional<String> getTitle() throws MappingException;
-	Optional<String> getTitleAlternative() throws MappingException;
-	Optional<String> getType() throws MappingException;
-	Optional<String> getChapterNumber() throws MappingException;
-	Optional<String> getEmbargo() throws MappingException;
-	Optional<String> getImprint() throws MappingException;
-	Optional<String> getPages() throws MappingException;
-	Optional<String> getPlacePublication() throws MappingException;
-	Optional<String> getSeriesNumber() throws MappingException;
-	Optional<String> getPartOfBook() throws MappingException;
-	
+	Optional<String> getHandle();
+	Optional<String> getSysId();
+	Optional<String> getCollection();
+	Optional<String> getDownloadUrl();
+	Optional<String> getThumbnail();
+	Optional<String> getLicense();
+	Optional<String> getWebshopUrl();
+	Optional<String> getDescriptionOtherLanguage();
+	Optional<String> getDescriptionAbstract();
+	Optional<String> getTermsAbstract();
+	Optional<String> getAbstractOtherLanguage();
+	Optional<String> getPartOfSeries();
+	Optional<String> getTitle();
+	Optional<String> getTitleAlternative();
+	Optional<String> getType();
+	Optional<String> getChapterNumber();
+	Optional<String> getImprint();
+	Optional<String> getPages();
+	Optional<String> getPlacePublication();
+	Optional<String> getSeriesNumber();
+	Optional<String> getPartOfBook();
+		
 	Optional<Title> getItem();
 
 }

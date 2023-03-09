@@ -122,7 +122,15 @@ public final class MapperUtils {
         };
     }	
     
-    
+    public static Optional<Integer> yearFromString(String s) {
+    	
+    	Optional<Integer> r = Optional.empty();
+    	
+    	if (s != null && s.length() >= 4 && s.substring(0,4).matches("[1-2][0-9]{3}")) 
+    		r =  Optional.of(Integer.parseInt(s.substring(0,4)));
+    	
+    	return r;
+    }
     
     
 }

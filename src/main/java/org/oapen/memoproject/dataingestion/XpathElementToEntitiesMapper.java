@@ -1,7 +1,8 @@
 package org.oapen.memoproject.dataingestion;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +25,6 @@ import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
-import org.springframework.data.mapping.MappingException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -211,12 +211,12 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	@Override
 	public Set<GrantData> getGrantData() {
 		
-		final String grantNumberPath1 = ".//element[@name='oapen.grant.number']//field[@name='originalValue']";
-		final String grantNumberPath2 = ".//element[@name='grant']/element[@name='number']//field[@name='value']";
-		final String grantProgramPath1 = ".//element[@name='oapen.grant.program']//field[@name='originalValue']";
-		final String grantProgramPath2 = ".//element[@name='grant']/element[@name='program']//field[@name='value']";
-		final String grantProjectPath = ".//element[@name='grant']/element[@name='project']//field[@name='value']";
-		final String grantAcronymPath = ".//element[@name='grant']/element[@name='acronym']//field[@name='value']";
+		final String grantNumberPath1	= ".//element[@name='oapen.grant.number']//field[@name='originalValue']";
+		final String grantNumberPath2	= ".//element[@name='grant']/element[@name='number']//field[@name='value']";
+		final String grantProgramPath1	= ".//element[@name='oapen.grant.program']//field[@name='originalValue']";
+		final String grantProgramPath2	= ".//element[@name='grant']/element[@name='program']//field[@name='value']";
+		final String grantProjectPath	= ".//element[@name='grant']/element[@name='project']//field[@name='value']";
+		final String grantAcronymPath	= ".//element[@name='grant']/element[@name='acronym']//field[@name='value']";
 		
 		Set<GrantData> grantdata = new HashSet<>();
 		
@@ -245,41 +245,33 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		return set;
 	}
 	
-	
-	
-	// TODO rewrite below here 
-	
  	
 	@Override
 	public Set<Identifier> getIdentifiers() {
 		
-		try {
-			Set<Identifier> identifiers = new HashSet<>();
-			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='identifier']//field[starts-with(text(),'ONIX')]", element, XPathConstants.NODESET);
-			identifiers.addAll(nodeListToIdentifierSet(nodes,"ONIX"));
-			nodes = (NodeList) xpath.evaluate(".//element[@name='identifier']//field[starts-with(text(),'OCN')]", element, XPathConstants.NODESET);
-			identifiers.addAll(nodeListToIdentifierSet(nodes,"OCN"));
-			nodes = (NodeList) xpath.evaluate(".//element[@name='doi']//field[@name='value']", element, XPathConstants.NODESET);
-			identifiers.addAll(nodeListToIdentifierSet(nodes,"DOI"));
-			nodes = (NodeList) xpath.evaluate(".//element[@name='uri']//field[@name='value']", element, XPathConstants.NODESET);
-			identifiers.addAll(nodeListToIdentifierSet(nodes,"URI"));
-			nodes = (NodeList) xpath.evaluate(".//element[@name='ocn']//field[@name='value']", element, XPathConstants.NODESET);
-			identifiers.addAll(nodeListToIdentifierSet(nodes,"OCN"));
-			nodes = (NodeList) xpath.evaluate(".//element[@name='isbn']//field[@name='value']", element, XPathConstants.NODESET);
-			identifiers.addAll(nodeListToIdentifierSet(nodes,"ISBN"));
-			nodes = (NodeList) xpath.evaluate(".//element[@name='issn']//field[@name='value']", element, XPathConstants.NODESET);
-			identifiers.addAll(nodeListToIdentifierSet(nodes,"ISSN"));
-			nodes = (NodeList) xpath.evaluate(".//element[@name='identifier']/element[@name='none']//field[@name='value']", element, XPathConstants.NODESET);
-			identifiers.addAll(nodeListToIdentifierSet(nodes,"UNKNOWN"));
-			nodes = (NodeList) xpath.evaluate(".//element[@name='identifier']//field[@name='value']", element, XPathConstants.NODESET);
-			identifiers.addAll(nodeListToIdentifierSet(nodes,"UNKNOWN"));
-			
-			return identifiers;
-		}	
-		catch (Exception e)	{
-			throw new MappingException("Could not parse identifiers");
-		}
+		final String pathONIX		= ".//element[@name='identifier']//field[starts-with(text(),'ONIX')]";
+		final String pathDOI		= ".//element[@name='doi']//field[@name='value']";
+		final String pathURI		= ".//element[@name='uri']//field[@name='value']";
+		final String pathOCN1		= ".//element[@name='identifier']//field[starts-with(text(),'OCN')]";
+		final String pathOCN2		= ".//element[@name='ocn']//field[@name='value']";
+		final String pathISBN		= ".//element[@name='isbn']//field[@name='value']";
+		final String pathISSN		= ".//element[@name='issn']//field[@name='value']";
+		final String pathUNKNOWN1	= ".//element[@name='identifier']/element[@name='none']//field[@name='value']";
+		final String pathUNKNOWN2	= ".//element[@name='identifier']//field[@name='value']";
 		
+		Set<Identifier> identifiers = new HashSet<>();
+		
+		getNodeList(pathONIX).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"ONIX")));
+		getNodeList(pathDOI).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"DOI")));
+		getNodeList(pathURI).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"URI")));
+		getNodeList(pathOCN1).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"OCN")));
+		getNodeList(pathOCN2).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"OCN")));
+		getNodeList(pathISBN).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"ISBN")));
+		getNodeList(pathISSN).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"ISSN")));
+		getNodeList(pathUNKNOWN1).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"UNKNOWN")));
+		getNodeList(pathUNKNOWN2).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"UNKNOWN")));
+		
+		return identifiers;
 	}
 
 	@Override
@@ -287,13 +279,10 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		
 		String path = ".//*[.='EXPORT']/..//element[@name='bitstream']/field[@name='url']";
 		
-		NodeList nodes = null;
-
-		try {
-			Set<ExportChunk> set = new HashSet<>();
+		Set<ExportChunk> set = new HashSet<>();
+		
+		getNodeList(path).ifPresent(nodes -> {
 			
-			nodes = (NodeList) xpath.evaluate(path, element, XPathConstants.NODESET);
-
 			for (int i=0; i < nodes.getLength(); i++) {
 	        	
 	        	Node node = nodes.item(i);
@@ -301,78 +290,48 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	        	ExportChunk member = new ExportChunk(MapperUtils.exportChunkType(url), url);
 	        	set.add(member);
 	        }
-			return set;
-			
-		}	
-		catch (Exception e)	{
-			throw new MappingException("Could not parse exportChunks " + MapperUtils.stringify(nodes));
-		}
+		});
+		
+		return set;
 	}
 
 	@Override
 	public Set<String> getLanguages() {
 		
-		try {
-			return getTextValueSet(".//element[@name='language']//field[@name='value']");
-		} catch (Exception e) {
-			throw new MappingException("Could not parse languages");
-		}
+		final String path = ".//element[@name='language']//field[@name='value']";
+		return getTextValueSet(path);
 	}
 
 	@Override
 	public Set<String> getSubjectsOther() {
-
-		try {
-			return getTextValueSet(".//element[@name='subject']//element[@name='other']//field[@name='value']");
-		} catch (Exception e) {
-			throw new MappingException("Could not parse other subjects");
-		}
-	}
-
-	@Override
-	public Set<LocalDate> getDatesAccessioned() {
 		
-		NodeList nodes = null;
-
-		try {
-			nodes = (NodeList) xpath.evaluate(".//element[@name='date']/element[@name='accessioned']//field[@name='value']", element, XPathConstants.NODESET);
-			
-			Set<LocalDate> set = new HashSet<>();
-			
-			for (int i=0; i < nodes.getLength(); i++) {
-	        	
-	        	Node node = nodes.item(i);
-	        	String dateText = node.getTextContent();
-	        	LocalDate date = MapperUtils.parseDate(dateText).orElseThrow();
-	        	set.add(date);
-	        }
-			
-			return set;
-		} catch (Exception e) {
-			throw new MappingException("Could not parse accessioned dates " + MapperUtils.stringify(nodes));
-		}
+		final String path = ".//element[@name='subject']//element[@name='other']//field[@name='value']";
+		return getTextValueSet(path);
 	}
+
 
 	@Override
 	public Optional<Publisher> getPublisher() {
 		
+		final String path = ".//element[@name='oapen.relation.isPublishedBy']";
+		
+		Optional<Publisher> p = Optional.empty();
+		Optional<Node> q = getNode(path);
+		
 		try {
-			NodeList nodes = (NodeList) xpath.evaluate(".//element[@name='oapen.relation.isPublishedBy']", element, XPathConstants.NODESET);
-			JAXBContext jaxbContext = JAXBContext.newInstance(Publisher.class);
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			
-			if (nodes.getLength() > 0) {
-	        	
-	        	Node node = nodes.item(0);
-	        	Publisher publisher = (Publisher) unmarshaller.unmarshal(node);
-	        	return Optional.of(publisher);
-	        }
-			else return Optional.empty(); 
-		}	
-		catch (Exception e)	{
-			throw new MappingException("Could not parse publisher");
+			if (q.isPresent()) {
+				Node node = q.get();  
+				JAXBContext jaxbContext = JAXBContext.newInstance(Publisher.class);
+				Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+				Publisher publisher = (Publisher) unmarshaller.unmarshal(node);
+				p = Optional.of(publisher);
+			}
+		}
+		catch (Exception e) {
+			// TODO log
 		}
 		
+		return p;
 	}
 	
 	@Override
@@ -387,36 +346,32 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		
 			Title title = new Title(getSysId().get(),getHandle().get());
 			
-			getAbstractOtherLanguage().ifPresent(value -> title.setAbstractOtherLanguage(value));
-			getChapterNumber().ifPresent(value -> title.setChapterNumber(value));
-			getCollection().ifPresent(value -> title.setCollection(value));
-			getDateAvailable().ifPresent(value -> title.setDateAvailable(value));
-			getDateIssued().ifPresent(value -> title.setDateIssued(value));
-			getDescription().ifPresent(value -> title.setDescription(value));
-			getDescriptionAbstract().ifPresent(value -> title.setDescriptionAbstract(value));
-			getDescriptionOtherLanguage().ifPresent(value -> title.setDescriptionOtherlanguage(value));
-			getDescriptionProvenance().ifPresent(value -> title.setDescriptionProvenance(value));
-			getDownloadUrl().ifPresent(value -> title.setDownloadUrl(value));
-			getEmbargo().ifPresent(value -> title.setEmbargo(value));
-			getImprint().ifPresent(value -> title.setImprint(value));
-			getLicense().ifPresent(value -> title.setLicense(value));
-			getPages().ifPresent(value -> title.setPages(value));
-			getPartOfBook().ifPresent(value -> title.setPartOfBook(value));
-			getPartOfSeries().ifPresent(value -> title.setPartOfSeries(value));
-			getPlacePublication().ifPresent(value -> title.setPlacePublication(value));
-			getSeriesNumber().ifPresent(value -> title.setSeriesNumber(value));
-			getTermsAbstract().ifPresent(value -> title.setTermsAbstract(value));
-			getThumbnail().ifPresent(value -> title.setThumbnail(value));
-			getTitle().ifPresent(value -> title.setTitle(value));
-			getTitleAlternative().ifPresent(value -> title.setTitleAlternative(value));
-			getType().ifPresent(value -> title.setType(value));
-			getWebshopUrl().ifPresent(value -> title.setWebshopUrl(value));
+			getAbstractOtherLanguage().ifPresent(title::setAbstractOtherLanguage);
+			getChapterNumber().ifPresent(title::setChapterNumber);
+			getCollection().ifPresent(title::setCollection);
+			getYearAvailable().ifPresent(title::setYearAvailable);
+			getDescriptionAbstract().ifPresent(title::setDescriptionAbstract);
+			getDescriptionOtherLanguage().ifPresent(title::setDescriptionOtherlanguage);
+			getDownloadUrl().ifPresent(title::setDownloadUrl);
+			getImprint().ifPresent(title::setImprint);
+			getLicense().ifPresent(title::setLicense);
+			getPages().ifPresent(title::setPages);
+			getPartOfBook().ifPresent(title::setPartOfBook);
+			getPartOfSeries().ifPresent(title::setPartOfSeries);
+			getPlacePublication().ifPresent(title::setPlacePublication);
+			getSeriesNumber().ifPresent(title::setSeriesNumber);
+			getTermsAbstract().ifPresent(title::setTermsAbstract);
+			getThumbnail().ifPresent(title::setThumbnail);
+			getTitle().ifPresent(title::setTitle);
+			getTitleAlternative().ifPresent(title::setTitleAlternative);
+			getType().ifPresent(title::setType);
+			getWebshopUrl().ifPresent(title::setWebshopUrl);
 			
 			getPublisher().ifPresent(title::setPublisher);
+			getYearAvailable().ifPresent(title::setYearAvailable);
 			
 			title.setClassifications(getClassifications());
 			title.setContributions(getContributions());
-			title.setDatesAccessioned(getDatesAccessioned());
 			title.setExportChunks(getExportChunks());
 			title.setFunders(getFunders());
 			title.setGrantData(getGrantData());
@@ -429,6 +384,31 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		
 		return r;
 		
+	}
+	
+	
+	@Override
+	public Optional<Integer> getYearAvailable() {
+		
+		final String pathDateAccessioned = ".//element[@name='dc']/element[@name='date']/element[@name='accessioned']//field[@name='value']";
+		final String pathDateAvailable = ".//element[@name='dc']/element[@name='date']/element[@name='available']//field[@name='value']";
+		final String pathDateIssued = ".//element[@name='dc']/element[@name='date']/element[@name='issued']//field[@name='value']";
+		
+		List<String> paths = new ArrayList<>(Arrays.asList(pathDateAccessioned,pathDateAvailable,pathDateIssued));
+		Set<Integer> years = new HashSet<>();
+		
+		for (String path: paths) {
+			
+			getNodeList(path).ifPresent(nodes -> {
+				
+				for (int i=0; i < nodes.getLength(); i++) 
+					MapperUtils.yearFromString(nodes.item(i).getTextContent()).ifPresent(years::add);
+			});
+		}
+
+		// Get smallest (earliest year)
+		if (years.isEmpty()) return Optional.empty();
+		else return Optional.of( Collections.min(years) );
 	}
 	
 
@@ -482,28 +462,6 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	}
 
 	@Override
-	public Optional<String> getDateAvailable() {
-		
-		final String path = ".//element[@name='dc']/element[@name='date']/element[@name='available']//field[@name='value']";
-		return getTextValue(path);
-	}
-
-	@Override
-	public Optional<String> getDateIssued() {
-		
-		final String path = ".//element[@name='dc']/element[@name='date']/element[@name='issued']//field[@name='value']";
-		return getTextValue(path);
-	}
-
-	// TODO This field seems always empty
-	@Override
-	public Optional<String> getDescription() {
-		
-		final String path = ".//TODO";
-		return getTextValue(path);
-	}
-
-	@Override
 	public Optional<String> getDescriptionOtherLanguage() {
 		
 		final String path = ".//element[@name='oapen']/element[@name='description']/element[@name='otherlanguage']//field[@name='value']";
@@ -514,14 +472,6 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	public Optional<String> getDescriptionAbstract() {
 		
 		final String path = ".//element[@name='dc']/element[@name='description']/element[@name='abstract']//field[@name='value']";
-		return getTextValue(path);
-	}
-
-	// TODO Not available in XOAI output
-	@Override
-	public Optional<String> getDescriptionProvenance() {
-		
-		final String path = ".//TODO";
 		return getTextValue(path);
 	}
 
@@ -571,14 +521,6 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	public Optional<String> getChapterNumber() {
 		
 		final String path = ".//element[@name='chapternumber']//field[@name='value']";
-		return getTextValue(path);
-	}
-
-	// TODO This field is always empty
-	@Override
-	public Optional<String> getEmbargo() {
-		
-		final String path = ".//TODO";
 		return getTextValue(path);
 	}
 

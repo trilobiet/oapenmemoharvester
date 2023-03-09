@@ -71,6 +71,20 @@ public class MapperUtilsTests {
 	
 	
 	@Test
+	void testyearFromString() {
+		
+		assertTrue( MapperUtils.yearFromString(null).isEmpty() );
+		assertTrue( MapperUtils.yearFromString("pipodeclown").isEmpty() );
+		assertTrue( MapperUtils.yearFromString("").isEmpty() );
+		assertTrue( MapperUtils.yearFromString("202").isEmpty() );
+		assertTrue( MapperUtils.yearFromString("x2023").isEmpty() );
+		assertTrue( MapperUtils.yearFromString("2023").equals( Optional.of(2023) ));
+		assertTrue( MapperUtils.yearFromString("202345pipodeclown").equals( Optional.of(2023) ));
+		assertTrue( MapperUtils.yearFromString("2023-01-20T13:59:11Z").equals( Optional.of(2023) ));
+	}
+	
+	
+	@Test
 	@Disabled
 	// TODO
 	void testStringifyNodeList() {

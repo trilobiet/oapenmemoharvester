@@ -39,6 +39,13 @@ public class Publisher {
 		this.handle = handle;
 		this.name = name;
 	}
+	
+	
+	public boolean isComplete() {
+		
+		return (handle != null && !handle.isBlank() && name != null && !name.isBlank());
+	}
+	
 
 	@Override
 	public int hashCode() {

@@ -30,6 +30,11 @@ public class Identifier {
 		this.type = type;
 	}
     
+	public boolean isComplete() {
+		
+		return (id != null && !id.isBlank() && type != null && !type.isBlank());
+	}
+    
 
 	@Override
 	public String toString() {

@@ -39,6 +39,13 @@ public class Classification {
 		return result;
 	}
 
+	
+	public boolean isComplete() {
+		
+		return (code != null && !code.isBlank() && description != null && !description.isBlank());
+	}
+	
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

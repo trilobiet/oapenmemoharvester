@@ -3,7 +3,6 @@ package org.oapen.memoproject.dataingestion;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
@@ -13,7 +12,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
@@ -53,160 +51,133 @@ public class ElementToEntitiesMapperTests {
 	
 
 	@Test
-	public void should_find_handler() throws MappingException {
+	public void should_find_handler() {
 
 		assertEquals("20.500.12657/60840", mapper1.getHandle().get());
 	}
 	
 	@Test
-	public void should_find_sysId() throws MappingException {
+	public void should_find_sysId() {
 
 		assertEquals("22222222-3aff-4e7b-9a1c-ce8c75fa9530", mapper1.getSysId().get());
 	}
 
 	@Test
-	public void should_find_collection() throws MappingException {
+	public void should_find_collection() {
 
 		assertEquals("col_20.500.12657_6", mapper1.getCollection().get());
 	}
 
 	@Test
-	public void should_find_downloadUrl() throws MappingException {
+	public void should_find_downloadUrl() {
 
 		assertEquals("https://library.oapen.org/bitstream/20.500.12657/60840/1/978-981-19-5170-1.pdf", mapper1.getDownloadUrl().get());
 	}
 	
 	@Test
-	public void should_find_thumbnail() throws MappingException {
+	public void should_find_thumbnail() {
 
 		assertEquals("https://library.oapen.org/bitstream/20.500.12657/60840/7/978-981-19-5170-1.pdf.jpg", mapper1.getThumbnail().get());
 	}
 
 	@Test
-	public void should_find_license() throws MappingException {
+	public void should_find_license() {
 
 		assertEquals("http://creativecommons.org/licenses/by/4.0/", mapper1.getLicense().get());
 	}
 
 	@Test
-	public void should_find_webshopUrl() throws MappingException {
+	public void should_find_webshopUrl() {
 
 		assertEquals("https://link.springer.com/978-981-19-5170-1", mapper1.getWebshopUrl().get());
 	}
 
 	@Test
-	public void should_find_dateAvailable() throws MappingException {
+	public void should_find_yearAvailable() {
 
-		assertEquals("2023-01-20T16:54:39Z", mapper1.getDateAvailable().get());
+		assertEquals(mapper1.getYearAvailable().get(),2010);
 	}
 	
 	@Test
-	public void should_find_dateIssued() throws MappingException {
-
-		assertEquals("2023", mapper1.getDateIssued().get());
-	}
-	
-	@Test
-	@Disabled("under construction")
-	public void should_find_description() throws MappingException {
-
-		assertEquals("", mapper1.getDescription().get());
-	}
-
-	@Test
-	public void should_find_descriptionOtherlanguage() throws MappingException {
+	public void should_find_descriptionOtherlanguage() {
 
 		assertEquals("Just a test string", mapper1.getDescriptionOtherLanguage().get());
 	}
 	
 	@Test
-	public void should_find_descriptionAbstract() throws MappingException {
+	public void should_find_descriptionAbstract() {
 
 		assertTrue(mapper1.getDescriptionAbstract().get().startsWith("This open access book"));
 	}
 	
 	@Test
-	@Disabled("under construction")
-	public void should_find_descriptionProvenance() throws MappingException {
-
-		assertEquals("", mapper1.getDescriptionProvenance().get());
-	}
-	
-	@Test
-	public void should_find_termsAbstract() throws MappingException {
+	public void should_find_termsAbstract() {
 
 		assertTrue(mapper1.getTermsAbstract().get().startsWith("Simplified Signs presents"));
 	}
 	
 	@Test
-	public void should_find_abstractOtherLanguage() throws MappingException {
+	public void should_find_abstractOtherLanguage() {
 
 		assertTrue(mapper1.getAbstractOtherLanguage().get().startsWith("Während der Zeit des historischen Kolonialismus"));
 	}
 
 	@Test
-	public void should_find_partOfSeries() throws MappingException {
+	public void should_find_partOfSeries() {
 
 		assertEquals("Cultural Heritage Studies", mapper1.getPartOfSeries().get());
 	}
 	
 	@Test
-	public void should_find_title() throws MappingException {
+	public void should_find_title() {
 
 		assertEquals("Hyperparameter Tuning for Machine and Deep Learning with R", mapper1.getTitle().get());
 	}
 
 	@Test
-	public void should_find_titleAlternative() throws MappingException {
+	public void should_find_titleAlternative() {
 
 		assertEquals("A Practical Guide", mapper1.getTitleAlternative().get());
 	}
 	
 	@Test
-	public void should_find_type() throws MappingException {
+	public void should_find_type() {
 
 		assertEquals("book", mapper1.getType().get());
 	}
 	
 	@Test
-	public void should_find_chapterNumber() throws MappingException {
+	public void should_find_chapterNumber() {
 
 		assertEquals("23", mapper1.getChapterNumber().get());
 	}
 
 	@Test
-	@Disabled("under construction")
-	public void should_find_embargo() throws MappingException {
-
-		assertEquals("", mapper1.getEmbargo().get());
-	}
-	
-	@Test
-	public void should_find_imprint() throws MappingException {
+	public void should_find_imprint() {
 
 		assertEquals("Springer Nature Singapore", mapper1.getImprint().get());
 	}
 	
 	@Test
-	public void should_find_pages() throws MappingException {
+	public void should_find_pages() {
 
 		assertEquals("323", mapper1.getPages().get());
 	}
 	
 	@Test
-	public void should_find_placePublication() throws MappingException {
+	public void should_find_placePublication() {
 
 		assertEquals("Singapore", mapper1.getPlacePublication().get());
 	}
 	
 	@Test
-	public void should_find_seriesNumber() throws MappingException {
+	public void should_find_seriesNumber() {
 
 		assertEquals("12345", mapper1.getSeriesNumber().get());
 	}
 	
 	@Test
-	public void should_find_partOfBook() throws MappingException {
+	public void should_find_partOfBook() {
 
 		assertEquals("20.500.12657/48278", mapper1.getPartOfBook().get());
 	}
@@ -214,7 +185,7 @@ public class ElementToEntitiesMapperTests {
 	
 	
 	@Test
-	public void should_find_publisher() throws MappingException {
+	public void should_find_publisher() {
 		
 		Publisher expectedPublisher = new Publisher("20.500.12657/22488","Springer Nature");
 		Publisher foundPublisher = mapper1.getPublisher().get();
@@ -223,7 +194,7 @@ public class ElementToEntitiesMapperTests {
 	}
 	
 	@Test
-	public void should_find_funders() throws MappingException {
+	public void should_find_funders() {
 		
 		Set<Funder> expectedFunders = new HashSet<>();
 		expectedFunders.add(new Funder("20.500.12657/60839","Austrian Science Fund"));
@@ -238,7 +209,7 @@ public class ElementToEntitiesMapperTests {
 
 	
 	@Test
-	public void should_find_grant_data() throws MappingException {
+	public void should_find_grant_data() {
 		
 		Set<GrantData> expectedGrantData = new HashSet<>();
 		expectedGrantData.add(new GrantData("number","10BP12_185527"));
@@ -253,7 +224,7 @@ public class ElementToEntitiesMapperTests {
 	
 
 	@Test
-	public void should_find_classifications() throws MappingException {
+	public void should_find_classifications() {
 		
 		Classification expectedClassification = new Classification("UYQ", "Artificial intelligence");
 		Set<Classification> foundClassifications = mapper1.getClassifications();
@@ -265,7 +236,7 @@ public class ElementToEntitiesMapperTests {
 	}
 
 	@Test
-	public void should_find_languages() throws MappingException {
+	public void should_find_languages() {
 		
 		Set<String> expectedLanguages = new HashSet<>(Arrays.asList("fre","eng","ger"));
 		Set<String> foundLanguages = mapper1.getLanguages();
@@ -274,7 +245,7 @@ public class ElementToEntitiesMapperTests {
 	}
 
 	@Test
-	public void should_find_other_subjects() throws MappingException {
+	public void should_find_other_subjects() {
 		
 		Set<String> expectedSubjects = new HashSet<>(Arrays.asList("Hyperparameter Tuning", "Hyperparameters", "Tuning", "Deep Neural Networks", "Reinforcement Learning", "Machine Learning"));
 		Set<String> foundSubjects = mapper1.getSubjectsOther();
@@ -284,7 +255,7 @@ public class ElementToEntitiesMapperTests {
 
 
 	@Test
-	public void should_find_contributors() throws MappingException {
+	public void should_find_contributors() {
 		
 		Set<Contributor> foundContributors = mapper1.getContributors();
 		
@@ -296,7 +267,7 @@ public class ElementToEntitiesMapperTests {
 	
 
 	@Test
-	public void should_find_contributions() throws MappingException {
+	public void should_find_contributions() {
 		
 		Set<Contribution> foundContributions = mapper1.getContributions();
 		
@@ -307,7 +278,7 @@ public class ElementToEntitiesMapperTests {
 	
 	
 	@Test
-	public void should_find_identifiers() throws MappingException {
+	public void should_find_identifiers() {
 		
 		Set<Identifier> ids = mapper1.getIdentifiers();
 		
@@ -320,20 +291,7 @@ public class ElementToEntitiesMapperTests {
 	}
 
 	@Test
-	public void should_find_datesAccesioned() throws MappingException {
-		
-		Set<LocalDate> dates = mapper1.getDatesAccessioned();
-		
-		//dates.forEach(System.out::println);
-		
-		LocalDate d = LocalDate.of(2019, 12, 10); 
-		
-		assertTrue(dates.size()==3);
-		assertTrue(dates.contains(d));
-	}
-	
-	@Test
-	public void should_find_exportChunks() throws MappingException {
+	public void should_find_exportChunks() {
 		
 		Set<ExportChunk> chunks = mapper1.getExportChunks();
 
@@ -347,10 +305,16 @@ public class ElementToEntitiesMapperTests {
 	public void should_find_title_object() {
 		
 		Optional<Title> title = mapper1.getItem();
-		
-		System.out.println(title);
+		// System.out.println(title);
 		
 		assertTrue(title.isPresent());
-		
+		assertTrue(title.get().getHandle().equals("20.500.12657/60840"));
+		assertTrue(title.get().getPublisher()!= null);
+		assertTrue(title.get().getClassifications().size()==9);
+		assertTrue(title.get().getContributions().size()==5);
+		assertTrue(title.get().getExportChunks().size()==4);
+		assertTrue(title.get().getFunders().size()==2);
+		assertTrue(title.get().getGrantdata().size()==2);
+		assertTrue(title.get().getIdentifiers().size()==9);
 	}
 }

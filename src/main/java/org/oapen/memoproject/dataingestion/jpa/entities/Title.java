@@ -1,6 +1,5 @@
 package org.oapen.memoproject.dataingestion.jpa.entities;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -48,11 +47,8 @@ public class Title {
     @Column(name = "webshop_url")
     private String webshopUrl;
 
-    @Column(name = "date_available")
-    private String dateAvailable;
-
-    @Column(name = "date_issued")
-    private String dateIssued;
+    @Column(name = "year_available")
+    private Integer yearAvailable;
 
     @Column(name = "description")
     private String description;
@@ -110,12 +106,6 @@ public class Title {
     @CollectionTable(name="language", joinColumns= @JoinColumn(name="handle_title", nullable = false))
     @Column(name = "language")
     private Set<String> languages = new HashSet<>();
-    
-    // TODO make this a Date object?
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name="date_accessioned", joinColumns= @JoinColumn(name="handle_title", nullable = false))
-    @Column(name = "date", nullable = false)
-    private Set<LocalDate> datesAccessioned = new HashSet<>();
     
     @ElementCollection
     @CollectionTable(name="subject_other", joinColumns= @JoinColumn(name="handle_title", nullable = false))
@@ -248,6 +238,12 @@ public class Title {
 		this.id = id;
 	}
 	
+	public boolean isComplete() {
+		
+		return (handle != null && !handle.isBlank());
+	}
+	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -276,7 +272,7 @@ public class Title {
 	@Override
 	public String toString() {
 		return "Title [id=" + id + ", handle=" + handle + ", publisher:" + (publisher!=null)
-				+ ", datesAccessioned:" + datesAccessioned.size() + ", identifiers:" + identifiers.size()
+				+ ", identifiers:" + identifiers.size()
 				+ ", exportChunks:" + exportChunks.size() + ", grantdata:" + grantdata.size() + ", funders:" + funders.size()
 				+ ", contributions:" + contributions.size() + ", classifications:"
 				+ classifications.size() + "]";

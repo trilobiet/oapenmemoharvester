@@ -62,6 +62,12 @@ public class Funder {
 		else 
 			return acronyms; // when reading from DB (for the sake of testing; this will not happen in production)
 	}
+	
+	
+	public boolean isComplete() {
+		
+		return (handle != null && !handle.isBlank() && name != null && !name.isBlank());
+	}
 
 	@Override
 	public int hashCode() {

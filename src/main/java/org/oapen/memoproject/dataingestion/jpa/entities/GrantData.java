@@ -46,6 +46,11 @@ public class GrantData {
 		this.property = property;
 		this.value = value;
 	}
+	
+	public boolean isComplete() {
+		
+		return (property != null && !property.isBlank() && value != null && !value.isBlank());
+	}
 
 	@Override
 	public int hashCode() {

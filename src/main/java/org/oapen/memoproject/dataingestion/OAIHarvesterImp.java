@@ -48,7 +48,7 @@ public final class OAIHarvesterImp implements OAIHarvester {
 				
 				oRst = lrDocument.getResumptionToken();
 	
-				Thread.sleep(1000); // Do not DDOS the OAI Provider
+				Thread.sleep(500); // Do not DDOS the OAI Provider
 				
 			} catch (Exception e) {	throw new HarvestException(e);} 
 			

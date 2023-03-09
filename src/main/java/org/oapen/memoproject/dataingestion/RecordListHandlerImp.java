@@ -1,5 +1,6 @@
 package org.oapen.memoproject.dataingestion;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,43 +14,33 @@ public final class RecordListHandlerImp implements RecordListHandler {
 	
 	XPath xpath = XPathFactory.newInstance().newXPath();
 	
+	//TODO handle deletions
+	
 	@Override
 	public void process(List<Element> elements) {
 		
+		List<Title> titles = new ArrayList<>();
 		
 		elements.forEach(el -> { 
 			
-			//System.out.println(el.getChildNodes().item(1).getChildNodes().item(1).getTextContent());
-			
-			
 			ElementToEntitiesMapper m = new XpathElementToEntitiesMapper(el);
 			
-			//Title title = new Title();
-			try {
-				Optional<String> handle = m.getHandle();
-				Optional<String> sysId = m.getSysId();
-				
-				//title.setHandle(m.getHandle().get());
-			} catch (MappingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			Optional<Title> title = m.getItem();
 			
-			
+			title.ifPresent(t -> {
 				
+				if (t.isComplete()) {
+					System.out.println(t);
+					titles.add(t);
+				}
+			});
+			
 		});
 		
-		
-	}
-	
-	
-	public boolean isValidRecord(Element element) {
-		
-		return true;
-		
-		
-	}
 
+		System.out.println("TOTAL: " + titles.size());
+	}
+	
 	
 	
 }

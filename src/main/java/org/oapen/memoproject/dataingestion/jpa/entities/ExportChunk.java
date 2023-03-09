@@ -35,6 +35,11 @@ public class ExportChunk {
 		this.content = content;
 	}
 	
+	public boolean isComplete() {
+		
+		return (type != null && !type.isBlank() && content != null && !content.isBlank());
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

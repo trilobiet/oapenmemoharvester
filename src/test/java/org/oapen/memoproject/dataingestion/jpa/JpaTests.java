@@ -3,7 +3,6 @@ package org.oapen.memoproject.dataingestion.jpa;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -290,29 +289,6 @@ public class JpaTests {
 
 	
 	@Test @Order(11)
-	public void should_save_dates() {
-		
-		Title title1 = new Title("0011","hndl11");
-		
-		LocalDate date1 = LocalDate.parse("2010-12-31");
-		LocalDate date2 = LocalDate.parse("2019-12-10");
-		LocalDate date3 = LocalDate.parse("2020-04-01");
-		
-		Set<LocalDate> dates = new HashSet<>();
-		dates.add(date1);
-		dates.add(date2);
-		dates.add(date3);
-		
-		LocalDate expectedDate = LocalDate.of(2020,4,1); 
-		title1.setDatesAccessioned(dates);
-		
-		Title t1saved = titleRepository.save(title1);
-		assertTrue(t1saved.getDatesAccessioned().size()==3);
-		assertTrue(t1saved.getDatesAccessioned().contains(expectedDate));
-	}
-
-	
-	@Test @Order(12)
 	public void should_save_contribution() {
 		
 		Title title1 = new Title("0012","hndl12");
@@ -333,7 +309,7 @@ public class JpaTests {
 	}	
 	
 	
-	@Test @Order(13)
+	@Test @Order(12)
 	public void should_save_grant_data() {
 		
 		Title title1 = new Title("0013","hndl13");

@@ -365,8 +365,8 @@
 						<element name="date">
 							<element name="accessioned">
 								<element name="none">
-									<field name="value">2010-12-31 23:55:55</field>
 									<field name="value">2019-12-10 14:46:32</field>
+									<field name="value">2010-12-31 23:55:55</field>
 									<field name="value">2020-04-01T15:37:45Z</field>
 								</element>
 							</element>
