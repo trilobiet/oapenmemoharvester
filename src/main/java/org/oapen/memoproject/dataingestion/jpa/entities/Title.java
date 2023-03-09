@@ -16,6 +16,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,8 +30,11 @@ public class Title {
     @Column(name = "handle", updatable = false, insertable = true)
     private String handle;
 
-    @Column(name = "sysid", updatable = false, insertable = true)
-    private String id;
+    @Transient
+    private String status;
+    
+    @Column(name = "sysid")
+    private String sysId;
 
     @Column(name = "collection")
     private String collection;
@@ -232,10 +236,9 @@ public class Title {
 	// Constructors
 	public Title() {}
 	
-	public Title(String id, String handle) {
+	public Title(String handle) {
 
 		this.handle = handle;
-		this.id = id;
 	}
 	
 	public boolean isComplete() {
@@ -243,12 +246,17 @@ public class Title {
 		return (handle != null && !handle.isBlank());
 	}
 	
+	public boolean isDeleted() {
+		
+		return (status != null && status.equals("deleted"));
+	}
+	
 	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((sysId == null) ? 0 : sysId.hashCode());
 		return result;
 	}
 
@@ -261,17 +269,17 @@ public class Title {
 		if (getClass() != obj.getClass())
 			return false;
 		Title other = (Title) obj;
-		if (id == null) {
-			if (other.id != null)
+		if (sysId == null) {
+			if (other.sysId != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!sysId.equals(other.sysId))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Title [id=" + id + ", handle=" + handle + ", publisher:" + (publisher!=null)
+		return "Title [handle=" + handle + ", publisher:" + (publisher!=null)
 				+ ", identifiers:" + identifiers.size()
 				+ ", exportChunks:" + exportChunks.size() + ", grantdata:" + grantdata.size() + ", funders:" + funders.size()
 				+ ", contributions:" + contributions.size() + ", classifications:"

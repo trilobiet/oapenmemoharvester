@@ -1,5 +1,6 @@
 package org.oapen.memoproject.dataingestion;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -71,7 +72,7 @@ public class MapperUtilsTests {
 	
 	
 	@Test
-	void testyearFromString() {
+	void testYearFromString() {
 		
 		assertTrue( MapperUtils.yearFromString(null).isEmpty() );
 		assertTrue( MapperUtils.yearFromString("pipodeclown").isEmpty() );
@@ -81,6 +82,31 @@ public class MapperUtilsTests {
 		assertTrue( MapperUtils.yearFromString("2023").equals( Optional.of(2023) ));
 		assertTrue( MapperUtils.yearFromString("202345pipodeclown").equals( Optional.of(2023) ));
 		assertTrue( MapperUtils.yearFromString("2023-01-20T13:59:11Z").equals( Optional.of(2023) ));
+	}
+	
+	
+	@Test 
+	void testExtractHandleFromIdentifier() {
+		
+		assertTrue( MapperUtils.extractHandleFromIdentifier(null).isEmpty());
+		assertTrue( MapperUtils.extractHandleFromIdentifier("").isEmpty());
+		assertTrue( MapperUtils.extractHandleFromIdentifier("  ").isEmpty());
+		
+		assertEquals( 
+			MapperUtils.extractHandleFromIdentifier("oai:library.oapen.org:20.500.12657/44456").get(),
+			"20.500.12657/44456"
+		);
+		
+		assertEquals( 
+			MapperUtils.extractHandleFromIdentifier("blahblahblah:20.500.12657/44456").get(),
+			"20.500.12657/44456"
+		);
+			
+		assertEquals( 
+			MapperUtils.extractHandleFromIdentifier("20.500.12657/44456").get(),
+			"20.500.12657/44456"
+		);
+
 	}
 	
 	

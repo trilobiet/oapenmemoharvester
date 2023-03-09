@@ -29,6 +29,7 @@ public interface ElementToEntitiesMapper {
 	Optional<Publisher> getPublisher();
 	Optional<Integer> getYearAvailable();
 	
+	Optional<String> getStatus();
 	Optional<String> getHandle();
 	Optional<String> getSysId();
 	Optional<String> getCollection();

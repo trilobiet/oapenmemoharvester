@@ -28,8 +28,11 @@ public final class RecordListHandlerImp implements RecordListHandler {
 			Optional<Title> title = m.getItem();
 			
 			title.ifPresent(t -> {
-				
-				if (t.isComplete()) {
+
+				if (t.isDeleted()) {
+					System.out.println(">>>>>>> DELETE " + t.getHandle());
+				}
+				else if (t.isComplete()) {
 					System.out.println(t);
 					titles.add(t);
 				}

@@ -133,4 +133,16 @@ public final class MapperUtils {
     }
     
     
+    public static Optional<String> extractHandleFromIdentifier(String s) {
+    	
+    	Optional<String> handle = Optional.empty();
+    	
+    	if ( s!= null && !s.isBlank() ) {
+    		String[] parts = s.split(":");
+    		if(parts.length > 0) handle = Optional.of(parts[parts.length-1]);
+    	}	
+    	
+    	return handle;
+    }
+    
 }

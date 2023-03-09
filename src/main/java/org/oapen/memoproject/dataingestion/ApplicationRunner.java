@@ -28,7 +28,7 @@ public class ApplicationRunner implements CommandLineRunner {
 
 	public void harvest() throws Exception {
 		
-		ListRecordsURLComposer harvestUrl = new ListRecordsFromDateUrlComposer(oaiPath,LocalDate.of(2023, 2, 14));
+		ListRecordsURLComposer harvestUrl = new ListRecordsFromDateUrlComposer(oaiPath,LocalDate.of(2023, 2, 27));
 		
 		OAIHarvesterImp harvester = new OAIHarvesterImp(harvestUrl);
 		

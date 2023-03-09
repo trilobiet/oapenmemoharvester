@@ -338,46 +338,55 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	public Optional<Title> getItem() {
 	
 		Optional<Title> r = Optional.empty();
-		
-		Optional<String> sysId = getSysId();
+
 		Optional<String> handle = getHandle();
+		Optional<String> status = getStatus();
 		
-		if (sysId.isPresent() && handle.isPresent()) {
+		if (handle.isPresent()) {
 		
-			Title title = new Title(getSysId().get(),getHandle().get());
+			Title title = new Title(getHandle().get());
 			
-			getAbstractOtherLanguage().ifPresent(title::setAbstractOtherLanguage);
-			getChapterNumber().ifPresent(title::setChapterNumber);
-			getCollection().ifPresent(title::setCollection);
-			getYearAvailable().ifPresent(title::setYearAvailable);
-			getDescriptionAbstract().ifPresent(title::setDescriptionAbstract);
-			getDescriptionOtherLanguage().ifPresent(title::setDescriptionOtherlanguage);
-			getDownloadUrl().ifPresent(title::setDownloadUrl);
-			getImprint().ifPresent(title::setImprint);
-			getLicense().ifPresent(title::setLicense);
-			getPages().ifPresent(title::setPages);
-			getPartOfBook().ifPresent(title::setPartOfBook);
-			getPartOfSeries().ifPresent(title::setPartOfSeries);
-			getPlacePublication().ifPresent(title::setPlacePublication);
-			getSeriesNumber().ifPresent(title::setSeriesNumber);
-			getTermsAbstract().ifPresent(title::setTermsAbstract);
-			getThumbnail().ifPresent(title::setThumbnail);
-			getTitle().ifPresent(title::setTitle);
-			getTitleAlternative().ifPresent(title::setTitleAlternative);
-			getType().ifPresent(title::setType);
-			getWebshopUrl().ifPresent(title::setWebshopUrl);
-			
-			getPublisher().ifPresent(title::setPublisher);
-			getYearAvailable().ifPresent(title::setYearAvailable);
-			
-			title.setClassifications(getClassifications());
-			title.setContributions(getContributions());
-			title.setExportChunks(getExportChunks());
-			title.setFunders(getFunders());
-			title.setGrantData(getGrantData());
-			title.setIdentifiers(getIdentifiers());
-			title.setLanguages(getLanguages());
-			title.setSubjectsOther(getSubjectsOther());
+			// Skip all fields except status for elements that have status "deleted" 
+			if (status.isPresent() && status.get().equals("deleted")) {
+				
+				title.setStatus("deleted");
+			}	
+			else {	
+				
+				getAbstractOtherLanguage().ifPresent(title::setAbstractOtherLanguage);
+				getChapterNumber().ifPresent(title::setChapterNumber);
+				getCollection().ifPresent(title::setCollection);
+				getYearAvailable().ifPresent(title::setYearAvailable);
+				getDescriptionAbstract().ifPresent(title::setDescriptionAbstract);
+				getDescriptionOtherLanguage().ifPresent(title::setDescriptionOtherlanguage);
+				getDownloadUrl().ifPresent(title::setDownloadUrl);
+				getImprint().ifPresent(title::setImprint);
+				getLicense().ifPresent(title::setLicense);
+				getPages().ifPresent(title::setPages);
+				getPartOfBook().ifPresent(title::setPartOfBook);
+				getPartOfSeries().ifPresent(title::setPartOfSeries);
+				getPlacePublication().ifPresent(title::setPlacePublication);
+				getSeriesNumber().ifPresent(title::setSeriesNumber);
+				getSysId().ifPresent(title::setSysId);
+				getTermsAbstract().ifPresent(title::setTermsAbstract);
+				getThumbnail().ifPresent(title::setThumbnail);
+				getTitle().ifPresent(title::setTitle);
+				getTitleAlternative().ifPresent(title::setTitleAlternative);
+				getType().ifPresent(title::setType);
+				getWebshopUrl().ifPresent(title::setWebshopUrl);
+				
+				getPublisher().ifPresent(title::setPublisher);
+				getYearAvailable().ifPresent(title::setYearAvailable);
+				
+				title.setClassifications(getClassifications());
+				title.setContributions(getContributions());
+				title.setExportChunks(getExportChunks());
+				title.setFunders(getFunders());
+				title.setGrantData(getGrantData());
+				title.setIdentifiers(getIdentifiers());
+				title.setLanguages(getLanguages());
+				title.setSubjectsOther(getSubjectsOther());
+			}	
 			
 			r = Optional.of(title);
 		}	
@@ -411,12 +420,20 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		else return Optional.of( Collections.min(years) );
 	}
 	
+	@Override
+	public Optional<String> getStatus() {
+		
+		final String path = ".//header/@status";
+		return getTextValue(path);
+	}
+	
 
 	@Override
 	public Optional<String> getHandle() {
 		
-		final String path = ".//element[@name='others']/field[@name='handle']";
-		return getTextValue(path);
+		final String path = "./header/identifier";
+		// Monadish isn't it?
+		return getTextValue(path).flatMap(n -> MapperUtils.extractHandleFromIdentifier(n));
 	}
 
 	@Override

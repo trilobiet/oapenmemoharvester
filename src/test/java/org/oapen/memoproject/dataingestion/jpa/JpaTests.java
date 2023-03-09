@@ -105,18 +105,17 @@ public class JpaTests {
 	@Test @Order(3)
 	public void should_save_a_title() {
 		
-		Title title = new Title("0001","hndl1");
+		Title title = new Title("hndl1");
 		title.setTitle("Whatever");
 		
 		Title tSaved = titleRepository.save(title);
-		assertTrue(tSaved.getId().equals("0001"));
-		assertFalse(tSaved.getId().equals("bogus"));
+		assertFalse(tSaved.getHandle().equals("bogus"));
 	}
 	
 	@Test @Order(4)
 	public void should_save_languages() {
 		
-		Title title1 = new Title("0002","hndl2");
+		Title title1 = new Title("hndl2");
 		title1.setTitle("Whatever again");
 		title1.setLanguages(new HashSet<>(Arrays.asList("FR","EN","NL")));
 		Title tSaved = titleRepository.save(title1);
@@ -128,7 +127,7 @@ public class JpaTests {
 	@Test @Order(5)
 	public void should_save_identifiers() {
 		
-		Title title1 = new Title("0003","hndl3");
+		Title title1 = new Title("hndl3");
 		title1.setTitle("You name it");
 		
 		Set<Identifier> identifiers = new HashSet<>();
@@ -160,7 +159,7 @@ public class JpaTests {
 	@Test @Order(6)
 	public void should_save_export_chunks() {
 		
-		Title title1 = new Title("0004","hndl4");
+		Title title1 = new Title("hndl4");
 		title1.setTitle("Whatever");
 		title1.setCollection("falderalderee");
 		Set<ExportChunk> chunks =  new HashSet<>();
@@ -171,7 +170,7 @@ public class JpaTests {
     	
     	Title t1saved = titleRepository.save(title1);
     	
-		Title title2 = new Title("0005","hndl5");
+		Title title2 = new Title("hndl5");
 		title2.setCollection("6559559");
 		title2.setTitle("Bonkers");
 
@@ -189,7 +188,7 @@ public class JpaTests {
 	@Test @Order(7)
 	public void should_share_a_publisher() {
 		
-		Title title1 = new Title("0006","hndl6");
+		Title title1 = new Title("hndl6");
 		title1.setTitle("Whatever");
     	
 		Publisher pub1 = new Publisher();
@@ -198,7 +197,7 @@ public class JpaTests {
 		pub1.setWebsite("www.acme.com");
 		title1.setPublisher(pub1);
 		
-		Title title2 = new Title("0007","hndl7");
+		Title title2 = new Title("hndl7");
 		title2.setCollection("6559559");
 		title2.setTitle("Bonkers");
 
@@ -218,7 +217,7 @@ public class JpaTests {
 	@Test @Order(8)
 	public void should_save_funder() {
 		
-		Title title1 = new Title("0008","hndl8");
+		Title title1 = new Title("hndl8");
 		title1.setTitle("TESTJE8");
 		
 		// removes doubles
@@ -248,7 +247,7 @@ public class JpaTests {
 	@Test @Order(9)
 	public void should_save_subject_other() {
 		
-		Title title1 = new Title("0009","hndl9");
+		Title title1 = new Title("hndl9");
 		title1.setSubjectsOther(new HashSet<>(Arrays.asList("subject1","subject2","subject3")));
 		
 		Title t1saved = titleRepository.save(title1);
@@ -260,7 +259,7 @@ public class JpaTests {
 	@Test @Order(10)
 	public void should_save_classifications() {
 		
-		Title title1 = new Title("0010","hndl10");
+		Title title1 = new Title("hndl10");
 		
 		Set<Classification> classifications = new HashSet<>();
 		
@@ -291,7 +290,7 @@ public class JpaTests {
 	@Test @Order(11)
 	public void should_save_contribution() {
 		
-		Title title1 = new Title("0012","hndl12");
+		Title title1 = new Title("hndl12");
 		
 		Contributor cor = new Contributor();
 		cor.setName("Pipo de Clown");
@@ -312,7 +311,7 @@ public class JpaTests {
 	@Test @Order(12)
 	public void should_save_grant_data() {
 		
-		Title title1 = new Title("0013","hndl13");
+		Title title1 = new Title("hndl13");
 		
 		GrantData grantData1 = new GrantData("number","grant123");
 		GrantData grantData2 = new GrantData("project","project456");

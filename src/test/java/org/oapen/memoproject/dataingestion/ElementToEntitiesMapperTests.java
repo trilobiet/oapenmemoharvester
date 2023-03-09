@@ -28,6 +28,7 @@ import org.w3c.dom.Element;
 public class ElementToEntitiesMapperTests {
 	
 	ElementToEntitiesMapper mapper1;
+	ElementToEntitiesMapper mapperToDelete;
 	
 	@BeforeEach
     void setUp() throws Exception {
@@ -45,15 +46,30 @@ public class ElementToEntitiesMapperTests {
 		 * Record 3 contains no data
 		 */
 		Element record1 = lrdoc.getRecords().get(1);
+		Element recordToDelete = lrdoc.getRecords().get(3);
 		
 		this.mapper1 = new XpathElementToEntitiesMapper(record1);
+		this.mapperToDelete = new XpathElementToEntitiesMapper(recordToDelete);
 	}	
 	
+	
+	@Test 
+	public void should_find_status_deleted() {
+		
+		assertEquals("deleted", mapperToDelete.getStatus().get());
+	}
+
+	@Test 
+	public void should_find_no_status_on_regular_record() {
+		
+		assertTrue(mapper1.getStatus().isEmpty());
+	}
 
 	@Test
 	public void should_find_handler() {
 
 		assertEquals("20.500.12657/60840", mapper1.getHandle().get());
+		assertEquals("20.500.12657/44456", mapperToDelete.getHandle().get());
 	}
 	
 	@Test

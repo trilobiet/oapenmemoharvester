@@ -1001,16 +1001,12 @@
 			</metadata>
 		</record>
 		<record>
-			<header>
-				<identifier>oai:library.oapen.org:20.500.12657/00000</identifier>
-				<setSpec>col_20.500.12657_6</setSpec>
+			<header status="deleted">
+				<identifier>oai:library.oapen.org:20.500.12657/44456</identifier>
+				<datestamp>2020-12-16T17:18:49Z</datestamp>
+				<setSpec>com_20.500.12657_45647</setSpec>
+				<setSpec>col_20.500.12657_45648</setSpec>
 			</header>
-			<metadata>
-				<metadata
-					xmlns="http://www.lyncode.com/xoai"
-					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.lyncode.com/xoai http://www.lyncode.com/xsd/xoai.xsd">
-				</metadata>
-			</metadata>
-		</record>			
+		</record>		
 	</ListRecords>
 </OAI-PMH>
