@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
+import org.oapen.memoproject.dataingestion.harvest.RecordListHandler;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.w3c.dom.Element;
 

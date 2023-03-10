@@ -1,4 +1,4 @@
-package org.oapen.memoproject.dataingestion;
+package org.oapen.memoproject.dataingestion.harvest;
 
 import java.net.MalformedURLException;
 import java.net.URL;

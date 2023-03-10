@@ -1,4 +1,4 @@
-package org.oapen.memoproject.dataingestion;
+package org.oapen.memoproject.dataingestion.harvest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class ListRecordsDocumentImp implements ListRecordsDocument {
+class ListRecordsDocumentImp implements ListRecordsDocument {
 	
 	private final Document document;
 

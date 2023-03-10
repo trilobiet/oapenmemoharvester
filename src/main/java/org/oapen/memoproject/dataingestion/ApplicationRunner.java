@@ -2,6 +2,9 @@ package org.oapen.memoproject.dataingestion;
 
 import java.time.LocalDate;
 
+import org.oapen.memoproject.dataingestion.harvest.ListRecordsFromDateUrlComposer;
+import org.oapen.memoproject.dataingestion.harvest.ListRecordsURLComposer;
+import org.oapen.memoproject.dataingestion.harvest.OAIHarvesterImp;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -28,15 +31,13 @@ public class ApplicationRunner implements CommandLineRunner {
 
 	public void harvest() throws Exception {
 		
-		ListRecordsURLComposer harvestUrl = new ListRecordsFromDateUrlComposer(oaiPath,LocalDate.of(2023, 2, 27));
+		ListRecordsURLComposer harvestUrl = new ListRecordsFromDateUrlComposer(oaiPath,LocalDate.of(2023, 3, 1));
 		
-		OAIHarvesterImp harvester = new OAIHarvesterImp(harvestUrl);
+		OAIHarvesterImp harvester = new OAIHarvesterImp(harvestUrl, new RecordListHandlerImp());
 		
 		System.out.println("HARVESTING...........................");
 		
-		harvester.harvest(
-			doc -> new RecordListHandlerImp().process(doc)
-		);
+		harvester.harvest();
 
 	}
 	

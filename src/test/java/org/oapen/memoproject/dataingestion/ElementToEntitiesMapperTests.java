@@ -3,6 +3,8 @@ package org.oapen.memoproject.dataingestion;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
@@ -10,6 +12,7 @@ import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,32 +27,33 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class ElementToEntitiesMapperTests {
 	
-	ElementToEntitiesMapper mapper1;
-	ElementToEntitiesMapper mapperToDelete;
+	private final String xmlrecord1 = TestConstants.xmlrecord1;
+	private final String xmlrecordDelete = TestConstants.xmlrecordDelete;
+	
+	private ElementToEntitiesMapper mapper1;
+	private ElementToEntitiesMapper mapperToDelete;
 	
 	@BeforeEach
-    void setUp() throws Exception {
+    void setUp() throws ParserConfigurationException, SAXException, IOException {
 
-		final String s = "./src/test/resources/xoai-response-short.xml";
-		
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setNamespaceAware(false);
 		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document xml = db.parse(s);
 		
-		ListRecordsDocument lrdoc = new ListRecordsDocumentImp(xml);
+		Document doc1 = db.parse(new InputSource( new StringReader( xmlrecord1 ) ));
+		Element el1 = (Element) doc1.getElementsByTagName("record").item(0);
 		
-		/* 
-		 * Test document contains 4 records (0,1,2,3)
-		 * Record 3 contains no data
-		 */
-		Element record1 = lrdoc.getRecords().get(1);
-		Element recordToDelete = lrdoc.getRecords().get(3);
+		this.mapper1 = new XpathElementToEntitiesMapper(el1);
 		
-		this.mapper1 = new XpathElementToEntitiesMapper(record1);
-		this.mapperToDelete = new XpathElementToEntitiesMapper(recordToDelete);
+		Document doc2 = db.parse(new InputSource( new StringReader( xmlrecordDelete ) ));
+		Element el2 = (Element) doc2.getElementsByTagName("record").item(0);
+		
+		this.mapperToDelete = new XpathElementToEntitiesMapper(el2);
 	}	
 	
 	

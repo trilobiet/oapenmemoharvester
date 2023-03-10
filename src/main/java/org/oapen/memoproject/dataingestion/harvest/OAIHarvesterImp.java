@@ -1,4 +1,4 @@
-package org.oapen.memoproject.dataingestion;
+package org.oapen.memoproject.dataingestion.harvest;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -15,18 +15,20 @@ import org.w3c.dom.Element;
 public final class OAIHarvesterImp implements OAIHarvester {
 	
 	private final ListRecordsURLComposer urlComposer;
-	private DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	private final RecordListHandler handler;
+	private final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
 	/**
 	 * @param urlPath OAI path without query string, e.g. <em>https://library.oapen.org/oai/request</em>
 	 */
-	public OAIHarvesterImp(ListRecordsURLComposer url) {
+	public OAIHarvesterImp(ListRecordsURLComposer url, RecordListHandler handler) {
 		
-		urlComposer = url;
+		this.urlComposer = url;
+		this.handler = handler;
 	}
 	
 	@Override
-	public final void harvest(RecordListHandler handler) throws HarvestException {
+	public final void harvest() throws HarvestException {
 		
 		Optional<ResumptionToken> oRst = Optional.empty();
 		

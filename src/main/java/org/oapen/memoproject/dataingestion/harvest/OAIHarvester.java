@@ -1,4 +1,4 @@
-package org.oapen.memoproject.dataingestion;
+package org.oapen.memoproject.dataingestion.harvest;
 
 import java.net.URL;
 
@@ -14,7 +14,7 @@ public interface OAIHarvester {
 	 * @param handler Handler function to process each Document 
 	 * @throws HarvestException
 	 */
-	void harvest(RecordListHandler handler) throws HarvestException;
+	void harvest() throws HarvestException;
 	
 	/**
 	 * Load an OAI XML document 

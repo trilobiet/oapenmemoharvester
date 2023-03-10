@@ -1,4 +1,4 @@
-package org.oapen.memoproject.dataingestion;
+package org.oapen.memoproject.dataingestion.harvest;
 
 
 /**
@@ -7,7 +7,7 @@ package org.oapen.memoproject.dataingestion;
  * @author acdhirr
  *
  */
-public class ResumptionToken {
+class ResumptionToken {
 	
 	public final String token;
 	public final Integer listSize;
