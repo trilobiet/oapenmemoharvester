@@ -8,8 +8,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
-import org.oapen.memoproject.dataingestion.harvest.ListRecordsFromDateUrlComposer;
-import org.oapen.memoproject.dataingestion.harvest.ResumptionToken;
 
 
 public class ListRecordsUrlComposerTests {

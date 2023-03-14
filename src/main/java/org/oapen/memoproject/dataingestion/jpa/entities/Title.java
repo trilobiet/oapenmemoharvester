@@ -54,17 +54,11 @@ public class Title {
     @Column(name = "year_available")
     private Integer yearAvailable;
 
-    @Column(name = "description")
-    private String description;
-
     @Column(name = "description_other_language")
-    private String descriptionOtherlanguage;
+    private String descriptionOtherLanguage;
 
     @Column(name = "description_abstract")
     private String descriptionAbstract;
-
-    @Column(name = "description_provenance")
-    private String descriptionProvenance;
 
     @Column(name = "terms_abstract")
     private String termsAbstract;
@@ -86,9 +80,6 @@ public class Title {
 
     @Column(name = "chapter_number")
     private String chapterNumber;
-
-    @Column(name = "embargo")
-    private String embargo;
 
     @Column(name = "imprint")
     private String imprint;
@@ -151,10 +142,10 @@ public class Title {
 
     
     @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Set<GrantData> grantdata = new HashSet<>();
+    private Set<GrantData> grantData = new HashSet<>();
     
     public void setGrantData(Set<GrantData> values) {
-    	grantdata.clear();
+    	grantData.clear();
     	values.forEach(this::addGrantData);
     }
     
@@ -162,7 +153,7 @@ public class Title {
     	
     	if (grantfield != null) {
     		grantfield.setHandleTitle(this.handle);
-    		grantdata.add(grantfield);
+    		grantData.add(grantfield);
     	}	
     }
     
@@ -281,7 +272,7 @@ public class Title {
 	public String toString() {
 		return "Title [handle=" + handle + ", publisher:" + (publisher!=null)
 				+ ", identifiers:" + identifiers.size()
-				+ ", exportChunks:" + exportChunks.size() + ", grantdata:" + grantdata.size() + ", funders:" + funders.size()
+				+ ", exportChunks:" + exportChunks.size() + ", grantdata:" + grantData.size() + ", funders:" + funders.size()
 				+ ", contributions:" + contributions.size() + ", classifications:"
 				+ classifications.size() + "]";
 	}

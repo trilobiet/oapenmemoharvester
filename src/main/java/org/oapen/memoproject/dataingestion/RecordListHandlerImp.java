@@ -9,24 +9,28 @@ import javax.xml.xpath.XPathFactory;
 
 import org.oapen.memoproject.dataingestion.harvest.RecordListHandler;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Element;
 
 public final class RecordListHandlerImp implements RecordListHandler {
 	
 	XPath xpath = XPathFactory.newInstance().newXPath();
 	
-	//TODO handle deletions
+	@Autowired
+	PersistenceService perservice;
 	
 	@Override
 	public void process(List<Element> elements) {
 		
 		List<Title> titles = new ArrayList<>();
 		
+		System.out.println("CLASSSSS " + perservice);
+		
 		elements.forEach(el -> { 
 			
-			ElementToEntitiesMapper m = new XpathElementToEntitiesMapper(el);
+			EntitiesSource m = new XOAIDocumentParser(el);
 			
-			Optional<Title> title = m.getItem();
+			Optional<Title> title = m.getTitle();
 			
 			title.ifPresent(t -> {
 
@@ -36,6 +40,15 @@ public final class RecordListHandlerImp implements RecordListHandler {
 				else if (t.isComplete()) {
 					System.out.println(t);
 					titles.add(t);
+					
+					m.getPublisher().ifPresent(perservice::savePublisher);
+					
+					perservice.saveClassifications(m.getClassifications());
+					perservice.saveContributors(m.getContributors());
+					perservice.saveFunders(m.getFunders());
+					perservice.saveTitle(t);
+					
+					t.getFunders().stream().forEach(System.out::println);
 				}
 			});
 			

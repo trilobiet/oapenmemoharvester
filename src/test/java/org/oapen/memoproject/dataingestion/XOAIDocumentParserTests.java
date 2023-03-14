@@ -7,8 +7,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,19 +25,19 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
 import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
-import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class ElementToEntitiesMapperTests {
+public class XOAIDocumentParserTests {
 	
 	private final String xmlrecord1 = TestConstants.xmlrecord1;
 	private final String xmlrecordDelete = TestConstants.xmlrecordDelete;
 	
-	private ElementToEntitiesMapper mapper1;
-	private ElementToEntitiesMapper mapperToDelete;
+	private XOAIDocumentParser source1;
+	private XOAIDocumentParser sourceDelete;
+
 	
 	@BeforeEach
     void setUp() throws ParserConfigurationException, SAXException, IOException {
@@ -48,158 +49,157 @@ public class ElementToEntitiesMapperTests {
 		Document doc1 = db.parse(new InputSource( new StringReader( xmlrecord1 ) ));
 		Element el1 = (Element) doc1.getElementsByTagName("record").item(0);
 		
-		this.mapper1 = new XpathElementToEntitiesMapper(el1);
+		source1 = new XOAIDocumentParser(el1);
 		
 		Document doc2 = db.parse(new InputSource( new StringReader( xmlrecordDelete ) ));
 		Element el2 = (Element) doc2.getElementsByTagName("record").item(0);
 		
-		this.mapperToDelete = new XpathElementToEntitiesMapper(el2);
+		sourceDelete = new XOAIDocumentParser(el2);
 	}	
 	
-	
+
 	@Test 
 	public void should_find_status_deleted() {
 		
-		assertEquals("deleted", mapperToDelete.getStatus().get());
+		assertEquals("deleted", sourceDelete.getTitle().get().getStatus());
 	}
 
 	@Test 
 	public void should_find_no_status_on_regular_record() {
 		
-		assertTrue(mapper1.getStatus().isEmpty());
+		assertTrue(source1.getTitle().get().getStatus()==null);
 	}
 
 	@Test
 	public void should_find_handler() {
 
-		assertEquals("20.500.12657/60840", mapper1.getHandle().get());
-		assertEquals("20.500.12657/44456", mapperToDelete.getHandle().get());
+		assertEquals("20.500.12657/60840", source1.getTitle().get().getHandle());
 	}
 	
 	@Test
 	public void should_find_sysId() {
 
-		assertEquals("22222222-3aff-4e7b-9a1c-ce8c75fa9530", mapper1.getSysId().get());
+		assertEquals("22222222-3aff-4e7b-9a1c-ce8c75fa9530", source1.getTitle().get().getSysId());
 	}
 
 	@Test
 	public void should_find_collection() {
 
-		assertEquals("col_20.500.12657_6", mapper1.getCollection().get());
+		assertEquals("col_20.500.12657_6", source1.getTitle().get().getCollection());
 	}
 
 	@Test
 	public void should_find_downloadUrl() {
 
-		assertEquals("https://library.oapen.org/bitstream/20.500.12657/60840/1/978-981-19-5170-1.pdf", mapper1.getDownloadUrl().get());
+		assertEquals("https://library.oapen.org/bitstream/20.500.12657/60840/1/978-981-19-5170-1.pdf", source1.getTitle().get().getDownloadUrl());
 	}
 	
 	@Test
 	public void should_find_thumbnail() {
 
-		assertEquals("https://library.oapen.org/bitstream/20.500.12657/60840/7/978-981-19-5170-1.pdf.jpg", mapper1.getThumbnail().get());
+		assertEquals("https://library.oapen.org/bitstream/20.500.12657/60840/7/978-981-19-5170-1.pdf.jpg", source1.getTitle().get().getThumbnail());
 	}
 
 	@Test
 	public void should_find_license() {
 
-		assertEquals("http://creativecommons.org/licenses/by/4.0/", mapper1.getLicense().get());
+		assertEquals("http://creativecommons.org/licenses/by/4.0/", source1.getTitle().get().getLicense());
 	}
 
 	@Test
 	public void should_find_webshopUrl() {
 
-		assertEquals("https://link.springer.com/978-981-19-5170-1", mapper1.getWebshopUrl().get());
+		assertEquals("https://link.springer.com/978-981-19-5170-1", source1.getTitle().get().getWebshopUrl());
 	}
 
 	@Test
 	public void should_find_yearAvailable() {
 
-		assertEquals(mapper1.getYearAvailable().get(),2010);
+		assertEquals(source1.getTitle().get().getYearAvailable(),2010);
 	}
 	
 	@Test
 	public void should_find_descriptionOtherlanguage() {
 
-		assertEquals("Just a test string", mapper1.getDescriptionOtherLanguage().get());
+		assertEquals("Just a test string", source1.getTitle().get().getDescriptionOtherLanguage());
 	}
 	
 	@Test
 	public void should_find_descriptionAbstract() {
 
-		assertTrue(mapper1.getDescriptionAbstract().get().startsWith("This open access book"));
+		assertTrue(source1.getTitle().get().getDescriptionAbstract().startsWith("This open access book"));
 	}
 	
 	@Test
 	public void should_find_termsAbstract() {
 
-		assertTrue(mapper1.getTermsAbstract().get().startsWith("Simplified Signs presents"));
+		assertTrue(source1.getTitle().get().getTermsAbstract().startsWith("Simplified Signs presents"));
 	}
 	
 	@Test
 	public void should_find_abstractOtherLanguage() {
 
-		assertTrue(mapper1.getAbstractOtherLanguage().get().startsWith("Während der Zeit des historischen Kolonialismus"));
+		assertTrue(source1.getTitle().get().getAbstractOtherLanguage().startsWith("Während der Zeit des historischen Kolonialismus"));
 	}
 
 	@Test
 	public void should_find_partOfSeries() {
 
-		assertEquals("Cultural Heritage Studies", mapper1.getPartOfSeries().get());
+		assertEquals("Cultural Heritage Studies", source1.getTitle().get().getPartOfSeries());
 	}
 	
 	@Test
 	public void should_find_title() {
 
-		assertEquals("Hyperparameter Tuning for Machine and Deep Learning with R", mapper1.getTitle().get());
+		assertEquals("Hyperparameter Tuning for Machine and Deep Learning with R", source1.getTitle().get().getTitle());
 	}
 
 	@Test
 	public void should_find_titleAlternative() {
 
-		assertEquals("A Practical Guide", mapper1.getTitleAlternative().get());
+		assertEquals("A Practical Guide", source1.getTitle().get().getTitleAlternative());
 	}
 	
 	@Test
 	public void should_find_type() {
 
-		assertEquals("book", mapper1.getType().get());
+		assertEquals("book", source1.getTitle().get().getType());
 	}
 	
 	@Test
 	public void should_find_chapterNumber() {
 
-		assertEquals("23", mapper1.getChapterNumber().get());
+		assertEquals("23", source1.getTitle().get().getChapterNumber());
 	}
 
 	@Test
 	public void should_find_imprint() {
 
-		assertEquals("Springer Nature Singapore", mapper1.getImprint().get());
+		assertEquals("Springer Nature Singapore", source1.getTitle().get().getImprint());
 	}
 	
 	@Test
 	public void should_find_pages() {
 
-		assertEquals("323", mapper1.getPages().get());
+		assertEquals("323", source1.getTitle().get().getPages());
 	}
 	
 	@Test
 	public void should_find_placePublication() {
 
-		assertEquals("Singapore", mapper1.getPlacePublication().get());
+		assertEquals("Singapore", source1.getTitle().get().getPlacePublication());
 	}
 	
 	@Test
 	public void should_find_seriesNumber() {
 
-		assertEquals("12345", mapper1.getSeriesNumber().get());
+		assertEquals("12345", source1.getTitle().get().getSeriesNumber());
 	}
 	
 	@Test
 	public void should_find_partOfBook() {
 
-		assertEquals("20.500.12657/48278", mapper1.getPartOfBook().get());
+		assertEquals("20.500.12657/48278", source1.getTitle().get().getPartOfBook());
 	}
 	
 	
@@ -208,7 +208,7 @@ public class ElementToEntitiesMapperTests {
 	public void should_find_publisher() {
 		
 		Publisher expectedPublisher = new Publisher("20.500.12657/22488","Springer Nature");
-		Publisher foundPublisher = mapper1.getPublisher().get();
+		Publisher foundPublisher = source1.getPublisher().get();
 		
 		assertEquals(expectedPublisher, foundPublisher);
 	}
@@ -220,9 +220,7 @@ public class ElementToEntitiesMapperTests {
 		expectedFunders.add(new Funder("20.500.12657/60839","Austrian Science Fund"));
 		expectedFunders.add(new Funder("20.500.12657/61833","Klaas"));
 		
-		Set<Funder> foundFunders = mapper1.getFunders();
-		
-		// foundFunders.forEach(f -> System.out.println(f.getAcronyms()));
+		Set<Funder> foundFunders = source1.getFunders();
 		
 		assertTrue(foundFunders.containsAll(expectedFunders));
 	}
@@ -231,15 +229,16 @@ public class ElementToEntitiesMapperTests {
 	@Test
 	public void should_find_grant_data() {
 		
-		Set<GrantData> expectedGrantData = new HashSet<>();
-		expectedGrantData.add(new GrantData("number","10BP12_185527"));
-		expectedGrantData.add(new GrantData("program","Open Access Books"));
+		Set<GrantData> foundGrants = source1.getTitle().get().getGrantData();
 		
-		Set<GrantData> foundGrants = mapper1.getGrantData();
+		assertTrue(foundGrants.size() == 2);
 		
-		// foundGrants.forEach(System.out::println);
+		List<String> values = foundGrants.stream()
+				.map(g -> g.getValue())
+				.collect(Collectors.toList());
 		
-		assertTrue(foundGrants.containsAll(expectedGrantData));
+		assertTrue( values.contains("10BP12_185527"));
+		assertTrue( values.contains("Open Access Books") );
 	}
 	
 
@@ -247,9 +246,7 @@ public class ElementToEntitiesMapperTests {
 	public void should_find_classifications() {
 		
 		Classification expectedClassification = new Classification("UYQ", "Artificial intelligence");
-		Set<Classification> foundClassifications = mapper1.getClassifications();
-		
-		//foundClassifications.forEach(System.out::println);
+		Set<Classification> foundClassifications = source1.getClassifications();
 		
 		assertTrue(foundClassifications.size()==9);
 		assertTrue(foundClassifications.contains(expectedClassification));
@@ -259,7 +256,7 @@ public class ElementToEntitiesMapperTests {
 	public void should_find_languages() {
 		
 		Set<String> expectedLanguages = new HashSet<>(Arrays.asList("fre","eng","ger"));
-		Set<String> foundLanguages = mapper1.getLanguages();
+		Set<String> foundLanguages = source1.getTitle().get().getLanguages();
 		
 		assertTrue(foundLanguages.containsAll(expectedLanguages));
 	}
@@ -268,7 +265,7 @@ public class ElementToEntitiesMapperTests {
 	public void should_find_other_subjects() {
 		
 		Set<String> expectedSubjects = new HashSet<>(Arrays.asList("Hyperparameter Tuning", "Hyperparameters", "Tuning", "Deep Neural Networks", "Reinforcement Learning", "Machine Learning"));
-		Set<String> foundSubjects = mapper1.getSubjectsOther();
+		Set<String> foundSubjects = source1.getTitle().get().getSubjectsOther();
 		
 		assertTrue(foundSubjects.containsAll(expectedSubjects));
 	}
@@ -277,7 +274,7 @@ public class ElementToEntitiesMapperTests {
 	@Test
 	public void should_find_contributors() {
 		
-		Set<Contributor> foundContributors = mapper1.getContributors();
+		Set<Contributor> foundContributors = source1.getContributors();
 		
 		// foundContributors.forEach(System.out::println);
 		
@@ -289,20 +286,23 @@ public class ElementToEntitiesMapperTests {
 	@Test
 	public void should_find_contributions() {
 		
-		Set<Contribution> foundContributions = mapper1.getContributions();
+		Set<Contribution> foundContributions = source1.getTitle().get().getContributions();
 		
 		assertTrue(foundContributions.size()==5);
-		assertTrue(foundContributions.contains(new Contribution("Gerritsen, Gerrit","author")));
-		assertTrue(foundContributions.contains(new Contribution("Zaefferer, Martin","editor")));
+		
+		List<String> names = foundContributions.stream()
+				.map(c -> c.getContributorName())
+				.collect(Collectors.toList());
+		
+		assertTrue( names.contains("Gerritsen, Gerrit")	);
+		assertTrue( names.contains("Zaefferer, Martin") );
 	}
 	
 	
 	@Test
 	public void should_find_identifiers() {
 		
-		Set<Identifier> ids = mapper1.getIdentifiers();
-		
-		//ids.forEach(System.out::println);
+		Set<Identifier> ids = source1.getTitle().get().getIdentifiers();
 		
 		Identifier id1 = new Identifier("9789811951701","ISBN");
 		
@@ -313,28 +313,10 @@ public class ElementToEntitiesMapperTests {
 	@Test
 	public void should_find_exportChunks() {
 		
-		Set<ExportChunk> chunks = mapper1.getExportChunks();
-
-		//chunks.forEach(System.out::println);
+		Set<ExportChunk> chunks = source1.getTitle().get().getExportChunks();
 
 		assertTrue(chunks.size()==4);
 	}
 	
 	
-	@Test
-	public void should_find_title_object() {
-		
-		Optional<Title> title = mapper1.getItem();
-		// System.out.println(title);
-		
-		assertTrue(title.isPresent());
-		assertTrue(title.get().getHandle().equals("20.500.12657/60840"));
-		assertTrue(title.get().getPublisher()!= null);
-		assertTrue(title.get().getClassifications().size()==9);
-		assertTrue(title.get().getContributions().size()==5);
-		assertTrue(title.get().getExportChunks().size()==4);
-		assertTrue(title.get().getFunders().size()==2);
-		assertTrue(title.get().getGrantdata().size()==2);
-		assertTrue(title.get().getIdentifiers().size()==9);
-	}
 }

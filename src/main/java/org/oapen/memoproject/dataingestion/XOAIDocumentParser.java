@@ -29,12 +29,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapper {
+public final class XOAIDocumentParser implements EntitiesSource {
 	
 	private final Element element;
 	private final XPath xpath;
 
-	public XpathElementToEntitiesMapper(Element element) {
+	public XOAIDocumentParser(Element element) {
 		
 		this.element = element;
 		xpath = XPathFactory.newInstance().newXPath();
@@ -106,7 +106,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 			for (int i=0; i<nodes.getLength(); i++) 
 				lines.add(nodes.item(i).getTextContent());
 			
-			classifications.addAll(MapperUtils.parseClassifications(lines));
+			classifications.addAll(XOAIDocumentParserUtils.parseClassifications(lines));
 		}); 
 		
 		return classifications;
@@ -143,8 +143,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	}
 	
 	
-	@Override
-	public Set<Contribution> getContributions() {
+	private Set<Contribution> getContributions() {
 		
 		final String authorPath = ".//element[@name='contributor']/element[@name='author']//field[@name='value']";
 		final String editorPath = ".//element[@name='contributor']/element[@name='editor']//field[@name='value']";
@@ -178,7 +177,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		        	
 		        	Node node = nodes.item(i);
 		        	Funder funder = (Funder) unmarshaller.unmarshal(node);
-		        	funders.add(funder);
+		        	if (funder.isComplete()) funders.add(funder);
 		        }
 			} catch (JAXBException e) {
 				// TODO log
@@ -198,7 +197,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
         	
         	Node node = nodes.item(i);
         	String value = node.getTextContent();
-        	if (!value.equals("[...]")) {  // ignore incomplete data
+        	if (!value.isBlank() && !value.equals("[...]")) {  // ignore incomplete data
         		GrantData member = new GrantData(property, node.getTextContent());
         		set.add(member);
         	}	
@@ -207,9 +206,8 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		return set;
 	}
 	
-	// TODO Grant data: grant.number, grant.program, grant.project and grant.acronym
-	@Override
-	public Set<GrantData> getGrantData() {
+	// Grant data: grant.number, grant.program, grant.project and grant.acronym
+	private Set<GrantData> getGrantData() {
 		
 		final String grantNumberPath1	= ".//element[@name='oapen.grant.number']//field[@name='originalValue']";
 		final String grantNumberPath2	= ".//element[@name='grant']/element[@name='number']//field[@name='value']";
@@ -246,8 +244,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	}
 	
  	
-	@Override
-	public Set<Identifier> getIdentifiers() {
+	private Set<Identifier> getIdentifiers() {
 		
 		final String pathONIX		= ".//element[@name='identifier']//field[starts-with(text(),'ONIX')]";
 		final String pathDOI		= ".//element[@name='doi']//field[@name='value']";
@@ -274,8 +271,8 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		return identifiers;
 	}
 
-	@Override
-	public Set<ExportChunk> getExportChunks() {
+	
+	private Set<ExportChunk> getExportChunks() {
 		
 		String path = ".//*[.='EXPORT']/..//element[@name='bitstream']/field[@name='url']";
 		
@@ -287,7 +284,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	        	
 	        	Node node = nodes.item(i);
 	        	String url = node.getTextContent();
-	        	ExportChunk member = new ExportChunk(MapperUtils.exportChunkType(url), url);
+	        	ExportChunk member = new ExportChunk(XOAIDocumentParserUtils.exportChunkType(url), url);
 	        	set.add(member);
 	        }
 		});
@@ -295,18 +292,20 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		return set;
 	}
 
-	@Override
-	public Set<String> getLanguages() {
+	private Set<String> getLanguages() {
 		
 		final String path = ".//element[@name='language']//field[@name='value']";
 		return getTextValueSet(path);
 	}
 
-	@Override
-	public Set<String> getSubjectsOther() {
+	private Set<String> getSubjectsOther() {
 		
 		final String path = ".//element[@name='subject']//element[@name='other']//field[@name='value']";
-		return getTextValueSet(path);
+		
+		Set<String> q = getTextValueSet(path);
+		
+		if (!q.isEmpty()) return XOAIDocumentParserUtils.parseSubjects(q);
+		else return q;
 	}
 
 
@@ -324,7 +323,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 				JAXBContext jaxbContext = JAXBContext.newInstance(Publisher.class);
 				Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 				Publisher publisher = (Publisher) unmarshaller.unmarshal(node);
-				p = Optional.of(publisher);
+				if (publisher.isComplete()) p = Optional.of(publisher);
 			}
 		}
 		catch (Exception e) {
@@ -335,7 +334,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	}
 	
 	@Override
-	public Optional<Title> getItem() {
+	public Optional<Title> getTitle() {
 	
 		Optional<Title> r = Optional.empty();
 
@@ -358,7 +357,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 				getCollection().ifPresent(title::setCollection);
 				getYearAvailable().ifPresent(title::setYearAvailable);
 				getDescriptionAbstract().ifPresent(title::setDescriptionAbstract);
-				getDescriptionOtherLanguage().ifPresent(title::setDescriptionOtherlanguage);
+				getDescriptionOtherLanguage().ifPresent(title::setDescriptionOtherLanguage);
 				getDownloadUrl().ifPresent(title::setDownloadUrl);
 				getImprint().ifPresent(title::setImprint);
 				getLicense().ifPresent(title::setLicense);
@@ -370,7 +369,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 				getSysId().ifPresent(title::setSysId);
 				getTermsAbstract().ifPresent(title::setTermsAbstract);
 				getThumbnail().ifPresent(title::setThumbnail);
-				getTitle().ifPresent(title::setTitle);
+				getTitleTitle().ifPresent(title::setTitle);
 				getTitleAlternative().ifPresent(title::setTitleAlternative);
 				getType().ifPresent(title::setType);
 				getWebshopUrl().ifPresent(title::setWebshopUrl);
@@ -396,8 +395,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 	}
 	
 	
-	@Override
-	public Optional<Integer> getYearAvailable() {
+	private Optional<Integer> getYearAvailable() {
 		
 		final String pathDateAccessioned = ".//element[@name='dc']/element[@name='date']/element[@name='accessioned']//field[@name='value']";
 		final String pathDateAvailable = ".//element[@name='dc']/element[@name='date']/element[@name='available']//field[@name='value']";
@@ -411,7 +409,7 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 			getNodeList(path).ifPresent(nodes -> {
 				
 				for (int i=0; i < nodes.getLength(); i++) 
-					MapperUtils.yearFromString(nodes.item(i).getTextContent()).ifPresent(years::add);
+					XOAIDocumentParserUtils.yearFromString(nodes.item(i).getTextContent()).ifPresent(years::add);
 			});
 		}
 
@@ -420,157 +418,156 @@ public final class XpathElementToEntitiesMapper implements ElementToEntitiesMapp
 		else return Optional.of( Collections.min(years) );
 	}
 	
-	@Override
-	public Optional<String> getStatus() {
+	
+	private Optional<String> getStatus() {
 		
 		final String path = ".//header/@status";
 		return getTextValue(path);
 	}
 	
 
-	@Override
-	public Optional<String> getHandle() {
+	private Optional<String> getHandle() {
 		
 		final String path = "./header/identifier";
 		// Monadish isn't it?
-		return getTextValue(path).flatMap(n -> MapperUtils.extractHandleFromIdentifier(n));
+		return getTextValue(path).flatMap(n -> XOAIDocumentParserUtils.extractHandleFromIdentifier(n));
 	}
 
-	@Override
-	public Optional<String> getSysId() {
+	
+	private Optional<String> getSysId() {
 		
 		final String path = ".//element[@name='others']/field[@name='uuid']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getCollection() {
+	
+	private Optional<String> getCollection() {
 
 		final String path = ".//header/setSpec[starts-with(text(),'col')]";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getDownloadUrl() {
+	
+	private Optional<String> getDownloadUrl() {
 		
 		final String path = ".//*[.='ORIGINAL']/..//element[@name='bitstream']/field[@name='url']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getThumbnail() {
+	
+	private Optional<String> getThumbnail() {
 		
 		final String path = ".//*[.='THUMBNAIL']/..//element[@name='bitstream']/field[@name='url']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getLicense() {
+	
+	private Optional<String> getLicense() {
 		
 		final String path = ".//*[.='ORIGINAL']/..//element[@name='bitstream']/field[@name='rightsuri']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getWebshopUrl() {
+	
+	private Optional<String> getWebshopUrl() {
 		
 		final String path = ".//*[.='ORIGINAL']/..//element[@name='bitstream']/field[@name='dcidentifierurlwebshop']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getDescriptionOtherLanguage() {
+	
+	private Optional<String> getDescriptionOtherLanguage() {
 		
 		final String path = ".//element[@name='oapen']/element[@name='description']/element[@name='otherlanguage']//field[@name='value']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getDescriptionAbstract() {
+	
+	private Optional<String> getDescriptionAbstract() {
 		
 		final String path = ".//element[@name='dc']/element[@name='description']/element[@name='abstract']//field[@name='value']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getTermsAbstract() {
+	
+	private Optional<String> getTermsAbstract() {
 		
 		final String path = ".//element[@name='dcterms']/element[@name='abstract']//field[@name='value']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getAbstractOtherLanguage() {
+	
+	private Optional<String> getAbstractOtherLanguage() {
 		
 		final String path = ".//element[@name='oapen']/element[@name='abstract']/element[@name='otherlanguage']//field[@name='value']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getPartOfSeries() {
+	
+	private Optional<String> getPartOfSeries() {
 		
 		final String path = ".//element[@name='ispartofseries']//field[@name='value']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getTitle() {
+	
+	private Optional<String> getTitleTitle() {
 		
 		final String path = ".//element[@name='dc']/element[@name='title']//field[@name='value']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getTitleAlternative() {
+	
+	private Optional<String> getTitleAlternative() {
 		
 		final String path = ".//element[@name='dc']/element[@name='title']/element[@name='alternative']//field[@name='value']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getType() {
+	
+	private Optional<String> getType() {
 		
 		final String path = ".//element[@name='dc']/element[@name='type']//field[@name='value']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getChapterNumber() {
+	
+	private Optional<String> getChapterNumber() {
 		
 		final String path = ".//element[@name='chapternumber']//field[@name='value']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getImprint() {
+	
+	private Optional<String> getImprint() {
 		
 		final String path = ".//element[@name='imprint']//field[@name='value']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getPages() {
+	
+	private Optional<String> getPages() {
 		
 		final String path = ".//element[@name='pages']//field[@name='value']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getPlacePublication() {
+	
+	private Optional<String> getPlacePublication() {
 		
 		final String path = ".//element[@name='place']/element[@name='publication']//field[@name='value']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getSeriesNumber() {
+	
+	private Optional<String> getSeriesNumber() {
 		
 		final String path = ".//element[@name='series']/element[@name='number']//field[@name='value']";
 		return getTextValue(path);
 	}
 
-	@Override
-	public Optional<String> getPartOfBook() {
+	
+	private Optional<String> getPartOfBook() {
 		
 		final String path = ".//element[@name='oapen.relation.isPartOfBook']/field[@name='handle']";
 		return getTextValue(path);

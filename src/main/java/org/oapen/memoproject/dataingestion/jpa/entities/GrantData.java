@@ -7,9 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -47,6 +44,9 @@ public class GrantData {
 		this.value = value;
 	}
 	
+	/**
+	 * @return True, if both property and value are given.
+	 */
 	public boolean isComplete() {
 		
 		return (property != null && !property.isBlank() && value != null && !value.isBlank());

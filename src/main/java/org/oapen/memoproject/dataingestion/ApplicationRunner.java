@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import org.oapen.memoproject.dataingestion.harvest.ListRecordsFromDateUrlComposer;
 import org.oapen.memoproject.dataingestion.harvest.ListRecordsURLComposer;
 import org.oapen.memoproject.dataingestion.harvest.OAIHarvesterImp;
+import org.oapen.memoproject.dataingestion.harvest.RecordListHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -20,7 +22,8 @@ public class ApplicationRunner implements CommandLineRunner {
 	@Value("${app.path.oaipath}")
 	private String oaiPath;
 	
-	
+	@Autowired
+	RecordListHandler recordListHandler;
 	
 
 	@Override
@@ -33,7 +36,7 @@ public class ApplicationRunner implements CommandLineRunner {
 		
 		ListRecordsURLComposer harvestUrl = new ListRecordsFromDateUrlComposer(oaiPath,LocalDate.of(2023, 3, 1));
 		
-		OAIHarvesterImp harvester = new OAIHarvesterImp(harvestUrl, new RecordListHandlerImp());
+		OAIHarvesterImp harvester = new OAIHarvesterImp(harvestUrl, recordListHandler);
 		
 		System.out.println("HARVESTING...........................");
 		

@@ -229,6 +229,8 @@ public class JpaTests {
 		funder.setNumber("1234567");
 		funder.setAcronymSet(acronyms);
 		
+		funderRepository.save(funder);
+		
 		Set<Funder> funders = new HashSet<>();
 		funders.add(funder);
 		title1.setFunders(funders);
@@ -321,7 +323,7 @@ public class JpaTests {
 		
 		Title t1saved = titleRepository.save(title1);
 		
-		assertTrue(t1saved.getGrantdata().size() == 2);
+		assertTrue(t1saved.getGrantData().size() == 2);
 	}	
 	
 	

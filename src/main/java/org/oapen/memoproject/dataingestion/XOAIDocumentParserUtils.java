@@ -12,7 +12,7 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public final class MapperUtils {
+public final class XOAIDocumentParserUtils {
 	
 	
 	public final static Set<Classification> parseClassifications(List<String> lines) {
@@ -30,6 +30,16 @@ public final class MapperUtils {
 		.collect(Collectors.toSet());
 		
 		return categories;
+	}
+	
+	
+	public final static Set<String> parseSubjects(Set<String> strings) {
+		
+		return strings.stream()
+			.map(s -> Arrays.asList(s.split("[,;/]|--")))
+			.flatMap(List::stream)
+			.map(s -> s.trim().substring(0))
+			.collect(Collectors.toSet());
 	}
 
 	
