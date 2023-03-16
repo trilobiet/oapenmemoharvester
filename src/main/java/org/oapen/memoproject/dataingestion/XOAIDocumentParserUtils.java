@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
+import org.oapen.memoproject.util.StringUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -23,7 +24,7 @@ public final class XOAIDocumentParserUtils {
 				.skip(1)  // always skip first item 'bic Book Industry Communication'
 				.map(cat -> Arrays.asList(cat.split(" ",2))) // split on first space 'HBL History: earliest times to present day'
 				.filter(p -> p.size() == 2) // remove faulty categories
-				.map(p -> new Classification(p.get(0),p.get(1))) // 0 = 'HBL' 1 = 'History: earliest times to present day'
+				.map(p -> new Classification( p.get(0), p.get(1) )) // 0 = 'HBL' 1 = 'History: earliest times to present day'
 				.collect(Collectors.toList())
 		)
 		.flatMap(List::stream)
@@ -35,30 +36,19 @@ public final class XOAIDocumentParserUtils {
 	
 	public final static Set<String> parseSubjects(Set<String> strings) {
 		
-		return strings.stream()
-			.map(s -> Arrays.asList(s.split("[,;/]|--")))
+		Set<String> p = strings.stream()
+			.map(s -> Arrays.asList(s.split("[,;/|]|--")))
 			.flatMap(List::stream)
-			.map(s -> s.trim().substring(0))
+			.map(s -> StringUtils.trimAllSpace(s))
+			.filter(s -> s.length() > 1)
+			.map(s -> StringUtils.cutOff(s,100))
 			.collect(Collectors.toSet());
+		
+		return p;
 	}
 
 	
-    /**
-     * Test if a string is a UUID
-     * 
-     * @param s
-     * @return true if s is a UUID
-     */
-    public final static boolean isUUID(String s) {
-    	
-    	final String UUID_STRING =
-    		    "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
-    	
-    	return s != null && s.matches(UUID_STRING);
-    }
-    
-    
-    public final static Optional<LocalDate> parseDate(String d) {
+	public final static Optional<LocalDate> parseDate(String d) {
     	
 	     try {
 	        return Optional.of(LocalDate.parse(d.substring(0,10)));

@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.eclipse.persistence.oxm.annotations.XmlPath;
+import org.oapen.memoproject.util.StringUtils;
 import org.springframework.lang.NonNull;
 
 import lombok.Getter;
@@ -29,11 +30,14 @@ public class Funder {
 	@XmlPath("field[@name='handle']/text()")
 	private String handle;
 
-    @Column(name = "name") @NonNull
+	@Transient // Setter for Xpath mapper (Non-persisted, the trimmed name is persisted)
     @XmlPath("element[@name='grantor.name']/field/text()")
+    private String nameDirty;
+	
+    @Column(name = "name")
     private String name;
 
-    @Transient // Setter for Xpath mapper (Non-persisted, the concatenated acronymsJoined is persisted)
+    @Transient // Setter for Xpath mapper (Non-persisted, the concatenated acronyms is persisted)
     @XmlPath("element[@name='grantor.acronym']/field/text()")
     private Set<String> acronymSet; 
     
@@ -51,6 +55,19 @@ public class Funder {
 		this.name = name;
 	}
 	
+	public void setNameDirty(String s) {
+		this.name = StringUtils.trimAllSpace(s);
+	}
+	
+	/**
+	 * @return name without leading or trailing spaces
+	 */
+	public String getName() {
+		
+		if (nameDirty != null) return nameDirty.trim();
+		else return name;
+	}
+	
 	public void setAcronymSet(Set<String> set) {
 		this.acronyms = EntityUtils.setToString(set, "||");
 	}
@@ -66,7 +83,7 @@ public class Funder {
 	
 	public boolean isComplete() {
 		
-		return (handle != null && !handle.isBlank() && name != null && !name.isBlank());
+		return (handle != null && !handle.isBlank() && getName() != null && !getName().isBlank());
 	}
 
 	@Override
@@ -96,7 +113,7 @@ public class Funder {
 
 	@Override
 	public String toString() {
-		return "Funder [handle=" + handle + ", name=" + name + "]";
+		return "Funder [handle=" + handle + ", name=" + getName() + "]";
 	}
 
 	

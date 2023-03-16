@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -210,21 +211,40 @@ public class XOAIDocumentParserTests {
 		Publisher expectedPublisher = new Publisher("20.500.12657/22488","Springer Nature");
 		Publisher foundPublisher = source1.getPublisher().get();
 		
-		assertEquals(expectedPublisher, foundPublisher);
+		assertEquals(expectedPublisher.getHandle(), foundPublisher.getHandle());
+		assertEquals(expectedPublisher.getName(), foundPublisher.getName());
 	}
 	
 	@Test
 	public void should_find_funders() {
 		
 		Set<Funder> expectedFunders = new HashSet<>();
-		expectedFunders.add(new Funder("20.500.12657/60839","Austrian Science Fund"));
-		expectedFunders.add(new Funder("20.500.12657/61833","Klaas"));
+		expectedFunders.add(new Funder("20.500.12657/60839","Only handle matters for equals!"));
+		expectedFunders.add(new Funder("20.500.12657/61833","Only handle matters for equals!"));
 		
-		Set<Funder> foundFunders = source1.getFunders();
+		Set<Funder> funderSet = source1.getFunders();
+		
+		ArrayList<Funder> foundFunders = new ArrayList<Funder>(funderSet);
+		
+		/*foundFunders.forEach(f -> {
+			System.out.println(f);
+			System.out.println("ACR " + f.getAcronyms());
+		});*/
 		
 		assertTrue(foundFunders.containsAll(expectedFunders));
 	}
 
+	
+	@Test
+	public void should_find_funder_acronyms() {
+		
+		Set<Funder> funderSet = source1.getFunders();
+		ArrayList<Funder> foundFunders = new ArrayList<Funder>(funderSet);
+		
+		assertTrue(foundFunders.get(0).getAcronyms().split("\\|\\|").length == 5);
+	}
+	
+	
 	
 	@Test
 	public void should_find_grant_data() {

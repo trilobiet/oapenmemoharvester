@@ -48,12 +48,17 @@ public class Contribution {
 	}
 	
 	
+	private String normalizedName() {
+		
+		return (contributorName == null)? null : contributorName.trim().toLowerCase();
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((handleTitle == null) ? 0 : handleTitle.hashCode());
-		result = prime * result + ((contributorName == null) ? 0 : contributorName.hashCode());
+		result = prime * result + ((contributorName == null) ? 0 : normalizedName().hashCode());
 		result = prime * result + ((role == null) ? 0 : role.hashCode());
 		return result;
 	}
@@ -75,7 +80,7 @@ public class Contribution {
 		if (contributorName == null) {
 			if (other.contributorName != null)
 				return false;
-		} else if (!contributorName.equals(other.contributorName))
+		} else if (!normalizedName().equals(other.normalizedName()))
 			return false;
 		if (role == null) {
 			if (other.role != null)
@@ -103,13 +108,18 @@ class ContributionId implements Serializable {
 	public String role;
 	
 	public ContributionId() {}
-
+	
+	private String normalizedName() {
+		
+		return (contributorName == null)? null : contributorName.trim().toLowerCase();
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((handleTitle == null) ? 0 : handleTitle.hashCode());
-		result = prime * result + ((contributorName == null) ? 0 : contributorName.hashCode());
+		result = prime * result + ((contributorName == null) ? 0 : normalizedName().hashCode());
 		result = prime * result + ((role == null) ? 0 : role.hashCode());
 		return result;
 	}
@@ -131,7 +141,7 @@ class ContributionId implements Serializable {
 		if (contributorName == null) {
 			if (other.contributorName != null)
 				return false;
-		} else if (!contributorName.equals(other.contributorName))
+		} else if (!normalizedName().equals(other.normalizedName()))
 			return false;
 		if (role == null) {
 			if (other.role != null)

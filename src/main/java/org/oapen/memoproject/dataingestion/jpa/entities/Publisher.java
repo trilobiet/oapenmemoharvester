@@ -4,11 +4,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.eclipse.persistence.oxm.annotations.XmlPath;
+import org.oapen.memoproject.util.StringUtils;
 import org.springframework.lang.NonNull;
 
 import lombok.Getter;
@@ -26,10 +28,13 @@ public class Publisher {
 	@XmlPath("field[@name='handle']/text()")
     private String handle;
 
+	@Transient // Setter for Xpath mapper (Non-persisted, the trimmed name is persisted)
+	@XmlPath("element[@name='publisher.name']/field/text()")
+    private String nameDirty;
+	
     @Column(name = "name")
-    @XmlPath("element[@name='publisher.name']/field/text()")
     private String name;
-
+	
     @Column(name = "website")
     private String website;
     
@@ -40,10 +45,22 @@ public class Publisher {
 		this.name = name;
 	}
 	
+	public void setNameDirty(String s) {
+		this.name = StringUtils.trimAllSpace(s);
+	}
+	
+	/**
+	 * @return name without leading or trailing spaces
+	 */
+	public String getName() {
+		
+		if (nameDirty != null) return nameDirty.trim();
+		else return name;
+	}
 	
 	public boolean isComplete() {
 		
-		return (handle != null && !handle.isBlank() && name != null && !name.isBlank());
+		return (handle != null && !handle.isBlank() && getName() != null && !getName().isBlank());
 	}
 	
 
@@ -74,7 +91,7 @@ public class Publisher {
 
 	@Override
 	public String toString() {
-		return "Publisher [handle=" + handle + ", name=" + name + "]";
+		return "Publisher [handle=" + handle + ", name=" + getName() + "]";
 	}
     
 	

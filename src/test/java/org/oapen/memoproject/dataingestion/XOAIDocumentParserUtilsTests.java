@@ -1,10 +1,10 @@
 package org.oapen.memoproject.dataingestion;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +38,7 @@ public class XOAIDocumentParserUtilsTests {
 		String subject1 = "subject1";
 		String subject2 = "subject2";
 		String subject3 = "subject3, subject4, subject5";
-		String subject4 = "subject6; subject7 /subject8";
+		String subject4 = "subject6; subject7 /subject8 | subject9";
 		String subject5 = "subject3 / subject4 , subject9";
 		String subject6 = "subject10;subject11 -- subject12 -- subject13";
 		
@@ -48,18 +48,19 @@ public class XOAIDocumentParserUtilsTests {
 		
 		assertTrue(subjectsSplit.size() == 13);
 	}
-
+	
 	
 	@Test
-	void testIsUUID() {
+	void testParseSubjects2() {
 		
-		boolean isUuid = XOAIDocumentParserUtils.isUUID("12345678-1234-1234-1234-1234567890AB");
-		boolean isNotUuid = XOAIDocumentParserUtils.isUUID("1234567");
-		boolean isNull = XOAIDocumentParserUtils.isUUID(null);
+		// first character = C2 AO (non breaking space)
+		String subject1 = " Industry & water ";  
 		
-		assertTrue(isUuid);
-		assertFalse(isNotUuid);
-		assertFalse(isNull);
+		Set<String> subjects = Sets.newLinkedHashSet(subject1);
+		Set<String> subjectsSplit = XOAIDocumentParserUtils.parseSubjects(subjects);
+		
+		assertTrue(subjectsSplit.size() == 1);
+		assertTrue(new ArrayList<String>(subjectsSplit).get(0).length() == 16);
 	}
 
 	

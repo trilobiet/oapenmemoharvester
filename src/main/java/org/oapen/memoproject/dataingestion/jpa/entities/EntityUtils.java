@@ -9,6 +9,7 @@ public final class EntityUtils {
     	
     	if (set != null)
     		return set.stream()
+    			.map(String::trim)
     			.sorted()
 				.collect(Collectors.joining(delimiter));
     	else 

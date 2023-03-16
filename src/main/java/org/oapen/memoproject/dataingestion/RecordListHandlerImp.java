@@ -35,20 +35,22 @@ public final class RecordListHandlerImp implements RecordListHandler {
 			title.ifPresent(t -> {
 
 				if (t.isDeleted()) {
-					System.out.println(">>>>>>> DELETE " + t.getHandle());
+					// System.out.println(">>>>>>> DELETE " + t.getHandle());
+					
+					// TODO handle deletions 
 				}
 				else if (t.isComplete()) {
-					System.out.println(t);
+					
 					titles.add(t);
 					
 					m.getPublisher().ifPresent(perservice::savePublisher);
 					
 					perservice.saveClassifications(m.getClassifications());
 					perservice.saveContributors(m.getContributors());
-					perservice.saveFunders(m.getFunders());
+					try { perservice.saveFunders(m.getFunders());} catch (RuntimeException e) { /* log da shit with t handle */}	
 					perservice.saveTitle(t);
 					
-					t.getFunders().stream().forEach(System.out::println);
+					// t.getFunders().stream().forEach(System.out::println);
 				}
 			});
 			

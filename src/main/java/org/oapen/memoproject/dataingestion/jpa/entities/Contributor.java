@@ -35,12 +35,17 @@ public class Contributor {
 		return (name != null && !name.isBlank());
 	}
 	
+	private String normalizedName() {
+		
+		return (name == null)? null : name.trim().toLowerCase();
+	}
+	
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((name == null) ? 0 : normalizedName().hashCode());
 		return result;
 	}
 
@@ -54,9 +59,9 @@ public class Contributor {
 			return false;
 		Contributor other = (Contributor) obj;
 		if (name == null) {
-			if (other.name != null)
+			if (other.normalizedName() != null)
 				return false;
-		} else if (!name.equals(other.name))
+		} else if (!normalizedName().equals(other.normalizedName()))
 			return false;
 		return true;
 	}

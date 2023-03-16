@@ -1,7 +1,5 @@
 package org.oapen.memoproject.dataingestion;
 
-import java.time.LocalDate;
-
 import org.oapen.memoproject.dataingestion.harvest.ListRecordsFromDateUrlComposer;
 import org.oapen.memoproject.dataingestion.harvest.ListRecordsURLComposer;
 import org.oapen.memoproject.dataingestion.harvest.OAIHarvesterImp;
@@ -34,7 +32,7 @@ public class ApplicationRunner implements CommandLineRunner {
 
 	public void harvest() throws Exception {
 		
-		ListRecordsURLComposer harvestUrl = new ListRecordsFromDateUrlComposer(oaiPath,LocalDate.of(2023, 3, 1));
+		ListRecordsURLComposer harvestUrl = new ListRecordsFromDateUrlComposer(oaiPath);
 		
 		OAIHarvesterImp harvester = new OAIHarvesterImp(harvestUrl, recordListHandler);
 		

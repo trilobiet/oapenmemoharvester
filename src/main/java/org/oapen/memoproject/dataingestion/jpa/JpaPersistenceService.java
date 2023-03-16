@@ -46,6 +46,7 @@ public class JpaPersistenceService implements PersistenceService {
 		}
 		catch (Exception e) {
 			logger.error("Funders: " + e.getMessage());
+			throw new RuntimeException(e);
 		}
 		return r;
 	}

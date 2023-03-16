@@ -25,6 +25,7 @@ import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
+import org.oapen.memoproject.util.StringUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -74,7 +75,9 @@ public final class XOAIDocumentParser implements EntitiesSource {
 			for (int i=0; i < nodes.getLength(); i++) {
 	        	
 	        	Node node = nodes.item(i);
-	        	values.add(node.getTextContent());
+	        	values.add(
+	        		StringUtils.trimAllSpace(node.getTextContent())
+	        	);
 	        }
 		});
 		
@@ -87,7 +90,9 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		Optional<Node> node = getNode(xpathQuery);
 		
 		if (node.isPresent())
-			return Optional.of(node.get().getTextContent());
+			return Optional.of(
+				StringUtils.trimAllSpace(node.get().getTextContent())
+			);
 		else 
 			return Optional.empty();
 	}
@@ -104,7 +109,9 @@ public final class XOAIDocumentParser implements EntitiesSource {
 			List<String> lines = new ArrayList<>(); 
 
 			for (int i=0; i<nodes.getLength(); i++) 
-				lines.add(nodes.item(i).getTextContent());
+				lines.add(
+					StringUtils.trimAllSpace(nodes.item(i).getTextContent())
+				);
 			
 			classifications.addAll(XOAIDocumentParserUtils.parseClassifications(lines));
 		}); 
@@ -121,7 +128,11 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		
 		getNodeList(path).ifPresent(nodes -> {
 			for (int i=0; i<nodes.getLength(); i++) 
-				contributors.add( new Contributor(nodes.item(i).getTextContent()));
+				contributors.add( 
+					new Contributor(
+						StringUtils.trimAllSpace(nodes.item(i).getTextContent())
+					)
+				);
 		});
 
 		return contributors;
@@ -135,7 +146,10 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		for (int i=0; i < nodes.getLength(); i++) {
         	
         	Node node = nodes.item(i);
-        	Contribution member = new Contribution(node.getTextContent(),role);
+        	Contribution member = new Contribution(
+        		StringUtils.trimAllSpace(node.getTextContent().trim())
+        		,role
+        	);
         	set.add(member);
         }
 		
@@ -198,7 +212,10 @@ public final class XOAIDocumentParser implements EntitiesSource {
         	Node node = nodes.item(i);
         	String value = node.getTextContent();
         	if (!value.isBlank() && !value.equals("[...]")) {  // ignore incomplete data
-        		GrantData member = new GrantData(property, node.getTextContent());
+        		GrantData member = new GrantData(
+        			property, 
+        			StringUtils.trimAllSpace(node.getTextContent().trim())
+        		);
         		set.add(member);
         	}	
         }
@@ -236,7 +253,10 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		for (int i=0; i < nodes.getLength(); i++) {
         	
         	Node node = nodes.item(i);
-        	Identifier member = new Identifier(node.getTextContent(),type);
+        	Identifier member = new Identifier(
+        		StringUtils.trimAllSpace(node.getTextContent().trim())
+        		,type
+        	);
         	set.add(member);
         }
 		
@@ -283,7 +303,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 			for (int i=0; i < nodes.getLength(); i++) {
 	        	
 	        	Node node = nodes.item(i);
-	        	String url = node.getTextContent();
+	        	String url = StringUtils.trimAllSpace(node.getTextContent());
 	        	ExportChunk member = new ExportChunk(XOAIDocumentParserUtils.exportChunkType(url), url);
 	        	set.add(member);
 	        }
@@ -292,12 +312,14 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		return set;
 	}
 
+	
 	private Set<String> getLanguages() {
 		
 		final String path = ".//element[@name='language']//field[@name='value']";
 		return getTextValueSet(path);
 	}
 
+	
 	private Set<String> getSubjectsOther() {
 		
 		final String path = ".//element[@name='subject']//element[@name='other']//field[@name='value']";
@@ -332,6 +354,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		
 		return p;
 	}
+	
 	
 	@Override
 	public Optional<Title> getTitle() {
@@ -408,8 +431,10 @@ public final class XOAIDocumentParser implements EntitiesSource {
 			
 			getNodeList(path).ifPresent(nodes -> {
 				
-				for (int i=0; i < nodes.getLength(); i++) 
-					XOAIDocumentParserUtils.yearFromString(nodes.item(i).getTextContent()).ifPresent(years::add);
+				for (int i=0; i < nodes.getLength(); i++) {
+					String datetext = StringUtils.trimAllSpace(nodes.item(i).getTextContent()); 
+					XOAIDocumentParserUtils.yearFromString(datetext).ifPresent(years::add);
+				}	
 			});
 		}
 
