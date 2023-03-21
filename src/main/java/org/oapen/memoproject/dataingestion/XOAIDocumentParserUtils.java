@@ -1,7 +1,6 @@
 package org.oapen.memoproject.dataingestion;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -10,10 +9,10 @@ import java.util.stream.Collectors;
 
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 import org.oapen.memoproject.util.StringUtils;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 public final class XOAIDocumentParserUtils {
+		
+	private final static String SPLIT_CHARS = "[,;:/|]|--";
 	
 	
 	public final static Set<Classification> parseClassifications(List<String> lines) {
@@ -37,16 +36,51 @@ public final class XOAIDocumentParserUtils {
 	public final static Set<String> parseSubjects(Set<String> strings) {
 		
 		Set<String> p = strings.stream()
-			.map(s -> Arrays.asList(s.split("[,;/|]|--")))
+			.map(s -> Arrays.asList(s.split(SPLIT_CHARS)))
 			.flatMap(List::stream)
 			.map(s -> StringUtils.trimAllSpace(s))
+			.map(s -> StringUtils.trimQuotes(s))
 			.filter(s -> s.length() > 1)
 			.map(s -> StringUtils.cutOff(s,100))
 			.collect(Collectors.toSet());
 		
 		return p;
 	}
+	
+	
+	public final static Set<String> parseLanguages(Set<String> strings) {
+		
+		Set<String> p = strings.stream()
+			.map(s -> Arrays.asList(s.split(SPLIT_CHARS)))
+			.flatMap(List::stream)
+			.map(s -> StringUtils.trimAllSpace(s))
+			.map(String::toLowerCase)
+			.filter(s -> s.length() == 3)
+			.collect(Collectors.toSet());
+		
+		return p;
+	}
 
+	
+	public final static Set<String> parseISBNOrISSN(Set<String> strings) {
+		
+		Set<String> p = strings.stream()
+			.map(s -> Arrays.asList(s.split("[;|]")))
+			.flatMap(List::stream)
+			.map(s -> StringUtils.trimAllSpace(s))
+			.map(String::toLowerCase)
+			.collect(Collectors.toSet());
+		
+		return p;
+	}	
+	
+	
+	public final static String parseOCN(String ocn) {
+		
+		return ocn.replaceAll("(?i)^ocn:", "").trim();
+		
+	}
+	
 	
 	public final static Optional<LocalDate> parseDate(String d) {
     	
@@ -76,51 +110,6 @@ public final class XOAIDocumentParserUtils {
     	
     }
 
-
-    public final static String stringify(NodeList nodes) {
-    	
-    	if (nodes == null) return "(nodes is null!)";
-    	
-    	List<String> ns = new ArrayList<>();
-    	
-    	for (int i=0; i<nodes.getLength(); i++) {
-    		ns.add(nodes.item(i).getTextContent());
-    	}
-    	
-    	return ns.stream().collect(Collectors.joining(", "));
-    }
-    
-    
-    
-    /**
-     * Provides a NodeList of multiple nodelists
-     * http://www.java2s.com/example/java-utility-method/xml-nodelist/combine-final-nodelist...-nls-aaf92.html
-     */
-    public final static NodeList combine(final NodeList... nls) {
-
-        return new NodeList() {
-        	
-            public Node item(final int index) {
-                int offset = 0;
-                for (int i = 0; i < nls.length; i++) {
-                    if (index - offset < nls[i].getLength()) {
-                        return nls[i].item(index - offset);
-                    } else {
-                        offset += nls[i].getLength();
-                    }
-                }
-                return null;
-            }
-
-            public int getLength() {
-                int result = 0;
-                for (int i = 0; i < nls.length; i++) {
-                    result += nls[i].getLength();
-                }
-                return result;
-            }
-        };
-    }	
     
     public static Optional<Integer> yearFromString(String s) {
     	

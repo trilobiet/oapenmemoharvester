@@ -39,7 +39,23 @@ public class StringUtilsTests {
 		assertEquals(StringUtils.cutOff(s3, 5),"abcde");
 		assertEquals(StringUtils.cutOff(s4, 5),"abcde");
 	}
-
+	
+	
+	@Test
+	void testTrimQuotes() {
+		
+		String s1 = "\"sub1\"";
+		String s2 = "\"sub\"2\"";
+		String s3 = "'sub3'";
+		String s4 = "'sub'4'";
+		String s5 = "\"Citizens' jury";
+		
+		assertEquals(StringUtils.trimQuotes(s1),"sub1");
+		assertEquals(StringUtils.trimQuotes(s2),"sub\"2");
+		assertEquals(StringUtils.trimQuotes(s3),"sub3");
+		assertEquals(StringUtils.trimQuotes(s4),"sub'4");
+		assertEquals(StringUtils.trimQuotes(s5),"Citizens' jury");
+	}
 
 	
 	@Test

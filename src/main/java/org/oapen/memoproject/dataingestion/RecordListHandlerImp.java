@@ -8,7 +8,10 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.oapen.memoproject.dataingestion.harvest.RecordListHandler;
+import org.oapen.memoproject.dataingestion.jpa.JpaPersistenceService;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Element;
 
@@ -18,6 +21,10 @@ public final class RecordListHandlerImp implements RecordListHandler {
 	
 	@Autowired
 	PersistenceService perservice;
+	
+	private static final Logger logger = 
+		LoggerFactory.getLogger(JpaPersistenceService.class);
+	
 	
 	@Override
 	public void process(List<Element> elements) {
@@ -43,12 +50,33 @@ public final class RecordListHandlerImp implements RecordListHandler {
 					
 					titles.add(t);
 					
-					m.getPublisher().ifPresent(perservice::savePublisher);
+					try { m.getPublisher().ifPresent(perservice::savePublisher);} catch (RuntimeException e) { 
+						/* log da shit with t handle */
+						logger.error("ERROR occurred at title with handle " + t.getHandle());
+					}
 					
-					perservice.saveClassifications(m.getClassifications());
-					perservice.saveContributors(m.getContributors());
-					try { perservice.saveFunders(m.getFunders());} catch (RuntimeException e) { /* log da shit with t handle */}	
-					perservice.saveTitle(t);
+					try { perservice.saveClassifications(m.getClassifications());} catch (RuntimeException e) { 
+						/* log da shit with t handle */
+						logger.error("ERROR occurred at title with handle " + t.getHandle());
+					}
+					
+					try { perservice.saveContributors(m.getContributors());} catch (RuntimeException e) { 
+						/* log da shit with t handle */
+						logger.error("ERROR occurred at title with handle " + t.getHandle());
+						logger.error(t.getContributions().toString());
+					}
+					
+					try { perservice.saveFunders(m.getFunders());} catch (RuntimeException e) { 
+						/* log da shit with t handle */
+						logger.error("ERROR occurred at title with handle " + t.getHandle());
+						logger.error(t.getFunders().toString());
+					}	
+					
+					try { perservice.saveTitle(t);} catch (RuntimeException e) { 
+						/* log da shit with t handle */
+						logger.error("ERROR occurred at title with handle " + t.getHandle());
+						logger.error(t.getContributions().toString());
+					}
 					
 					// t.getFunders().stream().forEach(System.out::println);
 				}

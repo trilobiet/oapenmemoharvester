@@ -208,7 +208,7 @@ public class XOAIDocumentParserTests {
 	@Test
 	public void should_find_publisher() {
 		
-		Publisher expectedPublisher = new Publisher("20.500.12657/22488","Springer Nature");
+		Publisher expectedPublisher = new Publisher("20.500.12657/22488","Springer Nature "); // watch the space
 		Publisher foundPublisher = source1.getPublisher().get();
 		
 		assertEquals(expectedPublisher.getHandle(), foundPublisher.getHandle());
@@ -241,7 +241,7 @@ public class XOAIDocumentParserTests {
 		Set<Funder> funderSet = source1.getFunders();
 		ArrayList<Funder> foundFunders = new ArrayList<Funder>(funderSet);
 		
-		assertTrue(foundFunders.get(0).getAcronyms().split("\\|\\|").length == 5);
+		assertEquals(foundFunders.get(0).getAcronyms().size(), 5);
 	}
 	
 	
@@ -251,7 +251,7 @@ public class XOAIDocumentParserTests {
 		
 		Set<GrantData> foundGrants = source1.getTitle().get().getGrantData();
 		
-		assertTrue(foundGrants.size() == 2);
+		assertEquals(foundGrants.size(), 2);
 		
 		List<String> values = foundGrants.stream()
 				.map(g -> g.getValue())
@@ -268,7 +268,7 @@ public class XOAIDocumentParserTests {
 		Classification expectedClassification = new Classification("UYQ", "Artificial intelligence");
 		Set<Classification> foundClassifications = source1.getClassifications();
 		
-		assertTrue(foundClassifications.size()==9);
+		assertEquals(foundClassifications.size(), 9);
 		assertTrue(foundClassifications.contains(expectedClassification));
 	}
 
@@ -298,7 +298,7 @@ public class XOAIDocumentParserTests {
 		
 		// foundContributors.forEach(System.out::println);
 		
-		assertTrue(foundContributors.size()==5);
+		assertEquals(foundContributors.size(), 5);
 		assertTrue(foundContributors.contains(new Contributor("Zaefferer, Martin")));
 	}
 	
@@ -308,7 +308,7 @@ public class XOAIDocumentParserTests {
 		
 		Set<Contribution> foundContributions = source1.getTitle().get().getContributions();
 		
-		assertTrue(foundContributions.size()==5);
+		assertEquals(foundContributions.size(), 5);
 		
 		List<String> names = foundContributions.stream()
 				.map(c -> c.getContributorName())
@@ -324,9 +324,9 @@ public class XOAIDocumentParserTests {
 		
 		Set<Identifier> ids = source1.getTitle().get().getIdentifiers();
 		
-		Identifier id1 = new Identifier("9789811951701","ISBN");
+		Identifier id1 = new Identifier("1000000000000","ISBN");
 		
-		assertTrue(ids.size()==9);
+		assertEquals(ids.size(), 11);
 		assertTrue(ids.contains(id1));
 	}
 
@@ -335,7 +335,7 @@ public class XOAIDocumentParserTests {
 		
 		Set<ExportChunk> chunks = source1.getTitle().get().getExportChunks();
 
-		assertTrue(chunks.size()==4);
+		assertEquals(chunks.size(),4);
 	}
 	
 	

@@ -44,4 +44,16 @@ public final class StringUtils {
 		return s != null && s.matches(UUID_STRING);
 	}
 
+	
+	/**
+	 * Remove quotes and double quotes from beginning and ending of string.
+	 * 
+	 * @param string
+	 * @return String, without leading or trailing (double) quotes
+	 */
+	public final static String trimQuotes(String string) {
+		
+		return string.replaceAll("^[\"']|[\"']$", "");
+	}
+
 }

@@ -186,7 +186,7 @@ final class TestConstants {
 			  + "							</element>"
 			  + "							<element name=\"isbn\">"
 			  + "								<element name=\"none\">"
-			  + "									<field name=\"value\">9789811951701</field>"
+			  + "									<field name=\"value\">1000000000000;2000000000000;3000000000000</field>"
 			  + "								</element>"
 			  + "							</element>"
 			  + "						</element>"

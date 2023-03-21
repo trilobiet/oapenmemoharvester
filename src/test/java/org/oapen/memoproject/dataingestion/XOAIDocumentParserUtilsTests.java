@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,7 +29,7 @@ public class XOAIDocumentParserUtilsTests {
 		
 		Set<Classification> s = XOAIDocumentParserUtils.parseClassifications(lst);
 		
-		assertTrue(s.size() == 9);
+		assertEquals(s.size(), 9);
 	}
 	
 	
@@ -46,7 +47,7 @@ public class XOAIDocumentParserUtilsTests {
 
 		Set<String> subjectsSplit = XOAIDocumentParserUtils.parseSubjects(subjects);
 		
-		assertTrue(subjectsSplit.size() == 13);
+		assertEquals(subjectsSplit.size(), 13);
 	}
 	
 	
@@ -59,10 +60,69 @@ public class XOAIDocumentParserUtilsTests {
 		Set<String> subjects = Sets.newLinkedHashSet(subject1);
 		Set<String> subjectsSplit = XOAIDocumentParserUtils.parseSubjects(subjects);
 		
-		assertTrue(subjectsSplit.size() == 1);
+		assertEquals(subjectsSplit.size(), 1);
 		assertTrue(new ArrayList<String>(subjectsSplit).get(0).length() == 16);
 	}
 
+	
+	@Test
+	void testParselanguages() {
+		
+		String l1 = "eng";
+		String l2 = "eng,dut,fra/Undetermined[und]";
+		String l3 = "spa::TooLong::Some weird Test Language";
+		
+		Set<String> languages = new HashSet<>();
+		languages.add(l1);
+		languages.add(l2);
+		languages.add(l3);
+		
+		Set<String> pls = XOAIDocumentParserUtils.parseLanguages(languages);
+		
+		Set<String> expected = Sets.newLinkedHashSet("eng","fra","spa","dut");
+		
+		assertEquals(pls,expected);
+	}
+	
+
+	@Test
+	void testParseISBNOrISSN() {
+		
+		String l1 = "1000000000000;2000000000000";
+		String l2 = "3000000000000 ; 4000000000000";
+		String l3 = "5000000000000 | 6000000000000|";
+		String l4 = "7000000000000";
+		
+		Set<String> numbers = new HashSet<>();
+		numbers.add(l1);
+		numbers.add(l2);
+		numbers.add(l3);
+		numbers.add(l4);
+		
+		Set<String> pnrs = XOAIDocumentParserUtils.parseISBNOrISSN(numbers);
+		
+		Set<String> expected = Sets.newLinkedHashSet(
+			"1000000000000","2000000000000","3000000000000",
+			"4000000000000","5000000000000","6000000000000",
+			"7000000000000"
+		);
+		
+		assertEquals(pnrs,expected);
+	}
+	
+	
+	@Test
+	void testParseOCN() {
+		
+		String ocn1 = "OCN: 123456789";
+		String ocn2 = "ocn:123456789";
+		String ocn3 = "123456789";
+		
+		assertEquals("123456789", XOAIDocumentParserUtils.parseOCN(ocn1));
+		assertEquals("123456789", XOAIDocumentParserUtils.parseOCN(ocn2));
+		assertEquals("123456789", XOAIDocumentParserUtils.parseOCN(ocn3));
+	}
+	
 	
 	@Test
 	void testParseDate() {
@@ -76,7 +136,6 @@ public class XOAIDocumentParserUtilsTests {
 		assertTrue(d2.isPresent());
 		assertTrue(d3.isEmpty());
 		assertTrue(d4.isEmpty());
-		
 	}
 	
 	

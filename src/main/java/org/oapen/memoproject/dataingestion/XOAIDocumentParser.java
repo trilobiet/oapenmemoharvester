@@ -253,6 +253,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		for (int i=0; i < nodes.getLength(); i++) {
         	
         	Node node = nodes.item(i);
+        	
         	Identifier member = new Identifier(
         		StringUtils.trimAllSpace(node.getTextContent().trim())
         		,type
@@ -281,12 +282,28 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		getNodeList(pathONIX).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"ONIX")));
 		getNodeList(pathDOI).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"DOI")));
 		getNodeList(pathURI).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"URI")));
-		getNodeList(pathOCN1).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"OCN")));
-		getNodeList(pathOCN2).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"OCN")));
-		getNodeList(pathISBN).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"ISBN")));
-		getNodeList(pathISSN).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"ISSN")));
 		getNodeList(pathUNKNOWN1).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"UNKNOWN")));
 		getNodeList(pathUNKNOWN2).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"UNKNOWN")));
+		
+		getNodeList(pathOCN1).ifPresent(nodes -> {
+			Set<String> ocns = getTextValueSet(pathOCN1);
+			ocns.forEach(ocn -> identifiers.add(new Identifier(XOAIDocumentParserUtils.parseOCN(ocn),"OCN")));
+		});
+		
+		getNodeList(pathOCN2).ifPresent(nodes -> {
+			Set<String> ocns = getTextValueSet(pathOCN2);
+			ocns.forEach(ocn -> identifiers.add(new Identifier(XOAIDocumentParserUtils.parseOCN(ocn),"OCN")));
+		});
+
+		getNodeList(pathISBN).ifPresent(nodes -> {
+			Set<String> isbns = XOAIDocumentParserUtils.parseISBNOrISSN(getTextValueSet(pathISBN));
+			isbns.forEach(isbn -> identifiers.add(new Identifier(isbn,"ISBN")));
+		});
+		
+		getNodeList(pathISSN).ifPresent(nodes -> {
+			Set<String> issns = XOAIDocumentParserUtils.parseISBNOrISSN(getTextValueSet(pathISSN));
+			issns.forEach(issn -> identifiers.add(new Identifier(issn,"ISSN")));
+		});
 		
 		return identifiers;
 	}
@@ -316,7 +333,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 	private Set<String> getLanguages() {
 		
 		final String path = ".//element[@name='language']//field[@name='value']";
-		return getTextValueSet(path);
+		return XOAIDocumentParserUtils.parseLanguages(getTextValueSet(path));
 	}
 
 	

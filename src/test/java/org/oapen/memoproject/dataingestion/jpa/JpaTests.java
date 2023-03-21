@@ -26,13 +26,12 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-
-@DataJpaTest
+@EnabledIf(expression = "${dbtests.enabled}", loadContext = true)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @AutoConfigureTestDatabase(replace=Replace.NONE)
 @TestPropertySource(locations="/application.properties")
@@ -81,6 +80,14 @@ public class JpaTests {
 		publisherRepository.deleteAll();
 		classificationRepository.deleteAll();
 	}
+	
+	@Test @Order(0)
+	public void clear() {
+		
+		clearAllData();
+		assertTrue(true);
+	}
+	
 	
 	@Test @Order(1)
 	public void delete() {
@@ -227,7 +234,8 @@ public class JpaTests {
 		funder.setHandle("funder1");
 		funder.setName("ERCEEEE");
 		funder.setNumber("1234567");
-		funder.setAcronymSet(acronyms);
+		//funder.setAcronymSet(acronyms);
+		funder.setAcronyms(acronyms);
 		
 		funderRepository.save(funder);
 		
@@ -267,19 +275,19 @@ public class JpaTests {
 		
 		Classification c = new Classification();
 		c.setCode("AABC");
-		c.setDescription("bogus");
+		c.setDescription("    bogus   ");
 		classifications.add(c);
 		classifications.add(null); // TODO
 
 		Classification c2 = new Classification();
 		c2.setCode("XXYQ");
-		c2.setDescription("more bogus");
+		c2.setDescription(" more bogus  ");
 		classifications.add(c2);
 		title1.setClassifications(classifications);
 
 		Classification c3 = new Classification();
 		c3.setCode("ZXYQZ");
-		c3.setDescription("even more bogus");
+		c3.setDescription(" even more     bogus");
 		title1.addClassification(c3);
 		
 		Title t1saved = titleRepository.save(title1);
@@ -292,7 +300,7 @@ public class JpaTests {
 	@Test @Order(11)
 	public void should_save_contribution() {
 		
-		Title title1 = new Title("hndl12");
+		Title title1 = new Title("hndl11");
 		
 		Contributor cor = new Contributor();
 		cor.setName("Pipo de Clown");
@@ -309,8 +317,39 @@ public class JpaTests {
 
 	}	
 	
-	
+
 	@Test @Order(12)
+	public void should_result_in_two_contributions_when_names_are_equal_but_have_different_casing () {
+		
+		String handle = "hndl12";
+		Title title1 = new Title(handle);
+		
+		Contributor c1 = new Contributor();
+		c1.setName("jan claessen");
+		c1.setOrcid("3434234214");
+
+		Contributor c2 = new Contributor();
+		c2.setName("Jan Claessen");
+		c2.setOrcid("9865798899");
+		
+		contributorRepository.save(c1);
+		contributorRepository.save(c2);
+				
+		Contribution cb1 = new Contribution( c1.getName(), "AUTHOR");
+		Contribution cb2 = new Contribution( c2.getName(), "EDITOR");
+
+		title1.addContribution(cb1);
+		title1.addContribution(cb2);
+
+		Title t1saved = titleRepository.save(title1);
+		
+		//t1saved.getContributions().forEach(System.out::println);
+		
+		assertTrue(t1saved.getContributions().size()==2);
+	}	
+	
+	
+	@Test @Order(13)
 	public void should_save_grant_data() {
 		
 		Title title1 = new Title("hndl13");

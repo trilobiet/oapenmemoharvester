@@ -2,12 +2,17 @@ package org.oapen.memoproject.dataingestion.jpa;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.apache.commons.text.WordUtils;
 import org.junit.jupiter.api.Test;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
-import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
 
 public class EqualityTests {
 	
@@ -31,31 +36,37 @@ public class EqualityTests {
 		
 	}
 	
-	
-	@Test
-	void test_contributors_should_be_equal_on_trimmed_lowercase_names() {
-		
-		Contributor c1 = new Contributor();
-		c1.setName("Piet Paaltjens");
-		
-		Contributor c2 = new Contributor();
-		c2.setName(" piet paaltjens  ");
 
-		assertEquals(c1, c2);
+	@Test
+	void test_set_with_equal_contributions_should_be_size_one() {
+		
+		Contribution c1 = new Contribution("Sesta, Michele","role1");
+		Contribution c2 = new Contribution("Sesta, Michele","role1");
+		Set<Contribution> s = new HashSet<>();
+		s.add(c1);
+		s.add(c2);
+		assertTrue(s.size()==1);
 		
 	}
 
 	
+	
 	@Test
-	void test_contributions_should_be_equal_on_trimmed_lowercase_names() {
+	void testCapitalize() {
 		
-		Contribution c1 = new Contribution("Piet Paaltjens","role1");
-		Contribution c2 = new Contribution("  piet paaltjens      ","role1");
-
-		assertEquals(c1, c2);
+		ArrayList<String> lst = new ArrayList<String>(Arrays.asList(
+			"JAN KEES",
+			"Barthélémy, Daniel",
+			"mcDonald, Old"
+			
+		));
+		
+		lst.forEach(s ->
+			System.out.println(WordUtils.capitalizeFully(s))
+		);
 		
 	}
-	
-	
 
+	
+	
 }

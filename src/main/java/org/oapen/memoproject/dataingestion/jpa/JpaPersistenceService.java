@@ -62,6 +62,7 @@ public class JpaPersistenceService implements PersistenceService {
 		}
 		catch (Exception e) {
 			logger.error("Publisher: " + e.getMessage());
+			throw new RuntimeException(e);
 		}
 		return r;
 	}
@@ -77,6 +78,7 @@ public class JpaPersistenceService implements PersistenceService {
 		}
 		catch (Exception e) {
 			logger.error("Contributors: " + e.getMessage());
+			throw new RuntimeException(e);
 		}
 		return r;
 	}
@@ -92,6 +94,7 @@ public class JpaPersistenceService implements PersistenceService {
 		}
 		catch (Exception e) {
 			logger.error("Classifications: " + e.getMessage());
+			throw new RuntimeException(e);
 		}
 		return r;
 	}
@@ -106,7 +109,8 @@ public class JpaPersistenceService implements PersistenceService {
 			r = Optional.of(titleRepository.save(title));
 		}
 		catch (Exception e) {
-			logger.error("Title: " + e.getMessage());
+			logger.error("Title " + title.getHandle() + ": " + e.getMessage());
+			throw new RuntimeException(e);
 		}
 		
 		return r;
