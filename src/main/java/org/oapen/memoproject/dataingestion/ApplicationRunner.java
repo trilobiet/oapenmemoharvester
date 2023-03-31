@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Order(value=1)
-public class ApplicationRunner implements CommandLineRunner {
+public class ApplicationRunner /*implements CommandLineRunner*/ {
 	
 	@Value("${app.path.harvestedfiles}")
 	private String harvestPath;
@@ -24,7 +24,7 @@ public class ApplicationRunner implements CommandLineRunner {
 	RecordListHandler recordListHandler;
 	
 
-	@Override
+	//@Override
 	public void run(String... args) throws Exception {
 		
 		harvest();

@@ -46,7 +46,7 @@ public final class OAIHarvesterImp implements OAIHarvester {
 				
 				List<Element> records = lrDocument.getRecords();
 				
-				handler.process(records);
+				List<String> insertedHandles = handler.process(records);
 				
 				oRst = lrDocument.getResumptionToken();
 	

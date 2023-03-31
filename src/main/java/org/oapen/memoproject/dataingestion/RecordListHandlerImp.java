@@ -27,11 +27,9 @@ public final class RecordListHandlerImp implements RecordListHandler {
 	
 	
 	@Override
-	public void process(List<Element> elements) {
+	public List<String> process(List<Element> elements) {
 		
-		List<Title> titles = new ArrayList<>();
-		
-		System.out.println("CLASSSSS " + perservice);
+		List<String> insertedHandles = new ArrayList<>();
 		
 		elements.forEach(el -> { 
 			
@@ -47,8 +45,6 @@ public final class RecordListHandlerImp implements RecordListHandler {
 					// TODO handle deletions 
 				}
 				else if (t.isComplete()) {
-					
-					titles.add(t);
 					
 					try { m.getPublisher().ifPresent(perservice::savePublisher);} catch (RuntimeException e) { 
 						/* log da shit with t handle */
@@ -78,14 +74,15 @@ public final class RecordListHandlerImp implements RecordListHandler {
 						logger.error(t.getContributions().toString());
 					}
 					
+					insertedHandles.add(t.getHandle());
+					
 					// t.getFunders().stream().forEach(System.out::println);
 				}
 			});
 			
 		});
-		
 
-		System.out.println("TOTAL: " + titles.size());
+		return insertedHandles;
 	}
 	
 	

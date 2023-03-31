@@ -1,71 +1,70 @@
 package org.oapen.memoproject.dataingestion.metadata;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
 public class ExportChunkMapTests {
 	
 	@Test
-	public void should_return_ONIX_record_string_by_id() {
+	public void should_return_ONIX_record_id() {
 		
-		final String doc = TestConstants.onixdoc;
+		final String record = TestConstants.onixrecord;
 		
-		ExportChunkMap map = new ONIXChunkMap(doc);
-		String id = "5fd15d8e-628e-4e16-9dd8-f1b07b37efa7";
-		String value = map.getById(id);
+		ExportChunk chunk = new ONIXChunk(record);
+		String expected = "5fd15d8e-628e-4e16-9dd8-f1b07b37efa7";
+		String found = chunk.getId().get();
 		
-		// System.out.println(value);
+		// System.out.println(found);
 		
-		assertTrue(value.contains(id));
+		assertEquals(expected,found);
 	}
 	
 
 	@Test
-	public void should_return_MARCXML_record_string_by_id() {
+	public void should_return_MARCXML_record_handle() {
 		
-		final String doc = TestConstants.marcxmldoc;
+		final String record = TestConstants.marcxmlrecord;
 		
-		ExportChunkMap map = new MARCXMLChunkMap(doc);
+		ExportChunk chunk = new MARCXMLChunk(record);
+		String expected = "20.500.12657/42289";
+		String found = chunk.getHandle().get();
 		
-		String id = "20.500.12657/42289";
-		String value = map.getById(id);
+		// System.out.println(found);
 		
-		// System.out.println(value);
-		
-		assertTrue(value.contains(id));
+		assertEquals(expected,found);
 	}
 	
 
 	@Test
-	public void should_return_RIS_record_string_by_id() {
+	public void should_return_RIS_record_handle() {
 		
-		final String doc = TestConstants.risdoc;
+		final String record = TestConstants.risrecord;
 		
-		ExportChunkMap map = new RISChunkMap(doc);
+		ExportChunk chunk = new RISChunk(record);
 		
-		String id = "20.500.12657/37613";
-		String value = map.getById(id);
+		String expected = "20.500.12657/38065";
+		String found = chunk.getHandle().get();
 		
-		// System.out.println(value);
+		// System.out.println(found);
 		
-		assertTrue(value.contains(id));
+		assertEquals(expected,found);
 	}
 	
 	
 	@Test
-	public void should_return_KBART_record_string_by_id() {
+	public void should_return_KBART_record_handle() {
 		
-		final String doc = TestConstants.kbartdoc;
+		final String record = TestConstants.kbartrecord;
 		
-		ExportChunkMap map = new KBARTChunkMap(doc);
+		ExportChunk chunk = new KBARTChunk(record);
 		
-		String id = "20.500.12657/39385";
-		String value = map.getById(id);
+		String expected = "20.500.12657/42289";
+		String found = chunk.getHandle().get();
 		
-		// System.out.println(value);
+		// System.out.println(found);
 		
-		assertTrue(value.contains(id));
+		assertEquals(expected,found);
 	}
 	
 }
