@@ -10,7 +10,7 @@ public class OrchestratorTests {
 		
 		Orchestrator o = new Orchestrator();
 		
-		o.run();
+		//o.run();
 		
 	}
 

@@ -1,12 +1,10 @@
 package org.oapen.memoproject.dataingestion;
 
-import org.oapen.memoproject.dataingestion.harvest.ListRecordsFromDateUrlComposer;
 import org.oapen.memoproject.dataingestion.harvest.ListRecordsURLComposer;
 import org.oapen.memoproject.dataingestion.harvest.OAIHarvesterImp;
 import org.oapen.memoproject.dataingestion.harvest.RecordListHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +30,7 @@ public class ApplicationRunner /*implements CommandLineRunner*/ {
 
 	public void harvest() throws Exception {
 		
-		ListRecordsURLComposer harvestUrl = new ListRecordsFromDateUrlComposer(oaiPath);
+		ListRecordsURLComposer harvestUrl = new ListRecordsURLComposer(oaiPath);
 		
 		OAIHarvesterImp harvester = new OAIHarvesterImp(harvestUrl, recordListHandler);
 		

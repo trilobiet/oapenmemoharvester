@@ -1,16 +1,22 @@
 package org.oapen.memoproject.dataingestion.harvest;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 public final class OAIHarvesterImp implements OAIHarvester {
 	
@@ -26,29 +32,67 @@ public final class OAIHarvesterImp implements OAIHarvester {
 		this.urlComposer = url;
 		this.handler = handler;
 	}
+
+
+	@Override
+	public final List<String> harvest() throws HarvestException {
+		
+		try {
+			URL nextUrl = urlComposer.getUrl();
+			return harvest(nextUrl);
+		} catch (MalformedURLException e) {
+			throw new HarvestException(e);
+		}
+	}
+	
 	
 	@Override
-	public final void harvest() throws HarvestException {
+	public final List<String> harvest(LocalDate fromDate, LocalDate untilDate) throws HarvestException {
+		
+		try {
+			URL nextUrl = urlComposer.getUrl(fromDate,untilDate);
+			return harvest(nextUrl);
+		} catch (MalformedURLException e) {
+			throw new HarvestException(e);
+		}
+	}
+	
+
+	@Override
+	public final List<String> harvest(String token) throws HarvestException {
+		
+		try {
+			ResumptionToken rst = new ResumptionToken(token, null, null); 
+			URL nextUrl = urlComposer.getUrl(rst);
+			return harvest(nextUrl);
+		} catch (MalformedURLException e) {
+			throw new HarvestException(e);
+		}
+	}
+	
+	
+	private List<String> harvest(URL url) throws HarvestException {
 		
 		Optional<ResumptionToken> oRst = Optional.empty();
 		
 		Document downloadedDoc;
 		
+		List<String> insertedHandles = new ArrayList<String>();
+		
 		do {
 
 			try {
 				
-				URL nextUrl = urlComposer.getUrl(oRst);
-				
-				downloadedDoc = fetchDocument(nextUrl);
+				downloadedDoc = fetchDocument(url);
 				
 				ListRecordsDocumentImp lrDocument = new ListRecordsDocumentImp(downloadedDoc);
 				
 				List<Element> records = lrDocument.getRecords();
 				
-				List<String> insertedHandles = handler.process(records);
+				insertedHandles.addAll(handler.process(records));
 				
 				oRst = lrDocument.getResumptionToken();
+				url = urlComposer.getUrl(oRst.get());
 	
 				Thread.sleep(500); // Do not DDOS the OAI Provider
 				
@@ -56,11 +100,12 @@ public final class OAIHarvesterImp implements OAIHarvester {
 			
 		} while ( oRst.isPresent() );
 		
+		return insertedHandles;
+		
 	}
 	
 	
-	@Override
-	public final Document fetchDocument(URL url) throws Exception  {
+	private final Document fetchDocument(URL url) throws IOException, ParserConfigurationException, SAXException  {
 
 		URLConnection urlConnection = url.openConnection();
 		
@@ -74,11 +119,7 @@ public final class OAIHarvesterImp implements OAIHarvester {
 			document = db.parse(is);
 
 			return document;
-			
-		} catch (Exception e) {
-			
-			throw(e);
-		}
+		} 
 		
 	}
 	

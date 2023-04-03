@@ -20,15 +20,9 @@ public interface AppStatus {
 	boolean isExportChunksDownloadsIngested();
 	
 	/**
-	 * 
-	 * @return true, if after a harvest, corresponding chunks are requested and ingested
-	 */
-	boolean isExportChunksUpdatesIngested();
-	
-	/**
 	 * @param ym Last successfully ingested year/month number.
 	 */
-	void setLastharvestDay(LocalDate d);
+	void setLastHarvestDay(LocalDate d);
 	
 	/**
 	 * @param rst ResumptionToken to be saved in case of an interrupted harvest
@@ -40,9 +34,4 @@ public interface AppStatus {
 	 */
 	void setExportChunksDownloadsIngested(boolean b);
 	
-	/**
-	 * @param b boolean indicating whether, after a harvest, corresponding export chunks have been requested and ingested
-	 */
-	void setExportChunksUpdatesIngested(boolean b);
-
 }

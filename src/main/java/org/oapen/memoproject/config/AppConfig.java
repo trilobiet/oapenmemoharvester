@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AppConfig {
 	
-
 	@Bean
 	RecordListHandler getRecordlistHandler() {
 		return new RecordListHandlerImp();
@@ -20,5 +19,7 @@ public class AppConfig {
 	PersistenceService getPersistenceService() {
 		return new JpaPersistenceService();
 	}
+	
+	
 
 }

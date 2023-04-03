@@ -20,7 +20,6 @@ public class PropertiesAppStatusService implements AppStatus {
 	private final String LAST_HARVEST_DAY = "last_harvest_day";
 	private final String RESUMPTION_TOKEN = "resumption_token";
 	private final String IS_EXPORTCHUNKS_DOWNLOADS_INGESTED = "is_exportchunks_downloads_ingested";
-	private final String IS_EXPORTCHUNKS_UPDATES_INGESTED = "is_exportchunks_updates_ingested";
 	
 	private static final Logger logger = 
 		LoggerFactory.getLogger(PropertiesAppStatusService.class);
@@ -60,15 +59,7 @@ public class PropertiesAppStatusService implements AppStatus {
 	}
 
 	@Override
-	public boolean isExportChunksUpdatesIngested() {
-
-		Optional<String> b = readValue(IS_EXPORTCHUNKS_UPDATES_INGESTED);
-		if (b.isPresent()) return b.get()=="true"?true:false;
-		else return false; 
-	}
-
-	@Override
-	public void setLastharvestDay(LocalDate d) {
+	public void setLastHarvestDay(LocalDate d) {
 
 		storeValue(LAST_HARVEST_DAY, d.toString());
 	}
@@ -84,13 +75,6 @@ public class PropertiesAppStatusService implements AppStatus {
 		
 		storeValue(IS_EXPORTCHUNKS_DOWNLOADS_INGESTED, b?"true":"false");
 	}
-
-	@Override
-	public void setExportChunksUpdatesIngested(boolean b) {
-		
-		storeValue(IS_EXPORTCHUNKS_UPDATES_INGESTED, b?"true":"false");
-	}
-	
 	
 	private void storeValue(String key, String value) {
 		
@@ -144,7 +128,11 @@ public class PropertiesAppStatusService implements AppStatus {
 
 	@Override
 	public String toString() {
-		return "PropertiesAppStatusService [propertiesFileName=" + propertiesFileName + "]";
+		return "PropertiesAppStatusService [propertiesFileName=" + propertiesFileName 
+				+ " lastHarvestDay=" + getLastHarvestDay()
+				+ " resumptionToken=" + getResumptionToken()
+				+ " isExportChunksDownloadsIngested=" + isExportChunksDownloadsIngested()
+				+ "]";
 	}
 	
 
