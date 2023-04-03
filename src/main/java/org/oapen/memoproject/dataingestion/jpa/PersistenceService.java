@@ -1,4 +1,4 @@
-package org.oapen.memoproject.dataingestion;
+package org.oapen.memoproject.dataingestion.jpa;
 
 import java.util.List;
 import java.util.Optional;

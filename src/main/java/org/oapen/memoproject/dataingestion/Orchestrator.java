@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.oapen.memoproject.dataingestion.appstatus.AppStatus;
+import org.oapen.memoproject.dataingestion.appstatus.PropertiesAppStatusService;
 import org.oapen.memoproject.dataingestion.harvest.HarvestException;
 import org.oapen.memoproject.dataingestion.harvest.ListRecordsURLComposer;
 import org.oapen.memoproject.dataingestion.harvest.OAIHarvester;

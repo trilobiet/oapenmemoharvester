@@ -1,4 +1,4 @@
-package org.oapen.memoproject.dataingestion;
+package org.oapen.memoproject.dataingestion.harvest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,8 +7,8 @@ import java.util.Optional;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
-import org.oapen.memoproject.dataingestion.harvest.RecordListHandler;
 import org.oapen.memoproject.dataingestion.jpa.JpaPersistenceService;
+import org.oapen.memoproject.dataingestion.jpa.PersistenceService;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +76,6 @@ public final class RecordListHandlerImp implements RecordListHandler {
 					
 					insertedHandles.add(t.getHandle());
 					
-					// t.getFunders().stream().forEach(System.out::println);
 				}
 			});
 			

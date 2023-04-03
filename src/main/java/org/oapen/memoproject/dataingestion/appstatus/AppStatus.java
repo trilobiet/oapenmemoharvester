@@ -1,4 +1,4 @@
-package org.oapen.memoproject.dataingestion;
+package org.oapen.memoproject.dataingestion.appstatus;
 
 import java.time.LocalDate;
 

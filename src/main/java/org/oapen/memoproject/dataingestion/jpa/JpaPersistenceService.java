@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.oapen.memoproject.dataingestion.PersistenceService;
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
