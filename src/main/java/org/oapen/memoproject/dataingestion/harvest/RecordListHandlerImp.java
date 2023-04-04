@@ -40,37 +40,40 @@ public final class RecordListHandlerImp implements RecordListHandler {
 			title.ifPresent(t -> {
 
 				if (t.isDeleted()) {
-					// System.out.println(">>>>>>> DELETE " + t.getHandle());
 					
+					try { perservice.deleteTitle(t);} catch (RuntimeException e) { 
+						/* log da shit with t handle */
+						logger.error("Could not delete title with handle " + t.getHandle());
+					}
 					// TODO handle deletions 
 				}
 				else if (t.isComplete()) {
 					
 					try { m.getPublisher().ifPresent(perservice::savePublisher);} catch (RuntimeException e) { 
 						/* log da shit with t handle */
-						logger.error("ERROR occurred at title with handle " + t.getHandle());
+						logger.error("savePublisher at title with handle " + t.getHandle());
 					}
 					
 					try { perservice.saveClassifications(m.getClassifications());} catch (RuntimeException e) { 
 						/* log da shit with t handle */
-						logger.error("ERROR occurred at title with handle " + t.getHandle());
+						logger.error("saveClassifications at title with handle " + t.getHandle());
 					}
 					
 					try { perservice.saveContributors(m.getContributors());} catch (RuntimeException e) { 
 						/* log da shit with t handle */
-						logger.error("ERROR occurred at title with handle " + t.getHandle());
+						logger.error("saveContributors at title with handle " + t.getHandle());
 						logger.error(t.getContributions().toString());
 					}
 					
 					try { perservice.saveFunders(m.getFunders());} catch (RuntimeException e) { 
 						/* log da shit with t handle */
-						logger.error("ERROR occurred at title with handle " + t.getHandle());
+						logger.error("saveFunders at title with handle " + t.getHandle());
 						logger.error(t.getFunders().toString());
 					}	
 					
 					try { perservice.saveTitle(t);} catch (RuntimeException e) { 
 						/* log da shit with t handle */
-						logger.error("ERROR occurred at title with handle " + t.getHandle());
+						logger.error("saveTitle with handle " + t.getHandle());
 						logger.error(t.getContributions().toString());
 					}
 					

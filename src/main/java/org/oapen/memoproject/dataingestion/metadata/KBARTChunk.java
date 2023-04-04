@@ -2,23 +2,21 @@ package org.oapen.memoproject.dataingestion.metadata;
 
 import java.util.Optional;
 
-public class KBARTChunk implements ExportChunk {
+public class KBARTChunk implements ExportChunkable {
 	
-	private final String chunk; 
+	private final String content; 
 	private final Optional<String> handle;
-	private final Optional<String> id;
 	
-	public KBARTChunk(String chunk) {
+	public KBARTChunk(String content) {
 		
-		this.chunk = chunk;
+		this.content = content;
 		handle = initHandle();
-		id = Optional.empty();
 	}
 	
 	
 	private Optional<String> initHandle() {
 		
-		String[] cols = chunk.split("\t");
+		String[] cols = content.split("\t");
 		
 		if (cols.length > 11) {
 			return Optional.of(cols[11].trim());
@@ -33,8 +31,13 @@ public class KBARTChunk implements ExportChunk {
 	}
 
 	@Override
-	public Optional<String> getId() {
-		return id;
+	public String getContent() {
+		return content;
+	}
+
+	@Override
+	public ExportType getType() {
+		return ExportType.KBART;
 	}
 
 

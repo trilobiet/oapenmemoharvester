@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.SQLInsert;
 import org.springframework.lang.NonNull;
 
 import lombok.Getter;
@@ -17,6 +18,7 @@ import lombok.Setter;
 @Entity(name = "ExportChunk")
 @Table(name = "export_chunk")
 @IdClass(ExportChunkId.class)
+@SQLInsert(sql="INSERT IGNORE INTO export_chunk (type, handle_title, content) values (?,?,?)")
 public class ExportChunk {
 	
 	@Id @Column	@NonNull

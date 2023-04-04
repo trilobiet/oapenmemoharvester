@@ -21,9 +21,9 @@ public class ExportChunksLoader {
 	 * @param url Url to be downloaded
 	 * @throws MalformedURLException if url is not a valid url
 	 */
-	public ExportChunksLoader(URL url) throws MalformedURLException {
+	public ExportChunksLoader(String url) throws MalformedURLException  {
 	
-		this.url = url;
+		this.url = new URL(url);
 	}
 	
 	/**

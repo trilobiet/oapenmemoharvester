@@ -21,6 +21,10 @@ public class PropertiesAppStatusService implements AppStatus {
 	private final String RESUMPTION_TOKEN = "resumption_token";
 	private final String IS_EXPORTCHUNKS_DOWNLOADS_INGESTED = "is_exportchunks_downloads_ingested";
 	
+	private Optional<String> lastHarvestDay; 
+	private Optional<String> resumptionToken;
+	private Optional<String> isECDownloadsIngested;
+	
 	private static final Logger logger = 
 		LoggerFactory.getLogger(PropertiesAppStatusService.class);
 	
@@ -30,6 +34,7 @@ public class PropertiesAppStatusService implements AppStatus {
 	 * @param propertiesFileName Local file path to store the status.
 	 */
 	public PropertiesAppStatusService(String propertiesFileName) {
+		
 		this.propertiesFileName = propertiesFileName;
 	}
 
@@ -37,60 +42,79 @@ public class PropertiesAppStatusService implements AppStatus {
 	@Override
 	public LocalDate getLastHarvestDay() {
 		
-		Optional<String> d = readValue(LAST_HARVEST_DAY);
-		if (d.isPresent()) return LocalDate.parse(d.get());
+		lastHarvestDay = readValue(LAST_HARVEST_DAY);
+		if (lastHarvestDay.isPresent()) return LocalDate.parse(lastHarvestDay.get());
 		else return LocalDate.ofEpochDay(0); 
 	}
 
 	@Override
 	public String getResumptionToken() {
 
-		Optional<String> r = readValue(RESUMPTION_TOKEN);
-		if (r.isPresent()) return r.get();
+		resumptionToken = readValue(RESUMPTION_TOKEN);
+		if (resumptionToken.isPresent()) return resumptionToken.get();
 		else return ""; 
 	}
 
 	@Override
 	public boolean isExportChunksDownloadsIngested() {
 
-		Optional<String> b = readValue(IS_EXPORTCHUNKS_DOWNLOADS_INGESTED);
-		if (b.isPresent()) return b.get()=="true"?true:false;
+		isECDownloadsIngested = readValue(IS_EXPORTCHUNKS_DOWNLOADS_INGESTED);
+		if (isECDownloadsIngested.isPresent()) return isECDownloadsIngested.get()=="true"?true:false;
 		else return false; 
 	}
 
 	@Override
 	public void setLastHarvestDay(LocalDate d) {
-
-		storeValue(LAST_HARVEST_DAY, d.toString());
+		
+		lastHarvestDay = Optional.of(d.toString());
+		saveProperties();
 	}
 	
 	@Override
 	public void setResumptionToken(String rst) {
 		
-		storeValue(RESUMPTION_TOKEN, rst);
+		resumptionToken = Optional.of(rst.toString());
+		saveProperties();
 	}
 
 	@Override
 	public void setExportChunksDownloadsIngested(boolean b) {
 		
-		storeValue(IS_EXPORTCHUNKS_DOWNLOADS_INGESTED, b?"true":"false");
+		isECDownloadsIngested = Optional.of(b?"true":"false");
+		saveProperties();
 	}
 	
-	private void storeValue(String key, String value) {
+	private void saveProperties() {
 		
 		File f = initFile();
 
 		try (OutputStream out = new FileOutputStream(f)){
+			
 		    DefaultPropertiesPersister p = new DefaultPropertiesPersister();
 		    Properties props = new Properties();
-		    props.setProperty(key, value);
+		    
+		    lastHarvestDay.ifPresentOrElse( 
+		    	prop -> props.setProperty(LAST_HARVEST_DAY, prop), 
+		    	() -> props.remove(LAST_HARVEST_DAY)
+		    );
+
+		    resumptionToken.ifPresentOrElse( 
+		    	prop -> props.setProperty(RESUMPTION_TOKEN, prop), 
+		    	() -> props.remove(RESUMPTION_TOKEN)
+		    );
+		    
+		    isECDownloadsIngested.ifPresentOrElse( 
+		    	prop -> props.setProperty(IS_EXPORTCHUNKS_DOWNLOADS_INGESTED, prop), 
+		    	() -> props.remove(IS_EXPORTCHUNKS_DOWNLOADS_INGESTED)
+		    );
+		    
 		    p.store(props, out, "OAPEN-MEMO xoai harvester application state");
+		    
 		} catch (IOException e) {
-			logger.warn("Could not store " + key + " at " +	f.getAbsolutePath()	);
+			logger.warn("Could not save properties at " +	f.getAbsolutePath()	);
 		}
 	}
 	
-
 	private Optional<String> readValue(String key) {
 		
 		File f = initFile();

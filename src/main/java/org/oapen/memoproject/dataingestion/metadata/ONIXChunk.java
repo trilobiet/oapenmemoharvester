@@ -5,39 +5,46 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-public class ONIXChunk implements ExportChunk {
+public class ONIXChunk implements ExportChunkable {
 	
-	private final String chunk; 
+	private final String content; 
 	private final Optional<String> handle;
-	private final Optional<String> id;
 	
-	public ONIXChunk(String chunk) {
+	public ONIXChunk(String content) {
 		
-		this.chunk = chunk;
-		handle = Optional.empty();
-		id = initId();
+		this.content = content;
+		handle = initHandle();
 	}
 	
-	private Optional<String> initId() {
+	//TODO
+	private Optional<String> initHandle() {
 		
-		Document record = new XMLStringConverter().stringToXMLDocument(chunk);
-		NodeList nodes = record.getElementsByTagName("RecordReference");
+		Document record = new XMLStringConverter().stringToXMLDocument(content);
+		NodeList nodes = record.getElementsByTagName("ResourceLink");
         
         if (nodes.getLength() > 0) {
         	
-        	String id = parseId(nodes.item(0).getTextContent());
+        	String id = parseHandle(nodes.item(0).getTextContent());
         	return Optional.of(id);
         }
         else return Optional.empty();
 		
 	}
-	
-	private String parseId(String in) {
+
+	// TODO
+	private String parseHandle(String in) {
 		
-		// <- OAPEN-ID_5fd15d8e-628e-4e16-9dd8-f1b07b37efa7
-		// -> 5fd15d8e-628e-4e16-9dd8-f1b07b37efa7 
-		if (in.length() >= 36) return in.substring(in.length()-36);
-		else return in;
+		// <- https://library.oapen.org/bitstream/handle/20.500.12657/42289/9783653064650.pdf.jpg?sequence=3
+		// -> 20.500.12657/42289 
+		final String PREFIX = "handle";
+		final String POSTFIX = "/";
+		
+		int start = in.indexOf(PREFIX);
+		if (start > -1) in = in.substring(start + PREFIX.length() + 1);
+		int end = in.lastIndexOf(POSTFIX);
+		if (end > -1) in = in.substring(0,end);
+		
+		return in;
 	}
 	
 	@Override
@@ -46,8 +53,13 @@ public class ONIXChunk implements ExportChunk {
 	}
 	
 	@Override
-	public Optional<String> getId() {
-		return id;
+	public String getContent() {
+		return content;
+	}
+
+	@Override
+	public ExportType getType() {
+		return ExportType.ONIX;
 	}
 	
 }

@@ -5,12 +5,12 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
-public class FileChunkifier {
+public class FileChunker {
 	
 	private final String file;
 	private final ExportType type;
 	
-	public FileChunkifier(String file, ExportType type) {
+	public FileChunker(String file, ExportType type) {
 
 		this.file = file;
 		this.type = type;
@@ -43,20 +43,21 @@ public class FileChunkifier {
 
 			while (scanner.hasNextLine()) {
 				
-				String s = scanner.nextLine();
+				String buffer = scanner.nextLine();
 				line ++;
 				
 				if (line < skip) continue;
 				
-				if (s.trim().matches(type.chunkStart())) {
-					chunk = s;
-				}
-				else if (s.trim().matches(type.chunkEnd())) {
-					String p = chunk + "\n" + s; //process(chunk + "\n"+s);
-					if (p != "") processor.accept(p);
+				if (buffer.trim().matches(type.chunkStart())) {
 					chunk = "";
 				}
-				else chunk += "\n" + s;
+				
+				if (!buffer.trim().isBlank()) chunk += buffer + "\n";
+				
+				if (buffer.trim().matches(type.chunkEnd())) {
+					if (chunk.trim() != "") processor.accept(chunk);
+					chunk = "";
+				}
 			}
 			
 		} catch (FileNotFoundException e) {

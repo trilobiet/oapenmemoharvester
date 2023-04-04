@@ -83,6 +83,8 @@ public final class OAIHarvesterImp implements OAIHarvester {
 
 			try {
 				
+				if(oRst.isPresent()) url = urlComposer.getUrl(oRst.get());
+				
 				downloadedDoc = fetchDocument(url);
 				
 				ListRecordsDocumentImp lrDocument = new ListRecordsDocumentImp(downloadedDoc);
@@ -92,7 +94,6 @@ public final class OAIHarvesterImp implements OAIHarvester {
 				insertedHandles.addAll(handler.process(records));
 				
 				oRst = lrDocument.getResumptionToken();
-				url = urlComposer.getUrl(oRst.get());
 	
 				Thread.sleep(500); // Do not DDOS the OAI Provider
 				

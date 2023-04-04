@@ -5,28 +5,26 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-public class MARCXMLChunk implements ExportChunk {
+public class MARCXMLChunk implements ExportChunkable {
 	
-	private final String chunk; 
+	private final String content; 
 	private final Optional<String> handle;
-	private final Optional<String> id;
 	
-	public MARCXMLChunk(String chunk) {
+	public MARCXMLChunk(String content) {
 		
-		this.chunk = chunk;
+		this.content = content;
 		handle = initHandle();
-		id = Optional.empty();
 	}
 	
 	private Optional<String> initHandle() {
 			
-		Document record = new XMLStringConverter().stringToXMLDocument(chunk);
+		Document record = new XMLStringConverter().stringToXMLDocument(content);
         NodeList nodes = record.getElementsByTagName("marc:controlfield");
         
         if (nodes.getLength() > 0) {
         	
-        	String id = parseHandle(nodes.item(0).getTextContent());
-        	return Optional.of(id);
+        	String handle = parseHandle(nodes.item(0).getTextContent());
+        	return Optional.of(handle);
         }
         else return Optional.empty();
 	}
@@ -43,10 +41,15 @@ public class MARCXMLChunk implements ExportChunk {
 	public Optional<String> getHandle() {
 		return handle;
 	}
-	
+
 	@Override
-	public Optional<String> getId() {
-		return id;
+	public String getContent() {
+		return content;
+	}
+
+	@Override
+	public ExportType getType() {
+		return ExportType.MARCXML;
 	}
 
 }

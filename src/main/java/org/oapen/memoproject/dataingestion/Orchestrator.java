@@ -1,8 +1,11 @@
 package org.oapen.memoproject.dataingestion;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.oapen.memoproject.dataingestion.appstatus.AppStatus;
 import org.oapen.memoproject.dataingestion.appstatus.PropertiesAppStatusService;
@@ -12,6 +15,13 @@ import org.oapen.memoproject.dataingestion.harvest.OAIHarvester;
 import org.oapen.memoproject.dataingestion.harvest.OAIHarvesterImp;
 import org.oapen.memoproject.dataingestion.harvest.RecordListHandler;
 import org.oapen.memoproject.dataingestion.jpa.JpaPersistenceService;
+import org.oapen.memoproject.dataingestion.jpa.PersistenceService;
+import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
+import org.oapen.memoproject.dataingestion.metadata.ExportChunkable;
+import org.oapen.memoproject.dataingestion.metadata.ExportChunksLoader;
+import org.oapen.memoproject.dataingestion.metadata.ExportType;
+import org.oapen.memoproject.dataingestion.metadata.FileChunker;
+import org.oapen.memoproject.dataingestion.metadata.MARCXMLChunk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +37,15 @@ public class Orchestrator implements CommandLineRunner {
 	
 	@Value("${app.path.oaipath}")
 	private String oaiPath;
+
+	@Value("${app.url.exportsurl}")
+	private String exportsUrl;
+	
+	@Value("${app.path.downloads}")
+	private String downloadsPath;
 	
 	private static final Logger logger = 
-			LoggerFactory.getLogger(JpaPersistenceService.class);
+			LoggerFactory.getLogger(Orchestrator.class);
 	
 	private AppStatus status;
 	private ListRecordsURLComposer urlComposer;
@@ -37,6 +53,9 @@ public class Orchestrator implements CommandLineRunner {
 	
 	@Autowired
 	RecordListHandler recordListHandler;
+	
+	@Autowired
+	PersistenceService persistenceService;
 	
 	public Orchestrator() {}
 
@@ -46,31 +65,32 @@ public class Orchestrator implements CommandLineRunner {
 
 		status = new PropertiesAppStatusService(propFileName);
 		urlComposer = new ListRecordsURLComposer(oaiPath);
-		harvester = new OAIHarvesterImp(urlComposer,recordListHandler);
+		harvester = new OAIHarvesterImp(urlComposer, recordListHandler);
 		
 		List<String> handles;
 		
-		logger.debug(status.toString());
+		logger.info(status.toString());
 		
 		if (status.getResumptionToken().isBlank()) 
 			handles = harvestFromlastHarvestDay();
 		else 
 			handles = harvestFromResumptionToken(); 
-		
+
 		if (!handles.isEmpty()) {
 			
 			status.setLastHarvestDay(LocalDate.now());
 			status.setResumptionToken("");
-			
-			if (!status.isExportChunksDownloadsIngested()) {
-				
-				ingestChunksFromDownload();
-			}
-			else {
-				ingestChunksFromHandleList(handles);
-			}
-			
 		}
+		
+		if (!status.isExportChunksDownloadsIngested()) {
+			ingestChunksFromDownload();
+		}
+		else if (!handles.isEmpty()) {
+			ingestChunksFromHandleList(handles);
+		}
+		
+		
+		
 		
 	}
 	
@@ -82,9 +102,12 @@ public class Orchestrator implements CommandLineRunner {
 		LocalDate fromDate = status.getLastHarvestDay();
 		LocalDate untilDate = LocalDate.now().minusDays(7);
 		
+		logger.info("Harvesting from " + fromDate);
+		
 		try {
 			handles = harvester.harvest(fromDate, untilDate);
 		} catch (HarvestException e) {
+			e.printStackTrace();
 			logger.error(e.getMessage());
 		}
 		
@@ -98,6 +121,8 @@ public class Orchestrator implements CommandLineRunner {
 		
 		String token = status.getResumptionToken();
 		
+		logger.debug("Harvesting from resumptionToken " + token);
+		
 		try {
 			handles = harvester.harvest(token);
 		} catch (HarvestException e) {
@@ -110,7 +135,36 @@ public class Orchestrator implements CommandLineRunner {
 	
 	private void ingestChunksFromDownload() {
 		
-		//System.out.println("ingest all from downloads");
+		logger.info("Ingesting chunks from downloads");
+		
+		try {
+			ExportChunksLoader loader = new ExportChunksLoader(exportsUrl + "marcxml");
+			String path = downloadsPath + "/exports.marcxml";
+			//loader.downloadTo(path);
+			FileChunker fc = new FileChunker(path,ExportType.MARCXML);
+			Set<ExportChunk> saveChunks = new HashSet<>(1000);
+			fc.chunkify(c -> {
+				ExportChunkable chunkable = new MARCXMLChunk(c);
+				String handle = chunkable.getHandle().get();
+				ExportChunk exportChunk = new ExportChunk();
+				exportChunk.setType(chunkable.getType().name());
+				exportChunk.setContent(chunkable.getContent());
+				exportChunk.setHandleTitle(handle);
+				saveChunks.add(exportChunk);
+				if (saveChunks.size() > 999) {
+					System.out.println("Saving " + saveChunks.size());
+					persistenceService.saveExportChunks(saveChunks);
+					saveChunks.clear();
+				}
+			});
+			// final batch
+			persistenceService.saveExportChunks(saveChunks);
+			saveChunks.clear();
+		
+		} catch ( IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 

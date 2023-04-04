@@ -2,8 +2,9 @@ package org.oapen.memoproject.dataingestion.metadata;
 
 import java.util.Optional;
 
-public interface ExportChunk {
+public interface ExportChunkable {
 	
+	String getContent();
+	ExportType getType(); 
 	Optional<String> getHandle();
-	Optional<String> getId();
 }

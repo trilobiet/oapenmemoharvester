@@ -2,11 +2,11 @@ package org.oapen.memoproject.dataingestion.metadata;
 
 public enum ExportType {
 	
-	MARXXML ( 
+	MARCXML ( 
 	   "<marc:record>.*" 
 	  ,".*</marc:record>" 
 	),
-	ONIXXML ( 
+	ONIX ( 
 	   "<Product>.*"    
 	  ,".*</Product>"     
 	),

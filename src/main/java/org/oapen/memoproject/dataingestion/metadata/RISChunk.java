@@ -4,33 +4,31 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RISChunk implements ExportChunk {
+public class RISChunk implements ExportChunkable {
 	
-	private final String chunk; 
+	private final String content; 
 	private final Optional<String> handle;
-	private final Optional<String> id;
 	
-	public RISChunk(String chunk) {
+	public RISChunk(String content) {
 		
-		this.chunk = chunk;
+		this.content = content;
 		handle = initHandle();
-		id = Optional.empty();
 	}
 
 	private Optional<String> initHandle() {
 		
 		Pattern pattern = Pattern.compile("\\nLK *- *[^\\n]*");
 		
-		Matcher matcher = pattern.matcher(chunk);
+		Matcher matcher = pattern.matcher(content);
 
 		if (matcher.find()) {
-            return Optional.of( parseId(matcher.group()) );
+            return Optional.of( parseHandle(matcher.group()) );
         }
 		else return Optional.empty();
 			
 	}
 	
-	private String parseId(String in) {
+	private String parseHandle(String in) {
 		
 		// <- LK  - http://library.oapen.org/handle/20.500.12657/38110
 		// -> 20.500.12657/38110
@@ -45,8 +43,13 @@ public class RISChunk implements ExportChunk {
 	}
 	
 	@Override
-	public Optional<String> getId() {
-		return id;
+	public String getContent() {
+		return content;
+	}
+
+	@Override
+	public ExportType getType() {
+		return ExportType.RIS;
 	}
 
 }

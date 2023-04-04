@@ -4,7 +4,7 @@ public final class StringUtils {
 
 	/**
 	 * @param s
-	 * @return s without all leading and trailing whitespace (spaces, tabs, newlines etc.)
+	 * @return s without all repeated whitespace (spaces, tabs, newlines etc.)
 	 */
 	public final static String trimAllSpace(String s) {
 		

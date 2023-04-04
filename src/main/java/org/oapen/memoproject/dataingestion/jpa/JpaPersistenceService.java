@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
+import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
@@ -30,6 +31,9 @@ public class JpaPersistenceService implements PersistenceService {
 	
 	@Autowired
 	ClassificationRepository classificationRepository;
+
+	@Autowired
+	ExportChunkRepository exportChunkRepository;
 	
 	private static final Logger logger = 
 			LoggerFactory.getLogger(JpaPersistenceService.class);
@@ -114,10 +118,26 @@ public class JpaPersistenceService implements PersistenceService {
 		
 		return r;
 	}
+	
+	
+	@Override
+	public List<ExportChunk> saveExportChunks(Set<ExportChunk> exportChunks) {
+		
+		List<ExportChunk> r = new ArrayList<>();
+		
+		try {
+			r = exportChunkRepository.saveAll(exportChunks);
+		}
+		catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		
+		return r;
+	}
 
 	
 	@Override
-	public void clearTitle(Title title) {
+	public void deleteTitle(Title title) {
 		
 		try {
 			titleRepository.delete(title);
@@ -129,7 +149,7 @@ public class JpaPersistenceService implements PersistenceService {
 
 	
 	@Override
-	public void clearAll() {
+	public void deleteAll() {
 		
 		try {
 			titleRepository.deleteAll();
@@ -137,10 +157,13 @@ public class JpaPersistenceService implements PersistenceService {
 			contributorRepository.deleteAll();
 			funderRepository.deleteAll();
 			publisherRepository.deleteAll();
+			exportChunkRepository.deleteAll();
 		}
 		catch (Exception e) {
 			logger.error(e.getMessage());
 		}
 	}
 
+
+	
 }
