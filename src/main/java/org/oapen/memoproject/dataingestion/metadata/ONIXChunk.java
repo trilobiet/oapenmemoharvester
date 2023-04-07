@@ -61,7 +61,13 @@ public class ONIXChunk implements ExportChunkable {
 	public ExportType getType() {
 		return ExportType.ONIX;
 	}
-	
+
+	@Override
+	public boolean isValid() {
+		
+		return handle.isPresent();
+	}
+
 }
 
 

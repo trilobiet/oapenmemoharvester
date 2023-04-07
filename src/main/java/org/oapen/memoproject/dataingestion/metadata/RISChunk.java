@@ -52,4 +52,10 @@ public class RISChunk implements ExportChunkable {
 		return ExportType.RIS;
 	}
 
+	@Override
+	public boolean isValid() {
+		
+		return handle.isPresent();
+	}
+
 }

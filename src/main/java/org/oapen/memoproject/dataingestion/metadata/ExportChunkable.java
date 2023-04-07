@@ -7,4 +7,5 @@ public interface ExportChunkable {
 	String getContent();
 	ExportType getType(); 
 	Optional<String> getHandle();
+	boolean isValid();
 }

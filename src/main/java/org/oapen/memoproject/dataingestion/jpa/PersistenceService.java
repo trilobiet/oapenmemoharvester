@@ -23,6 +23,8 @@ public interface PersistenceService {
 	
 	void deleteTitle(Title title);
 	void deleteAll();
+	
+	List<ExportChunk> getExportChunks(String handle);
 }
 
 

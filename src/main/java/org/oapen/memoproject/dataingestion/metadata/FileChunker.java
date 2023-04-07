@@ -7,10 +7,10 @@ import java.util.function.Consumer;
 
 public class FileChunker {
 	
-	private final String file;
+	private final File file;
 	private final ExportType type;
 	
-	public FileChunker(String file, ExportType type) {
+	public FileChunker(File file, ExportType type) {
 
 		this.file = file;
 		this.type = type;
@@ -37,7 +37,7 @@ public class FileChunker {
 		
 		int line = -1;
 		
-		try (Scanner scanner = new Scanner(new File(file))) {
+		try (Scanner scanner = new Scanner(file)) {
 			
 			String chunk = "";
 

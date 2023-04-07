@@ -51,6 +51,12 @@ public class MARCXMLChunk implements ExportChunkable {
 	public ExportType getType() {
 		return ExportType.MARCXML;
 	}
+	
+	@Override
+	public boolean isValid() {
+		
+		return handle.isPresent();
+	}
 
 }
 

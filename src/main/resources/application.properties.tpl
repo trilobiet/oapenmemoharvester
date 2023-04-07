@@ -14,9 +14,11 @@ spring.datasource.password=*************
 # beware of trailing spaces!
 app.path.harvestedfiles=${user.home}/Downloads/XOAI
 app.path.oaipath=https://library.oapen.org/oai/request
-app.path.downloads=${user.home}/oapenmemo/downloads
 app.path.app-status=${user.home}/oapenmemo/app-state.properties
-app.url.exportsurl=https://library.oapen.org/download-export?format=
+app.path.exportsdir=${user.home}/oapenmemo/downloads
+app.url.exports={MARCXML:'https://library.oapen.org/download-export?format=marcxml',ONIX:'https://library.oapen.org/download-export?format=onix',RIS:'https://library.oapen.org/download-export?format=ris',KBART:'https://library.oapen.org/download-export?format=tsv'}
 
-dbtests.enabled=FALSE
+dbwritetests.enabled=FALSE
+dbreadtests.enabled=FALSE
+
 

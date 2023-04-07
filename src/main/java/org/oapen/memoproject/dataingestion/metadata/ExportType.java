@@ -38,4 +38,8 @@ public enum ExportType {
 		return chunkEnd;
 	}
 	
+	public String lowerCaseName(){
+        return name().toLowerCase();
+    }
+	
 }

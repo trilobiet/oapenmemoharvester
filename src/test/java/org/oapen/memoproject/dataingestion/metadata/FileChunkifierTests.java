@@ -2,6 +2,7 @@ package org.oapen.memoproject.dataingestion.metadata;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.File;
 import java.util.Stack;
 
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,8 @@ public class FileChunkifierTests {
 	@Test
 	public void test_chunk_counts_when_parsing_RIS_file() {
 		
-		FileChunker fp = new FileChunker("src/test/resources/test.ris", ExportType.RIS);
+		File file = new File("src/test/resources/test.ris");
+		FileChunker fp = new FileChunker(file, ExportType.RIS);
 		Stack<String> chunks = new Stack<>();
 		fp.chunkify(chunk -> chunks.add(chunk));
 		
@@ -26,7 +28,8 @@ public class FileChunkifierTests {
 	@Test
 	public void test_chunk_counts_when_parsing_MARCXML_file() {
 		
-		FileChunker fp = new FileChunker("src/test/resources/test.marcxml", ExportType.MARCXML);
+		File file = new File("src/test/resources/test.marcxml");
+		FileChunker fp = new FileChunker(file, ExportType.MARCXML);
 		Stack<String> chunks = new Stack<>();
 		fp.chunkify(chunk -> chunks.add(chunk));
 		
@@ -41,7 +44,8 @@ public class FileChunkifierTests {
 	@Test
 	public void test_chunk_counts_when_parsing_ONIX_file() {
 		
-		FileChunker fp = new FileChunker("src/test/resources/test.onix", ExportType.ONIX);
+		File file = new File("src/test/resources/test.onix");
+		FileChunker fp = new FileChunker(file, ExportType.ONIX);
 		Stack<String> chunks = new Stack<>();
 		fp.chunkify(chunk -> chunks.add(chunk));
 		
@@ -56,7 +60,8 @@ public class FileChunkifierTests {
 	@Test
 	public void test_chunk_counts_when_parsing_KBART_TSV_file() {
 		
-		FileChunker fp = new FileChunker("src/test/resources/test.tsv", ExportType.KBART);
+		File file = new File("src/test/resources/test.tsv");
+		FileChunker fp = new FileChunker(file, ExportType.KBART);
 		Stack<String> chunks = new Stack<>();
 		fp.chunkify(
 			  chunk -> chunks.add(chunk)

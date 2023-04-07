@@ -18,6 +18,7 @@ import lombok.Setter;
 @Entity(name = "ExportChunk")
 @Table(name = "export_chunk")
 @IdClass(ExportChunkId.class)
+// handle_title may refer to titles already deleted, ignore the resulting integrity errors and just skip the insert
 @SQLInsert(sql="INSERT IGNORE INTO export_chunk (type, handle_title, content) values (?,?,?)")
 public class ExportChunk {
 	
@@ -37,6 +38,12 @@ public class ExportChunk {
 		this.content = content;
 	}
 	
+	public ExportChunk(String type, String content, String handle) {
+		this.type = type;
+		this.content = content;
+		this.handleTitle = handle;
+	}
+
 	public boolean isComplete() {
 		
 		return (type != null && !type.isBlank() && content != null && !content.isBlank());
@@ -121,5 +128,12 @@ class ExportChunkId implements Serializable {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "ExportChunkId [type=" + type + "]";
+	}
+
+	
+	
 }
 

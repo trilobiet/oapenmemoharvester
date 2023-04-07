@@ -26,6 +26,7 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.transaction.annotation.Propagation;
@@ -36,7 +37,8 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureTestDatabase(replace=Replace.NONE)
 @TestPropertySource(locations="/application.properties")
 @TestMethodOrder(OrderAnnotation.class)
-public class JpaTests {
+@DataJpaTest
+public class JpaWriteTests {
 	
 	@Autowired
 	TitleRepository titleRepository;

@@ -11,24 +11,26 @@ import org.junit.jupiter.api.Test;
 @Disabled
 public class ExportChunksLoaderTests {
 	
+	// TODO
 	@Test
 	public void test_download_to_disk() throws IOException {
 		
-		ExportChunksLoader loader = new ExportChunksLoader("https://library.oapen.org/download-export?format=onix");
+		//ExportsDownloader loader = new ExportsDownloader("https://library.oapen.org/download-export?format=onix");
 		
-		assertDoesNotThrow(() -> loader.downloadTo(System.getProperty("user.home") + "/test_download_to_disk.onix"));
+		//assertDoesNotThrow(() -> loader.download(System.getProperty("user.home") + "/test_download_to_disk.onix"));
 	}
 
+	// TODO
 	@Test
 	public void test_download_to_string() throws IOException {
 		
-		ExportChunksLoader loader = new ExportChunksLoader("https://library.oapen.org/download-export?format=onix");
+		//ExportsDownloader loader = new ExportsDownloader("https://library.oapen.org/download-export?format=onix");
 		
-		String s = loader.getAsString();
+		//String s = loader.getAsString();
 		
 		// System.out.println(s);
 		
-		assertNotNull(s);
+		//assertNotNull(s);
 	}
 	
 	

@@ -40,5 +40,10 @@ public class KBARTChunk implements ExportChunkable {
 		return ExportType.KBART;
 	}
 
+	@Override
+	public boolean isValid() {
+		
+		return handle.isPresent();
+	}
 
 }

@@ -3,58 +3,65 @@ package org.oapen.memoproject.dataingestion.metadata;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Scanner;
+import java.util.Set;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class ExportChunksLoader {
+public class ExportsDownloader implements Downloader {
 	
-	private final URL url;
+	// TODO: Make this a File path SO we can see by the type what it is supposed to be
+	private final String directoryPath;
 	
-	/**
-	 * @param url Url to be downloaded
-	 * @throws MalformedURLException if url is not a valid url
-	 */
-	public ExportChunksLoader(String url) throws MalformedURLException  {
-	
-		this.url = new URL(url);
+	public ExportsDownloader(String directoryPath) {
+		this.directoryPath = directoryPath;
 	}
-	
-	/**
-	 * Save the contents of url to a local file.
-	 * <br>
-	 * Saves to a temporary path, then atomically renames, 
-	 * to prevent partially downloaded files from being visible to the system.
-	 * 
-	 * @param filePath Local download destination
-	 * @throws IOException if the remote url could not be reached or local file 
-	 * could not be saved. 
-	 */
-	public void downloadTo(String filePath) throws IOException  {
+
+	@Override
+	public String getDirectory() {
+		return directoryPath;
+	}
+
+	/*
+	  Saves to a temporary file, then atomically renames, 
+	  to prevent partially downloaded files from being visible to the system.
+	*/
+	@Override
+	public void download(String cUrl) throws IOException  {
+		
+		URL url = new URL(cUrl);
 		
 		try (InputStream is = getInputStream(url)) {
 			
-			Path path = Path.of(filePath);
+			Path path = Path.of(directoryPath);
 			Path parent = path.getParent();
 			Files.createDirectories(parent);
 			File tmp = File.createTempFile("tmp", ".tmp", parent.toFile()); 
 			Files.copy(is, tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			Files.move(tmp.toPath(), path, 
-					StandardCopyOption.REPLACE_EXISTING,
-					StandardCopyOption.ATOMIC_MOVE);
+				StandardCopyOption.REPLACE_EXISTING,
+				StandardCopyOption.ATOMIC_MOVE);
 		}
 	}
 
+
+	@Override
+	public void download(Set<String> urls) throws IOException {
+		
+		for (String url: urls) download(url);
+	}
 	
-	public String getAsString() throws IOException {
+	
+	@Override
+	public String getAsString(String cUrl) throws IOException {
 		
 		String text = null;
+		URL url = new URL(cUrl);
 		
 		try (InputStream is = getInputStream(url); Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name())) {
 			text = scanner.useDelimiter("\\A").next();
@@ -64,7 +71,7 @@ public class ExportChunksLoader {
 	}
 	
 	
-	public InputStream getInputStream(URL url) throws IOException {
+	private InputStream getInputStream(URL url) throws IOException {
 		
 		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
 		con.setConnectTimeout(60_000);
@@ -72,6 +79,6 @@ public class ExportChunksLoader {
 		if (responseCode == 200) return con.getInputStream();
 		else throw(new IOException("response code " + responseCode));
 	}
-		
+
 
 }

@@ -15,6 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import lombok.AccessLevel;
+import lombok.Setter;
+
+@Setter(AccessLevel.PACKAGE)
 public class JpaPersistenceService implements PersistenceService {
 	
 	@Autowired
@@ -34,6 +38,7 @@ public class JpaPersistenceService implements PersistenceService {
 
 	@Autowired
 	ExportChunkRepository exportChunkRepository;
+	
 	
 	private static final Logger logger = 
 			LoggerFactory.getLogger(JpaPersistenceService.class);
@@ -133,6 +138,16 @@ public class JpaPersistenceService implements PersistenceService {
 		}
 		
 		return r;
+	}
+	
+
+	@Override
+	public List<ExportChunk> getExportChunks(String handle) {
+		
+		System.out.println(exportChunkRepository);
+		
+		return exportChunkRepository.findByHandleTitle(handle);
+		
 	}
 
 	

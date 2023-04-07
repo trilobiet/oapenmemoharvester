@@ -1,6 +1,6 @@
 package org.oapen.memoproject.dataingestion;
 
-import java.io.IOException;
+import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -14,11 +14,9 @@ import org.oapen.memoproject.dataingestion.harvest.ListRecordsURLComposer;
 import org.oapen.memoproject.dataingestion.harvest.OAIHarvester;
 import org.oapen.memoproject.dataingestion.harvest.OAIHarvesterImp;
 import org.oapen.memoproject.dataingestion.harvest.RecordListHandler;
-import org.oapen.memoproject.dataingestion.jpa.JpaPersistenceService;
 import org.oapen.memoproject.dataingestion.jpa.PersistenceService;
 import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
 import org.oapen.memoproject.dataingestion.metadata.ExportChunkable;
-import org.oapen.memoproject.dataingestion.metadata.ExportChunksLoader;
 import org.oapen.memoproject.dataingestion.metadata.ExportType;
 import org.oapen.memoproject.dataingestion.metadata.FileChunker;
 import org.oapen.memoproject.dataingestion.metadata.MARCXMLChunk;
@@ -137,35 +135,27 @@ public class Orchestrator implements CommandLineRunner {
 		
 		logger.info("Ingesting chunks from downloads");
 		
-		try {
-			ExportChunksLoader loader = new ExportChunksLoader(exportsUrl + "marcxml");
-			String path = downloadsPath + "/exports.marcxml";
-			//loader.downloadTo(path);
-			FileChunker fc = new FileChunker(path,ExportType.MARCXML);
-			Set<ExportChunk> saveChunks = new HashSet<>(1000);
-			fc.chunkify(c -> {
-				ExportChunkable chunkable = new MARCXMLChunk(c);
-				String handle = chunkable.getHandle().get();
-				ExportChunk exportChunk = new ExportChunk();
-				exportChunk.setType(chunkable.getType().name());
-				exportChunk.setContent(chunkable.getContent());
-				exportChunk.setHandleTitle(handle);
-				saveChunks.add(exportChunk);
-				if (saveChunks.size() > 999) {
-					System.out.println("Saving " + saveChunks.size());
-					persistenceService.saveExportChunks(saveChunks);
-					saveChunks.clear();
-				}
-			});
-			// final batch
-			persistenceService.saveExportChunks(saveChunks);
-			saveChunks.clear();
-		
-		} catch ( IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		String path = downloadsPath + "/exports.marcxml";
+		File file = new File(path);
+		FileChunker fc = new FileChunker(file,ExportType.MARCXML);
+		Set<ExportChunk> saveChunks = new HashSet<>(1000);
+		fc.chunkify(c -> {
+			ExportChunkable chunkable = new MARCXMLChunk(c);
+			String handle = chunkable.getHandle().get();
+			ExportChunk exportChunk = new ExportChunk();
+			exportChunk.setType(chunkable.getType().name());
+			exportChunk.setContent(chunkable.getContent());
+			exportChunk.setHandleTitle(handle);
+			saveChunks.add(exportChunk);
+			if (saveChunks.size() > 999) {
+				System.out.println("Saving " + saveChunks.size());
+				persistenceService.saveExportChunks(saveChunks);
+				saveChunks.clear();
+			}
+		});
+		// final batch
+		persistenceService.saveExportChunks(saveChunks);
+		saveChunks.clear();
 	}
 
 	
