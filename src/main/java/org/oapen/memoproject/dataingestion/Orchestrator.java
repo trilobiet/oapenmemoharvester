@@ -1,11 +1,8 @@
 package org.oapen.memoproject.dataingestion;
 
-import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.oapen.memoproject.dataingestion.appstatus.AppStatus;
 import org.oapen.memoproject.dataingestion.appstatus.PropertiesAppStatusService;
@@ -15,11 +12,8 @@ import org.oapen.memoproject.dataingestion.harvest.OAIHarvester;
 import org.oapen.memoproject.dataingestion.harvest.OAIHarvesterImp;
 import org.oapen.memoproject.dataingestion.harvest.RecordListHandler;
 import org.oapen.memoproject.dataingestion.jpa.PersistenceService;
-import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
-import org.oapen.memoproject.dataingestion.metadata.ExportChunkable;
+import org.oapen.memoproject.dataingestion.metadata.ChunksIngesterService;
 import org.oapen.memoproject.dataingestion.metadata.ExportType;
-import org.oapen.memoproject.dataingestion.metadata.FileChunker;
-import org.oapen.memoproject.dataingestion.metadata.MARCXMLChunk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +49,9 @@ public class Orchestrator implements CommandLineRunner {
 	@Autowired
 	PersistenceService persistenceService;
 	
+	@Autowired
+	ChunksIngesterService chunksIngesterService;
+	
 	public Orchestrator() {}
 
 
@@ -86,9 +83,6 @@ public class Orchestrator implements CommandLineRunner {
 		else if (!handles.isEmpty()) {
 			ingestChunksFromHandleList(handles);
 		}
-		
-		
-		
 		
 	}
 	
@@ -133,35 +127,22 @@ public class Orchestrator implements CommandLineRunner {
 	
 	private void ingestChunksFromDownload() {
 		
-		logger.info("Ingesting chunks from downloads");
+		List<String> ingestedHandles = 
+			chunksIngesterService.ingestAll(ExportType.MARCXML);
 		
-		String path = downloadsPath + "/exports.marcxml";
-		File file = new File(path);
-		FileChunker fc = new FileChunker(file,ExportType.MARCXML);
-		Set<ExportChunk> saveChunks = new HashSet<>(1000);
-		fc.chunkify(c -> {
-			ExportChunkable chunkable = new MARCXMLChunk(c);
-			String handle = chunkable.getHandle().get();
-			ExportChunk exportChunk = new ExportChunk();
-			exportChunk.setType(chunkable.getType().name());
-			exportChunk.setContent(chunkable.getContent());
-			exportChunk.setHandleTitle(handle);
-			saveChunks.add(exportChunk);
-			if (saveChunks.size() > 999) {
-				System.out.println("Saving " + saveChunks.size());
-				persistenceService.saveExportChunks(saveChunks);
-				saveChunks.clear();
-			}
-		});
-		// final batch
-		persistenceService.saveExportChunks(saveChunks);
-		saveChunks.clear();
+		logger.info(
+			String.format("Ingested %n chunks from downloads", ingestedHandles.size()));
+		
 	}
 
 	
 	private void ingestChunksFromHandleList(List<String> handles) {
 		
-		//System.out.println("ingest " + handles);
+		List<String> ingestedHandles = 
+			chunksIngesterService.ingestForHandles(handles, ExportType.MARCXML);
+		
+		logger.info(
+			String.format("Ingested %n chunks from downloads", ingestedHandles.size()));
 		
 	}
 	

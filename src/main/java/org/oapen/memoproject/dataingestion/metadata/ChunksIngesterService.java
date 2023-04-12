@@ -129,6 +129,7 @@ public class ChunksIngesterService implements ChunksIngester {
 		
 		handles.forEach(handle -> {
 			
+			// First get from the ExportChunk the URL value that points to the content to be downloaded 
 			Optional<ExportChunk> oc = persistenceService.getExportChunks(handle).stream()
 				.filter(chunk -> chunk.getType().toLowerCase().equals(type.lowerCaseName()))
 				.findFirst();
@@ -138,18 +139,22 @@ public class ChunksIngesterService implements ChunksIngester {
 				ExportChunk c = oc.get();
 				String url = c.getContent();
 				try {
+					// Download the content containing the chunk
 					String chunk = downloader.getAsString(url);
 					c.setContent(chunk);
+					// And update the chunk TO
 					completedChunks.add(c);
 				}
 				catch (IOException e) {
-					
+					// Apparently there's not a valid url in the contents field, so just skip it
 				} 
 			}
 		});
 		
+		// Save the completed chunks
 		List<ExportChunk> savedChunks = persistenceService.saveExportChunks(completedChunks);
 		
+		// Return their title_handle values as a list
 		return savedChunks.stream()
 			.map(chunk -> chunk.getHandleTitle())
 			.collect(Collectors.toList());

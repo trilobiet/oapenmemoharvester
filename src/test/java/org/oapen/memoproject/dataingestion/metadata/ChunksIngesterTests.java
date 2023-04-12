@@ -66,8 +66,8 @@ public class ChunksIngesterTests {
 	// TODO: not a very descriptive test
 	public void test_ingestForHandles() throws IOException {
 		
-		Set<ExportChunk> saveSet = new HashSet<>();
-		saveSet.add(new ExportChunk("MARCXML","","20.500.12657/42289"));
+		Set<ExportChunk> returnedFromSaveSet = new HashSet<>();
+		returnedFromSaveSet.add(new ExportChunk("MARCXML","","20.500.12657/42289"));
 		
 		PersistenceService perservice = mock(PersistenceService.class);
 		Downloader downloader = mock(Downloader.class);  
@@ -75,7 +75,7 @@ public class ChunksIngesterTests {
 		exportsUrls.put("MARCXML", "mockurl");
 		
 		when(downloader.getAsString("mockurl")).thenReturn(TestConstants.marcxmlrecord);
-		when(perservice.saveExportChunks(any(Set.class))).thenReturn(new ArrayList<ExportChunk>(saveSet));
+		when(perservice.saveExportChunks(any(Set.class))).thenReturn(new ArrayList<ExportChunk>(returnedFromSaveSet));
 		
 		ChunksIngesterService ciservice = new ChunksIngesterService(
 			perservice,
