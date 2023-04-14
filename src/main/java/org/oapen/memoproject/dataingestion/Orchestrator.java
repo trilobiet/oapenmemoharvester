@@ -12,8 +12,8 @@ import org.oapen.memoproject.dataingestion.harvest.OAIHarvester;
 import org.oapen.memoproject.dataingestion.harvest.OAIHarvesterImp;
 import org.oapen.memoproject.dataingestion.harvest.RecordListHandler;
 import org.oapen.memoproject.dataingestion.jpa.PersistenceService;
-import org.oapen.memoproject.dataingestion.metadata.ChunksIngesterService;
-import org.oapen.memoproject.dataingestion.metadata.ExportType;
+import org.oapen.memoproject.dataingestion.metadata.ChunksIngester;
+import org.oapen.memoproject.dataingestion.metadata.IngestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +30,6 @@ public class Orchestrator implements CommandLineRunner {
 	@Value("${app.path.oaipath}")
 	private String oaiPath;
 
-	@Value("${app.url.exportsurl}")
-	private String exportsUrl;
-	
-	@Value("${app.path.downloads}")
-	private String downloadsPath;
-	
 	private static final Logger logger = 
 			LoggerFactory.getLogger(Orchestrator.class);
 	
@@ -50,7 +44,7 @@ public class Orchestrator implements CommandLineRunner {
 	PersistenceService persistenceService;
 	
 	@Autowired
-	ChunksIngesterService chunksIngesterService;
+	ChunksIngester chunksIngesterService;
 	
 	public Orchestrator() {}
 
@@ -62,24 +56,32 @@ public class Orchestrator implements CommandLineRunner {
 		urlComposer = new ListRecordsURLComposer(oaiPath);
 		harvester = new OAIHarvesterImp(urlComposer, recordListHandler);
 		
+		// System.out.println(chunksIngesterService);
+		
 		List<String> handles;
 		
 		logger.info(status.toString());
 		
-		if (status.getResumptionToken().isBlank()) 
-			handles = harvestFromlastHarvestDay();
+		if (!status.getResumptionToken().isBlank())
+			// Continue from a resumption token
+			handles = harvestFromResumptionToken();
 		else 
-			handles = harvestFromResumptionToken(); 
+			// Continue from the day we left off
+			handles = harvestFromlastHarvestDay();
 
+		// at least some handles have been ingested
 		if (!handles.isEmpty()) {
 			
+			// update status file
 			status.setLastHarvestDay(LocalDate.now());
 			status.setResumptionToken("");
 		}
 		
+		// Now continue with export chunks: first see if the downloaded bulk is ingested
 		if (!status.isExportChunksDownloadsIngested()) {
 			ingestChunksFromDownload();
 		}
+		// otherwise get the export chunks only for the titles that have just been ingested
 		else if (!handles.isEmpty()) {
 			ingestChunksFromHandleList(handles);
 		}
@@ -96,10 +98,10 @@ public class Orchestrator implements CommandLineRunner {
 		
 		logger.info("Harvesting from " + fromDate);
 		
-		try {
-			handles = harvester.harvest(fromDate, untilDate);
-		} catch (HarvestException e) {
-			e.printStackTrace();
+		try { 
+			handles = harvester.harvest(fromDate, untilDate);	
+		} 
+		catch (HarvestException e) { 
 			logger.error(e.getMessage());
 		}
 		
@@ -110,14 +112,13 @@ public class Orchestrator implements CommandLineRunner {
 	private List<String> harvestFromResumptionToken() {
 		
 		List<String> handles = new ArrayList<>();
-		
 		String token = status.getResumptionToken();
 		
-		logger.debug("Harvesting from resumptionToken " + token);
-		
-		try {
+		try { 
 			handles = harvester.harvest(token);
-		} catch (HarvestException e) {
+			logger.info("Harvested from resumptionToken " + token);
+		} 
+		catch (HarvestException e) {
 			logger.error(e.getMessage());
 		}
 
@@ -127,22 +128,29 @@ public class Orchestrator implements CommandLineRunner {
 	
 	private void ingestChunksFromDownload() {
 		
-		List<String> ingestedHandles = 
-			chunksIngesterService.ingestAll(ExportType.MARCXML);
+		List<String> ingestedHandles = new ArrayList<>();
 		
-		logger.info(
-			String.format("Ingested %n chunks from downloads", ingestedHandles.size()));
+		try { 
+			ingestedHandles = chunksIngesterService.ingestAll();
+			logger.info(String.format("Ingested %n chunks from downloads", ingestedHandles.size()));
+		} 
+		catch (IngestException e) {
+			logger.error(e.getMessage());
+		}
 		
 	}
 
 	
 	private void ingestChunksFromHandleList(List<String> handles) {
 		
-		List<String> ingestedHandles = 
-			chunksIngesterService.ingestForHandles(handles, ExportType.MARCXML);
+		List<String> ingestedHandles = new ArrayList<>();
 		
-		logger.info(
-			String.format("Ingested %n chunks from downloads", ingestedHandles.size()));
+		try {
+			ingestedHandles = chunksIngesterService.ingestForHandles(handles);
+			logger.info(String.format("Ingested %n chunks from downloads", ingestedHandles.size()));
+		} catch (IngestException e) {
+			logger.error(e.getMessage());
+		}
 		
 	}
 	

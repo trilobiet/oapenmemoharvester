@@ -7,16 +7,24 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Scanner;
 import java.util.Set;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ExportsDownloader implements Downloader {
 	
 	// TODO: Make this a File path SO we can see by the type what it is supposed to be
 	private final String directoryPath;
+	
+	private static final Logger logger = 
+			LoggerFactory.getLogger(ExportsDownloader.class);
+	
 	
 	public ExportsDownloader(String directoryPath) {
 		this.directoryPath = directoryPath;
@@ -32,13 +40,15 @@ public class ExportsDownloader implements Downloader {
 	  to prevent partially downloaded files from being visible to the system.
 	*/
 	@Override
-	public void download(String cUrl) throws IOException  {
+	public void download(URL url) throws IOException  {
 		
-		URL url = new URL(cUrl);
+		logger.info("Downloading from " + url.toString());
+		
+		String fileName = Paths.get(url.getPath()).getFileName().toString();
 		
 		try (InputStream is = getInputStream(url)) {
 			
-			Path path = Path.of(directoryPath);
+			Path path = Path.of(directoryPath + "/" + fileName);
 			Path parent = path.getParent();
 			Files.createDirectories(parent);
 			File tmp = File.createTempFile("tmp", ".tmp", parent.toFile()); 
@@ -51,17 +61,16 @@ public class ExportsDownloader implements Downloader {
 
 
 	@Override
-	public void download(Set<String> urls) throws IOException {
+	public void download(Set<URL> urls) throws IOException {
 		
-		for (String url: urls) download(url);
+		for (URL url: urls) download(url);
 	}
 	
 	
 	@Override
-	public String getAsString(String cUrl) throws IOException {
+	public String getAsString(URL url) throws IOException {
 		
 		String text = null;
-		URL url = new URL(cUrl);
 		
 		try (InputStream is = getInputStream(url); Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name())) {
 			text = scanner.useDelimiter("\\A").next();

@@ -61,12 +61,13 @@ public final class OAIHarvesterImp implements OAIHarvester {
 	@Override
 	public final List<String> harvest(String token) throws HarvestException {
 		
+		ResumptionToken rst = new ResumptionToken(token, null, null);
+		
 		try {
-			ResumptionToken rst = new ResumptionToken(token, null, null); 
 			URL nextUrl = urlComposer.getUrl(rst);
 			return harvest(nextUrl);
 		} catch (MalformedURLException e) {
-			throw new HarvestException(e);
+			throw new HarvestException(e, Optional.of(rst));
 		}
 	}
 	
@@ -97,7 +98,9 @@ public final class OAIHarvesterImp implements OAIHarvester {
 	
 				Thread.sleep(500); // Do not DDOS the OAI Provider
 				
-			} catch (Exception e) {	throw new HarvestException(e);} 
+			} catch (Exception e) {	
+				throw new HarvestException(e, oRst);
+			} 
 			
 		} while ( oRst.isPresent() );
 		

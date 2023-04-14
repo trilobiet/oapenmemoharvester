@@ -2,6 +2,7 @@ package org.oapen.memoproject.dataingestion.metadata;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -14,12 +15,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.oapen.memoproject.dataingestion.Orchestrator;
 import org.oapen.memoproject.dataingestion.jpa.PersistenceService;
 import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -28,25 +25,19 @@ public class ChunksIngesterService implements ChunksIngester {
 	// Default value, re-download file after x days
 	private int daysExpiration = 5;
 	private int batchSize = 1000;
-	private Downloader downloader;
 	
-	@Value("${app.url.exports}")
-	private Map<String,String> exportsUrls;
+	private final Downloader downloader;
+	private final Map<String,URL> exportsUrls;
+	private final PersistenceService persistenceService;
 	
-	private PersistenceService persistenceService;
-	
-	public ChunksIngesterService(PersistenceService persistenceService) {
-		this.persistenceService = persistenceService;
-	}
-
-	public ChunksIngesterService(PersistenceService persistenceService, Map<String,String> exportsUrls, Downloader downloader) {
+	public ChunksIngesterService(PersistenceService persistenceService, Map<String,URL> exportsUrls, Downloader downloader) {
+		
 		this.persistenceService = persistenceService;
 		this.exportsUrls = exportsUrls;
 		this.downloader = downloader;
 	}
 	
-	private static final Logger logger = 
-		LoggerFactory.getLogger(Orchestrator.class);
+	// private static final Logger logger = LoggerFactory.getLogger(ChunksIngesterService.class);
 
 
 	public int getDaysExpiration() {
@@ -65,21 +56,31 @@ public class ChunksIngesterService implements ChunksIngester {
 		this.batchSize = batchSize;
 	}
 	
-	public Downloader getDownloader() {
-		return downloader;
+	
+	@Override
+	// for every type (4) run ingestAll and combine the resulting 
+	// lists of ingested handles to a single list of unique handles
+	public List<String> ingestAll() throws IngestException {
+		
+		Set<String> hndls = new HashSet<>();
+		
+		for (String type: exportsUrls.keySet() ) {
+			List<String> lst = ingestAll(ExportType.valueOf(type));
+			hndls.addAll(lst);
+		}
+		
+		return new ArrayList<>(hndls);
 	}
-
-	public void setDownloader(Downloader downloader) {
-		this.downloader = downloader;
-	}
+	
 
 	@Override
-	public List<String> ingestAll(ExportType type) {
+	// TODO introduce IngestException
+	public List<String> ingestAll(ExportType type) throws IngestException {
 
-		logger.info("Ingesting chunks from downloads");
 		List<String> ingestedHandles = new ArrayList<>();
 		
 		File file = getDownloadedFile(type);
+		
 		if (this.isNewDownloadNeeded(file)) file = reDownloadFile(type);
 		
 		FileChunker fc = new FileChunker(file,type);
@@ -107,21 +108,19 @@ public class ChunksIngesterService implements ChunksIngester {
 	}
 	
 	
-	// Save a batch of ExportChunks and clear the batch
-	private List<String> saveBatch(Set<ExportChunk> batch) {
-		
-		List<String> handles = new ArrayList<>();
-		
-		if (!batch.isEmpty()) {
-			List<ExportChunk> q = persistenceService.saveExportChunks(batch);
-			q.forEach(cq -> handles.add(cq.getHandleTitle()));
-			batch.clear(); // a side effect
-		}	
-		
-		return handles;
-	}
-	
+	@Override
+	// for every type (4) run ingestForhandles and combine the resulting 
+	// lists of ingested handles to a single list of unique handles
+	public List<String> ingestForHandles(List<String> handles) {
 
+		Set<String> hndls = exportsUrls.keySet().stream()
+			.flatMap(type -> ingestForHandles(handles, ExportType.valueOf(type)).stream())
+			.collect(Collectors.toSet());
+			
+		return new ArrayList<>(hndls);
+	}
+
+	
 	@Override
 	public List<String> ingestForHandles(List<String> handles, ExportType type) {
 		
@@ -135,10 +134,9 @@ public class ChunksIngesterService implements ChunksIngester {
 				.findFirst();
 			
 			if (oc.isPresent()) {
-				
-				ExportChunk c = oc.get();
-				String url = c.getContent();
 				try {
+					ExportChunk c = oc.get();
+					URL url = new URL(c.getContent());
 					// Download the content containing the chunk
 					String chunk = downloader.getAsString(url);
 					c.setContent(chunk);
@@ -161,6 +159,22 @@ public class ChunksIngesterService implements ChunksIngester {
 	}
 	
 	
+	
+	// Save a batch of ExportChunks and clear the batch
+	private List<String> saveBatch(Set<ExportChunk> batch) {
+		
+		List<String> handles = new ArrayList<>();
+		
+		if (!batch.isEmpty()) {
+			List<ExportChunk> q = persistenceService.saveExportChunks(batch);
+			q.forEach(cq -> handles.add(cq.getHandleTitle()));
+			batch.clear(); // a side effect
+		}	
+		
+		return handles;
+	}
+	
+	
 	// Get downloaded file from file system
 	private File getDownloadedFile(ExportType type) {
 		
@@ -170,17 +184,16 @@ public class ChunksIngesterService implements ChunksIngester {
 	
 	
 	// Save a new download to file system
-	private File reDownloadFile(ExportType type) {
+	private File reDownloadFile(ExportType type) throws IngestException {
 		
-		String url = exportsUrls.get(type.lowerCaseName());
+		URL url = exportsUrls.get(type.name());
 		
 		try {
 			downloader.download(url);
+			return getDownloadedFile(type);
 		} catch (IOException e) {
-			logger.error("Could not download new export file from " + type + " to " + downloader.getDirectory());
+			throw new IngestException(e);
 		}
-		
-		return getDownloadedFile(type);
 	}
 	
 	// factory for ExportTypes
@@ -207,5 +220,14 @@ public class ChunksIngesterService implements ChunksIngester {
 		}			
 		return false;
 	}
+
+	
+	@Override
+	public String toString() {
+		return "ChunksIngesterService [daysExpiration=" + daysExpiration + ", batchSize=" + batchSize + ", downloader="
+				+ downloader + ", exportsUrls=" + exportsUrls + ", persistenceService=" + persistenceService + "]";
+	}
+	
+
 
 }

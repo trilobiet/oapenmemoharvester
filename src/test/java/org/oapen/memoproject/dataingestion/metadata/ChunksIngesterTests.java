@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,7 +22,7 @@ public class ChunksIngesterTests {
 	
 	@Test
 	// TODO: not a very descriptive test
-	public void test_ingestAll() {
+	public void test_ingestAll() throws IngestException {
 		
 		Set<ExportChunk> saveSet = new HashSet<>();
 		saveSet.add(new ExportChunk("MARCXML","","20.500.12657/39385"));
@@ -31,7 +32,7 @@ public class ChunksIngesterTests {
 		PersistenceService perservice = mock(PersistenceService.class);
 		Downloader downloader = new ExportsDownloader("src/test/resources/downloads");  
 
-		HashMap<String,String> exportsUrls = new HashMap<>();
+		HashMap<String,URL> exportsUrls = new HashMap<>();
 		//exportsUrls.put("MARCXML","https://library.oapen.org/download-export?format=marcxml");
 		
 		// Mock da shit
@@ -71,10 +72,11 @@ public class ChunksIngesterTests {
 		
 		PersistenceService perservice = mock(PersistenceService.class);
 		Downloader downloader = mock(Downloader.class);  
-		HashMap<String,String> exportsUrls = new HashMap<>();
-		exportsUrls.put("MARCXML", "mockurl");
+		HashMap<String,URL> exportsUrls = new HashMap<>();
+		URL mockUrl = new URL("https://mock.url");
+		exportsUrls.put("MARCXML", mockUrl);
 		
-		when(downloader.getAsString("mockurl")).thenReturn(TestConstants.marcxmlrecord);
+		when(downloader.getAsString(mockUrl)).thenReturn(TestConstants.marcxmlrecord);
 		when(perservice.saveExportChunks(any(Set.class))).thenReturn(new ArrayList<ExportChunk>(returnedFromSaveSet));
 		
 		ChunksIngesterService ciservice = new ChunksIngesterService(
