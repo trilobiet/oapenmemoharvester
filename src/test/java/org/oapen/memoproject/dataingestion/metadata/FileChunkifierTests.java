@@ -3,6 +3,7 @@ package org.oapen.memoproject.dataingestion.metadata;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Stack;
 
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,7 @@ import org.junit.jupiter.api.Test;
 public class FileChunkifierTests {
 	
 	@Test
-	public void test_chunk_counts_when_parsing_RIS_file() {
+	public void test_chunk_counts_when_parsing_RIS_file() throws FileNotFoundException {
 		
 		File file = new File("src/test/resources/test.ris");
 		FileChunker fp = new FileChunker(file, ExportType.RIS);
@@ -26,7 +27,7 @@ public class FileChunkifierTests {
 	}
 
 	@Test
-	public void test_chunk_counts_when_parsing_MARCXML_file() {
+	public void test_chunk_counts_when_parsing_MARCXML_file() throws FileNotFoundException {
 		
 		File file = new File("src/test/resources/test.marcxml");
 		FileChunker fp = new FileChunker(file, ExportType.MARCXML);
@@ -42,7 +43,7 @@ public class FileChunkifierTests {
 	}
 
 	@Test
-	public void test_chunk_counts_when_parsing_ONIX_file() {
+	public void test_chunk_counts_when_parsing_ONIX_file() throws FileNotFoundException {
 		
 		File file = new File("src/test/resources/test.onix");
 		FileChunker fp = new FileChunker(file, ExportType.ONIX);
@@ -58,7 +59,7 @@ public class FileChunkifierTests {
 	}
 	
 	@Test
-	public void test_chunk_counts_when_parsing_KBART_TSV_file() {
+	public void test_chunk_counts_when_parsing_KBART_TSV_file() throws FileNotFoundException {
 		
 		File file = new File("src/test/resources/test.tsv");
 		FileChunker fp = new FileChunker(file, ExportType.KBART);

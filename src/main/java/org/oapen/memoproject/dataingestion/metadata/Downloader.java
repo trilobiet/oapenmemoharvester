@@ -1,8 +1,8 @@
 package org.oapen.memoproject.dataingestion.metadata;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Set;
 
 public interface Downloader {
 
@@ -13,18 +13,17 @@ public interface Downloader {
 	 * @throws IOException if the remote url could not be reached or local file 
 	 * could not be saved. 
 	 */
-	void download(URL url) throws IOException;
+	File download(URL url) throws IOException;
+	
+	
+	// !!! ==========================================
+	// TODO MAke exportsUrls a property of this downloader and NONE else!
+	
 	
 	/**
-	 * Download the responses at urls to local files.
-	 * 
-	 * @param url remote url
-	 * @throws IOException if the remote urls could not be reached or local files 
-	 * could not be saved. 
+	 * Get the download directory
+	 * @return Download directory
 	 */
-	void download(Set<URL> urls) throws IOException;
-
-	
 	String getDirectory();
 	
 	/**

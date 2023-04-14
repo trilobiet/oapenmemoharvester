@@ -78,13 +78,12 @@ public class Orchestrator implements CommandLineRunner {
 		}
 		
 		// Now continue with export chunks: first see if the downloaded bulk is ingested
-		if (!status.isExportChunksDownloadsIngested()) {
+		if (!status.isExportChunksDownloadsIngested()) 
 			ingestChunksFromDownload();
-		}
+		
 		// otherwise get the export chunks only for the titles that have just been ingested
-		else if (!handles.isEmpty()) {
+		else if (!handles.isEmpty()) 
 			ingestChunksFromHandleList(handles);
-		}
 		
 	}
 	
@@ -96,10 +95,9 @@ public class Orchestrator implements CommandLineRunner {
 		LocalDate fromDate = status.getLastHarvestDay();
 		LocalDate untilDate = LocalDate.now().minusDays(7);
 		
-		logger.info("Harvesting from " + fromDate);
-		
 		try { 
-			handles = harvester.harvest(fromDate, untilDate);	
+			handles = harvester.harvest(fromDate, untilDate);
+			logger.info("Harvested from date " + fromDate);
 		} 
 		catch (HarvestException e) { 
 			logger.error(e.getMessage());

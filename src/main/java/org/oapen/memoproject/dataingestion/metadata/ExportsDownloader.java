@@ -40,7 +40,7 @@ public class ExportsDownloader implements Downloader {
 	  to prevent partially downloaded files from being visible to the system.
 	*/
 	@Override
-	public void download(URL url) throws IOException  {
+	public File download(URL url) throws IOException  {
 		
 		logger.info("Downloading from " + url.toString());
 		
@@ -60,13 +60,6 @@ public class ExportsDownloader implements Downloader {
 	}
 
 
-	@Override
-	public void download(Set<URL> urls) throws IOException {
-		
-		for (URL url: urls) download(url);
-	}
-	
-	
 	@Override
 	public String getAsString(URL url) throws IOException {
 		

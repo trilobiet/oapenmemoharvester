@@ -1,6 +1,7 @@
 package org.oapen.memoproject.dataingestion.metadata;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Instant;
@@ -64,6 +65,8 @@ public class ChunksIngesterService implements ChunksIngester {
 		
 		Set<String> hndls = new HashSet<>();
 		
+		System.out.println(exportsUrls);
+		
 		for (String type: exportsUrls.keySet() ) {
 			List<String> lst = ingestAll(ExportType.valueOf(type));
 			hndls.addAll(lst);
@@ -85,21 +88,26 @@ public class ChunksIngesterService implements ChunksIngester {
 		
 		FileChunker fc = new FileChunker(file,type);
 		Set<ExportChunk> batch = new HashSet<>(batchSize);
-		fc.chunkify(c -> {
-			
-			ExportChunkable chunkable = getChunkable(type,c);
-			
-			if (chunkable.isValid()) {
 
-				ExportChunk exportChunk = new ExportChunk();
-				exportChunk.setType( chunkable.getType().name() );
-				exportChunk.setContent(	chunkable.getContent() );
-				exportChunk.setHandleTitle( chunkable.getHandle().get() );
-				batch.add(exportChunk);
-			}
-			
-			if (batch.size() > batchSize) ingestedHandles.addAll(saveBatch(batch));
-		});
+		try {
+			fc.chunkify(c -> {
+				
+				ExportChunkable chunkable = getChunkable(type,c);
+				
+				if (chunkable.isValid()) {
+
+					ExportChunk exportChunk = new ExportChunk();
+					exportChunk.setType( chunkable.getType().name() );
+					exportChunk.setContent(	chunkable.getContent() );
+					exportChunk.setHandleTitle( chunkable.getHandle().get() );
+					batch.add(exportChunk);
+				}
+				
+				if (batch.size() > batchSize) ingestedHandles.addAll(saveBatch(batch));
+			});
+		} catch (FileNotFoundException e) {
+			throw new IngestException(e);
+		}
 		
 		// final batch
 		ingestedHandles.addAll(saveBatch(batch));
@@ -212,7 +220,8 @@ public class ChunksIngesterService implements ChunksIngester {
 	// Check if the downloaded file is not too old
 	private boolean isNewDownloadNeeded(File file) {
 		
-		if (file.exists()) {
+		if (!file.exists()) return true;
+		else if (file.exists()) {
 			long lastModified = file.lastModified();
 			LocalDate downloadDate = Instant.ofEpochMilli(lastModified).atZone(ZoneId.systemDefault()).toLocalDate();
 			LocalDate nowDate = LocalDate.now();

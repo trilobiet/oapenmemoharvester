@@ -59,7 +59,6 @@ public class AppConfig {
 				map.put(key, new URL(url));
 			} catch (MalformedURLException e) {
 				logger.error("===> Could not use \"{}\" as a URL because it is malformed!",url);
-				return null;
 			}
 		}
 		

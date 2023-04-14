@@ -20,8 +20,9 @@ public class FileChunker {
 	 * Chunkifies file as a stream and hands chunks to String processor. 
 	 * 
 	 * @param processor Consumer to handle each chunk as soon as it is available
+	 * @throws FileNotFoundException 
 	 */
-	public void chunkify(Consumer<String> processor) {
+	public void chunkify(Consumer<String> processor) throws FileNotFoundException {
 	
 		chunkify(processor, 0);
 
@@ -32,8 +33,9 @@ public class FileChunker {
 	 * 
 	 * @param processor Consumer to handle each chunk as soon as it is available
 	 * @param skip Number of file lines to skip (use for .csv type files) 
+	 * @throws FileNotFoundException 
 	 */
-	public void chunkify(Consumer<String> processor, int skip) {
+	public void chunkify(Consumer<String> processor, int skip) throws FileNotFoundException {
 		
 		int line = -1;
 		
@@ -59,11 +61,7 @@ public class FileChunker {
 					chunk = "";
 				}
 			}
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-
+		} 
 	}
 
 }
