@@ -7,7 +7,6 @@ import java.util.Optional;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
-import org.oapen.memoproject.dataingestion.jpa.JpaPersistenceService;
 import org.oapen.memoproject.dataingestion.jpa.PersistenceService;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.slf4j.Logger;
@@ -23,7 +22,7 @@ public final class RecordListHandlerImp implements RecordListHandler {
 	PersistenceService perservice;
 	
 	private static final Logger logger = 
-		LoggerFactory.getLogger(JpaPersistenceService.class);
+		LoggerFactory.getLogger(RecordListHandlerImp.class);
 	
 	
 	@Override
@@ -45,7 +44,6 @@ public final class RecordListHandlerImp implements RecordListHandler {
 						/* log da shit with t handle */
 						logger.error("Could not delete title with handle " + t.getHandle());
 					}
-					// TODO handle deletions 
 				}
 				else if (t.isComplete()) {
 					

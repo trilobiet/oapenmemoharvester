@@ -78,12 +78,17 @@ public class Orchestrator implements CommandLineRunner {
 		}
 		
 		// Now continue with export chunks: first see if the downloaded bulk is ingested
-		if (!status.isExportChunksDownloadsIngested()) 
-			ingestChunksFromDownload();
-		
+		if (!status.isExportChunksDownloadsIngested()) {
+			handles = ingestChunksFromDownload();
+			status.setExportChunksDownloadsIngested(true);
+			// consider the download to be the first ingestion
+			status.setLastChunkIngestionDay(LocalDate.now()); 
+		}	
 		// otherwise get the export chunks only for the titles that have just been ingested
-		else if (!handles.isEmpty()) 
-			ingestChunksFromHandleList(handles);
+		else if (!handles.isEmpty()) {
+			handles = ingestChunksFromHandleList(handles);
+			status.setLastChunkIngestionDay(LocalDate.now());
+		}	
 		
 	}
 	
@@ -124,31 +129,35 @@ public class Orchestrator implements CommandLineRunner {
 	}
 	
 	
-	private void ingestChunksFromDownload() {
+	private List<String> ingestChunksFromDownload() {
 		
 		List<String> ingestedHandles = new ArrayList<>();
 		
 		try { 
 			ingestedHandles = chunksIngesterService.ingestAll();
-			logger.info(String.format("Ingested %n chunks from downloads", ingestedHandles.size()));
+			logger.info("Ingested {} chunks from downloads", ingestedHandles.size());
 		} 
 		catch (IngestException e) {
 			logger.error(e.getMessage());
 		}
 		
+		return ingestedHandles;
+		
 	}
 
 	
-	private void ingestChunksFromHandleList(List<String> handles) {
+	private List<String> ingestChunksFromHandleList(List<String> handles) {
 		
 		List<String> ingestedHandles = new ArrayList<>();
 		
 		try {
 			ingestedHandles = chunksIngesterService.ingestForHandles(handles);
-			logger.info(String.format("Ingested %n chunks from downloads", ingestedHandles.size()));
+			logger.info("Ingested {} chunks from downloads", ingestedHandles.size());
 		} catch (IngestException e) {
 			logger.error(e.getMessage());
 		}
+		
+		return ingestedHandles;
 		
 	}
 	

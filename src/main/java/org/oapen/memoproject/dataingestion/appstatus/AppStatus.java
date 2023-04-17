@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public interface AppStatus {
 	
 	/**
-	 * @return date of last successfull harvest. 
+	 * @return date of last successful harvest. 
 	 */
 	LocalDate getLastHarvestDay();
 	
@@ -20,7 +20,13 @@ public interface AppStatus {
 	boolean isExportChunksDownloadsIngested();
 	
 	/**
-	 * @param ym Last successfully ingested year/month number.
+	 * 
+	 * @return date of last successful chunk ingestion
+	 */
+	LocalDate getLastChunkIngestionDay();
+
+	/**
+	 * @param d Last successful harvest day
 	 */
 	void setLastHarvestDay(LocalDate d);
 	
@@ -33,5 +39,12 @@ public interface AppStatus {
 	 * @param b boolean indicating whether export chunks have been downloaded via large file download and ingested
 	 */
 	void setExportChunksDownloadsIngested(boolean b);
+
+	/**
+	 * 
+	 * @param d Last successful chunk ingestion day
+	 */
+	void setLastChunkIngestionDay(LocalDate d);
+
 	
 }

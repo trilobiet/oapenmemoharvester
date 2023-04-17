@@ -15,8 +15,6 @@ public class ExportChunkableTests {
 		String expected = "20.500.12657/42289";
 		String found = chunk.getHandle().get();
 		
-		// System.out.println(found);
-		
 		assertEquals(expected,found);
 	}
 	
@@ -29,8 +27,6 @@ public class ExportChunkableTests {
 		ExportChunkable chunk = new MARCXMLChunk(record);
 		String expected = "20.500.12657/42289";
 		String found = chunk.getHandle().get();
-		
-		// System.out.println(found);
 		
 		assertEquals(expected,found);
 	}
@@ -46,8 +42,6 @@ public class ExportChunkableTests {
 		String expected = "20.500.12657/38065";
 		String found = chunk.getHandle().get();
 		
-		// System.out.println(found);
-		
 		assertEquals(expected,found);
 	}
 	
@@ -61,8 +55,6 @@ public class ExportChunkableTests {
 		
 		String expected = "20.500.12657/42289";
 		String found = chunk.getHandle().get();
-		
-		// System.out.println(found);
 		
 		assertEquals(expected,found);
 	}

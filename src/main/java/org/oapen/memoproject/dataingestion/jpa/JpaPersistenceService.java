@@ -144,8 +144,6 @@ public class JpaPersistenceService implements PersistenceService {
 	@Override
 	public List<ExportChunk> getExportChunks(String handle) {
 		
-		System.out.println(exportChunkRepository);
-		
 		return exportChunkRepository.findByHandleTitle(handle);
 		
 	}

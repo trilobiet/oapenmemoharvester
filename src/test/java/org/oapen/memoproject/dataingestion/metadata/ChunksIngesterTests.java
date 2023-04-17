@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -28,12 +29,13 @@ public class ChunksIngesterTests {
 		saveSet.add(new ExportChunk("MARCXML","","20.500.12657/39385"));
 		saveSet.add(new ExportChunk("MARCXML","","20.500.12657/42289"));
 		saveSet.add(new ExportChunk("MARCXML","","20.500.12657/38065"));
+
+		HashMap<ExportType,URL> exportsUrls = new HashMap<>();
+		//exportsUrls.put("MARCXML","https://library.oapen.org/download-export?format=marcxml");
 		
 		PersistenceService perservice = mock(PersistenceService.class);
-		Downloader downloader = new ExportsDownloader("src/test/resources/downloads");  
-
-		HashMap<String,URL> exportsUrls = new HashMap<>();
-		//exportsUrls.put("MARCXML","https://library.oapen.org/download-export?format=marcxml");
+		File downloadDestination = new File("src/test/resources/downloads");
+		ExportsDownloader downloader = new ExportsDownloaderImp(exportsUrls, downloadDestination);  
 		
 		// Mock da shit
 		when(perservice.saveExportChunks(saveSet)).thenReturn(new ArrayList<ExportChunk>(saveSet));
@@ -43,7 +45,6 @@ public class ChunksIngesterTests {
 
 		ChunksIngesterService ciservice = new ChunksIngesterService(
 			perservice,
-			exportsUrls,
 			downloader  // here is some test data in exports.marcxml
 		);
 		
@@ -71,17 +72,17 @@ public class ChunksIngesterTests {
 		returnedFromSaveSet.add(new ExportChunk("MARCXML","","20.500.12657/42289"));
 		
 		PersistenceService perservice = mock(PersistenceService.class);
-		Downloader downloader = mock(Downloader.class);  
-		HashMap<String,URL> exportsUrls = new HashMap<>();
+		ExportsDownloader downloader = mock(ExportsDownloader.class);
+		
+		HashMap<ExportType,URL> exportsUrls = new HashMap<>();
 		URL mockUrl = new URL("https://mock.url");
-		exportsUrls.put("MARCXML", mockUrl);
+		exportsUrls.put(ExportType.MARCXML, mockUrl);
 		
 		when(downloader.getAsString(mockUrl)).thenReturn(TestConstants.marcxmlrecord);
 		when(perservice.saveExportChunks(any(Set.class))).thenReturn(new ArrayList<ExportChunk>(returnedFromSaveSet));
 		
 		ChunksIngesterService ciservice = new ChunksIngesterService(
 			perservice,
-			exportsUrls,
 			downloader  
 		);
 		

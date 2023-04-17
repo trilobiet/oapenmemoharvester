@@ -11,13 +11,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.oapen.memoproject.dataingestion.jpa.PersistenceService;
 import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,20 +28,18 @@ public class ChunksIngesterService implements ChunksIngester {
 	private int daysExpiration = 5;
 	private int batchSize = 1000;
 	
-	private final Downloader downloader;
-	private final Map<String,URL> exportsUrls;
+	private final ExportsDownloader downloader;
 	private final PersistenceService persistenceService;
+
+	private static final Logger logger = LoggerFactory.getLogger(ChunksIngesterService.class);
+
 	
-	public ChunksIngesterService(PersistenceService persistenceService, Map<String,URL> exportsUrls, Downloader downloader) {
+	public ChunksIngesterService(PersistenceService persistenceService, ExportsDownloader downloader) {
 		
 		this.persistenceService = persistenceService;
-		this.exportsUrls = exportsUrls;
 		this.downloader = downloader;
 	}
 	
-	// private static final Logger logger = LoggerFactory.getLogger(ChunksIngesterService.class);
-
-
 	public int getDaysExpiration() {
 		return daysExpiration;
 	}
@@ -65,10 +64,9 @@ public class ChunksIngesterService implements ChunksIngester {
 		
 		Set<String> hndls = new HashSet<>();
 		
-		System.out.println(exportsUrls);
-		
-		for (String type: exportsUrls.keySet() ) {
-			List<String> lst = ingestAll(ExportType.valueOf(type));
+		for (ExportType type: downloader.getExportTypes() ) {
+			System.out.println("Ingesting for " + type);
+			List<String> lst = ingestAll(type);
 			hndls.addAll(lst);
 		}
 		
@@ -77,35 +75,49 @@ public class ChunksIngesterService implements ChunksIngester {
 	
 
 	@Override
-	// TODO introduce IngestException
 	public List<String> ingestAll(ExportType type) throws IngestException {
 
 		List<String> ingestedHandles = new ArrayList<>();
 		
 		File file = getDownloadedFile(type);
 		
-		if (this.isNewDownloadNeeded(file)) file = reDownloadFile(type);
+		if (this.isNewDownloadNeeded(file)) file = downloadFile(type);
 		
 		FileChunker fc = new FileChunker(file,type);
 		Set<ExportChunk> batch = new HashSet<>(batchSize);
 
 		try {
-			fc.chunkify(c -> {
+			
+			fc.chunkify(
+					
+				// Consumer to handle chunk	
+				c -> {
 				
-				ExportChunkable chunkable = getChunkable(type,c);
-				
-				if (chunkable.isValid()) {
+					ExportChunkable chunkable = getChunkable(type,c);
+					
+					if (chunkable.isValid()) {
+	
+						ExportChunk exportChunk = new ExportChunk();
+						exportChunk.setType( chunkable.getType().name() );
+						exportChunk.setContent(	chunkable.getContent() );
+						exportChunk.setHandleTitle( chunkable.getHandle().get() );
+						batch.add(exportChunk);
+					}
 
-					ExportChunk exportChunk = new ExportChunk();
-					exportChunk.setType( chunkable.getType().name() );
-					exportChunk.setContent(	chunkable.getContent() );
-					exportChunk.setHandleTitle( chunkable.getHandle().get() );
-					batch.add(exportChunk);
-				}
-				
-				if (batch.size() > batchSize) ingestedHandles.addAll(saveBatch(batch));
-			});
+					if (batch.size() > batchSize) {
+						// save and clear batch
+						ingestedHandles.addAll( saveBatch(batch) );
+						batch.clear(); 
+					}
+					
+				}, 
+			
+				// Number of lines to skip (first line is header for csv/tsv)
+				type.skipLines() 
+			);
+			
 		} catch (FileNotFoundException e) {
+			
 			throw new IngestException(e);
 		}
 		
@@ -120,11 +132,11 @@ public class ChunksIngesterService implements ChunksIngester {
 	// for every type (4) run ingestForhandles and combine the resulting 
 	// lists of ingested handles to a single list of unique handles
 	public List<String> ingestForHandles(List<String> handles) {
-
-		Set<String> hndls = exportsUrls.keySet().stream()
-			.flatMap(type -> ingestForHandles(handles, ExportType.valueOf(type)).stream())
+		
+		Set<String> hndls = downloader.getExportTypes().stream()
+			.flatMap(type -> ingestForHandles(handles, type).stream())
 			.collect(Collectors.toSet());
-			
+
 		return new ArrayList<>(hndls);
 	}
 
@@ -153,6 +165,7 @@ public class ChunksIngesterService implements ChunksIngester {
 				}
 				catch (IOException e) {
 					// Apparently there's not a valid url in the contents field, so just skip it
+					logger.warn("Could not ingest {} chunk for {}.", type, handle);
 				} 
 			}
 		});
@@ -176,7 +189,6 @@ public class ChunksIngesterService implements ChunksIngester {
 		if (!batch.isEmpty()) {
 			List<ExportChunk> q = persistenceService.saveExportChunks(batch);
 			q.forEach(cq -> handles.add(cq.getHandleTitle()));
-			batch.clear(); // a side effect
 		}	
 		
 		return handles;
@@ -192,12 +204,10 @@ public class ChunksIngesterService implements ChunksIngester {
 	
 	
 	// Save a new download to file system
-	private File reDownloadFile(ExportType type) throws IngestException {
-		
-		URL url = exportsUrls.get(type.name());
+	private File downloadFile(ExportType type) throws IngestException {
 		
 		try {
-			downloader.download(url);
+			downloader.download(type);
 			return getDownloadedFile(type);
 		} catch (IOException e) {
 			throw new IngestException(e);
@@ -234,7 +244,7 @@ public class ChunksIngesterService implements ChunksIngester {
 	@Override
 	public String toString() {
 		return "ChunksIngesterService [daysExpiration=" + daysExpiration + ", batchSize=" + batchSize + ", downloader="
-				+ downloader + ", exportsUrls=" + exportsUrls + ", persistenceService=" + persistenceService + "]";
+				+ downloader + ", persistenceService=" + persistenceService + "]";
 	}
 	
 

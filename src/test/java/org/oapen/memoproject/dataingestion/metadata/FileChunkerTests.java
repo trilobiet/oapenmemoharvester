@@ -8,7 +8,7 @@ import java.util.Stack;
 
 import org.junit.jupiter.api.Test;
 
-public class FileChunkifierTests {
+public class FileChunkerTests {
 	
 	@Test
 	public void test_chunk_counts_when_parsing_RIS_file() throws FileNotFoundException {
@@ -61,12 +61,13 @@ public class FileChunkifierTests {
 	@Test
 	public void test_chunk_counts_when_parsing_KBART_TSV_file() throws FileNotFoundException {
 		
-		File file = new File("src/test/resources/test.tsv");
-		FileChunker fp = new FileChunker(file, ExportType.KBART);
+		File file = new File("src/test/resources/test.kbart");
+		ExportType exportType = ExportType.KBART;
+		FileChunker fp = new FileChunker(file, exportType);
 		Stack<String> chunks = new Stack<>();
 		fp.chunkify(
 			  chunk -> chunks.add(chunk)
-			, 1  // skip header line
+			, exportType.skipLines()  // skip header line
 		);
 		
 		// chunks.forEach(l -> {System.out.println("============");System.out.println(l);});

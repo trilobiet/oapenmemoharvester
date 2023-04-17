@@ -2,6 +2,13 @@ package org.oapen.memoproject.dataingestion.metadata;
 
 import java.util.Optional;
 
+/**
+ * A KBART (.tsv) type ExportChunkable.
+ * This type relies on the handle to be in the 11th column. This may be a bit risky
+ * when the data definition changes.
+ * 
+ * @author acdhirr
+ */
 public class KBARTChunk implements ExportChunkable {
 	
 	private final String content; 
@@ -19,7 +26,8 @@ public class KBARTChunk implements ExportChunkable {
 		String[] cols = content.split("\t");
 		
 		if (cols.length > 11) {
-			return Optional.of(cols[11].trim());
+			// 11th column contains handle (in quotes)
+			return Optional.of(cols[11].trim().replaceAll("\"", ""));
 		}
 		else return Optional.empty();
 	}
