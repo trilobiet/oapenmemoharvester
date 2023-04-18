@@ -5,6 +5,12 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
+/**
+ * A ONIX XML Record representation.
+ * 
+ * @author acdhirr
+ *
+ */
 public class ONIXChunk implements ExportChunkable {
 	
 	private final String content; 

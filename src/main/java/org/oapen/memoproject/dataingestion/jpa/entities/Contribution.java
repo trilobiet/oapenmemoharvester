@@ -13,6 +13,14 @@ import org.springframework.lang.NonNull;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * This class represents records in the <em>contribution</em> table
+ * <br>
+ * Primary key consists of 3 fields: name_contributor, handle_title and role 
+ * 
+ * @author acdhirr
+ *
+ */
 @Getter @Setter
 @Entity(name = "Contribution")
 @Table(name = "Contribution")

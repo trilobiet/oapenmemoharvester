@@ -5,6 +5,12 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
+/**
+ * A MARCXML Record representation.
+ * 
+ * @author acdhirr
+ *
+ */
 public class MARCXMLChunk implements ExportChunkable {
 	
 	private final String content; 

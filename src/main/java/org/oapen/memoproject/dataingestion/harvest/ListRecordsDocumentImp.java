@@ -9,6 +9,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+/** 
+ * Defines an OAI Document consisting of several records and an optional 
+ * resumption token.
+ * 
+ * @author acdhirr
+ *
+ */
 class ListRecordsDocumentImp implements ListRecordsDocument {
 	
 	private final Document document;

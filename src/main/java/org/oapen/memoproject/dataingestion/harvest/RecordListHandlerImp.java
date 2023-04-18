@@ -4,27 +4,36 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
-
 import org.oapen.memoproject.dataingestion.jpa.PersistenceService;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Element;
 
+/**
+ * Implementation of RecordListHandler that parses each element 
+ * as an XOAI Document, extracts JPA Entities and sends them to
+ * a persistence service.   
+ * 
+ * @author acdhirr
+ *
+ */
 public final class RecordListHandlerImp implements RecordListHandler {
 	
-	XPath xpath = XPathFactory.newInstance().newXPath();
+	private final PersistenceService perservice;
 	
-	@Autowired
-	PersistenceService perservice;
-	
+	public RecordListHandlerImp(PersistenceService perservice) {
+		this.perservice = perservice;
+	}
+
 	private static final Logger logger = 
 		LoggerFactory.getLogger(RecordListHandlerImp.class);
 	
 	
+	/**
+	 * Process each Element as an XOAI Document and send the resulting JPA
+	 * Entities to a persistence layer
+	 */
 	@Override
 	public List<String> process(List<Element> elements) {
 		

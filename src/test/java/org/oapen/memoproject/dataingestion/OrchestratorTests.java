@@ -8,8 +8,7 @@ public class OrchestratorTests {
 	@Test
 	public void test_run() {
 		
-		Orchestrator o = new Orchestrator();
-		
+		//Orchestrator o = new Orchestrator();
 		//o.run();
 		
 	}

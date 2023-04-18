@@ -18,6 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import lombok.AccessLevel;
 import lombok.Setter;
 
+/**
+ * Implementation of Persistence service for JPA Entities
+ * 
+ * @author acdhirr
+ *
+ */
 @Setter(AccessLevel.PACKAGE)
 public class JpaPersistenceService implements PersistenceService {
 	

@@ -10,6 +10,12 @@ import org.springframework.lang.NonNull;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * This class represents records in the <em>classification</em> table
+ * 
+ * @author acdhirr
+ *
+ */
 @Getter @Setter
 @Entity(name = "Classification")
 @Table(name="classification")

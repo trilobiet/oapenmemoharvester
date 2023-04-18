@@ -2,6 +2,13 @@ package org.oapen.memoproject.dataingestion.appstatus;
 
 import java.time.LocalDate;
 
+/**
+ * Reader/writer for application state. Each cycle of running the application needs
+ * to pick up where the previous cycle left. 
+ * 
+ * @author acdhirr
+ *
+ */
 public interface AppStatus {
 	
 	/**

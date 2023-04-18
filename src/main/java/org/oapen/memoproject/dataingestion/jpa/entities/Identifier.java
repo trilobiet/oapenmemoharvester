@@ -8,6 +8,12 @@ import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * This class represents records in the <em>identifier</em> table
+ * 
+ * @author acdhirr
+ *
+ */
 @Getter @Setter
 @Entity(name = "Identifier" )
 @Table(name="identifier")

@@ -1,5 +1,11 @@
 package org.oapen.memoproject.util;
 
+/**
+ * A library of static String functions on Strings.
+ * 
+ * @author acdhirr
+ *
+ */
 public final class StringUtils {
 
 	/**

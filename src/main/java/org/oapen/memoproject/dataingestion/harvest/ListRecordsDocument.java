@@ -13,8 +13,15 @@ import org.w3c.dom.Element;
  */
 interface ListRecordsDocument {
 	
+	/**
+	 * @return a List of individual Elements, each consisting of a Record
+	 */
 	List<Element> getRecords();
 	
+	/**
+	 * 
+	 * @return Optional ResumptionToken
+	 */
 	Optional<ResumptionToken> getResumptionToken();
 
 }

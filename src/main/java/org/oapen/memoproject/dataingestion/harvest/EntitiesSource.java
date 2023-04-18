@@ -9,6 +9,11 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 
+/**
+ * Defines a source of JPA Entities	
+ * 
+ * @author acdhirr
+ */
 public interface EntitiesSource {
 	
 	Set<Classification> getClassifications();

@@ -32,7 +32,7 @@ import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@EnabledIf(expression = "${dbtests.enabled}", loadContext = true)
+@EnabledIf(expression = "${dbwritetests.enabled}", loadContext = true)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @AutoConfigureTestDatabase(replace=Replace.NONE)
 @TestPropertySource(locations="/application.properties")

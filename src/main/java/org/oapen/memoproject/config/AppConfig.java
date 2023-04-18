@@ -34,7 +34,7 @@ public class AppConfig {
 	
 	@Bean
 	RecordListHandler getRecordlistHandler() {
-		return new RecordListHandlerImp();
+		return new RecordListHandlerImp(getPersistenceService());
 	}
 	
 	@Bean

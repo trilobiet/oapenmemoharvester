@@ -2,7 +2,6 @@ package org.oapen.memoproject.dataingestion.harvest;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.time.LocalDate;
@@ -37,24 +36,16 @@ public final class OAIHarvesterImp implements OAIHarvester {
 	@Override
 	public final List<String> harvest() throws HarvestException {
 		
-		try {
-			URL nextUrl = urlComposer.getUrl();
-			return harvest(nextUrl);
-		} catch (MalformedURLException e) {
-			throw new HarvestException(e);
-		}
+		URL nextUrl = urlComposer.getUrl();
+		return harvest(nextUrl);
 	}
 	
 	
 	@Override
 	public final List<String> harvest(LocalDate fromDate, LocalDate untilDate) throws HarvestException {
 		
-		try {
-			URL nextUrl = urlComposer.getUrl(fromDate,untilDate);
-			return harvest(nextUrl);
-		} catch (MalformedURLException e) {
-			throw new HarvestException(e);
-		}
+		URL nextUrl = urlComposer.getUrl(fromDate,untilDate);
+		return harvest(nextUrl);
 	}
 	
 
@@ -62,13 +53,8 @@ public final class OAIHarvesterImp implements OAIHarvester {
 	public final List<String> harvest(String token) throws HarvestException {
 		
 		ResumptionToken rst = new ResumptionToken(token, null, null);
-		
-		try {
-			URL nextUrl = urlComposer.getUrl(rst);
-			return harvest(nextUrl);
-		} catch (MalformedURLException e) {
-			throw new HarvestException(e, Optional.of(rst));
-		}
+		URL nextUrl = urlComposer.getUrl(rst);
+		return harvest(nextUrl);
 	}
 	
 	

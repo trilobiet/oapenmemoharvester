@@ -14,13 +14,21 @@ import org.springframework.lang.NonNull;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * This class represents records in the <em>export_chunk</em> table
+ * 
+ * Primary key consists of 2 fields: type and handle_title
+ * 
+ * @author acdhirr
+ *
+ */
 @Getter @Setter
 @Entity(name = "ExportChunk")
 @Table(name = "export_chunk")
 @IdClass(ExportChunkId.class)
 // handle_title may refer to titles already deleted, ignore the resulting integrity errors and just skip the insert
 // Column order: see https://docs.jboss.org/hibernate/orm/6.2/javadocs/org/hibernate/annotations/SQLInsert.html
-@SQLInsert(sql="INSERT IGNORE INTO export_chunk (content, handle_title, type) values (?,?,?)")
+@SQLInsert(sql="INSERT IGNORE INTO export_chunk (url, content, handle_title, type) values (?,?,?,?)")
 public class ExportChunk {
 	
 	@Id @Column	@NonNull
@@ -32,24 +40,22 @@ public class ExportChunk {
 	@Column(name = "content")
     private String content;
 	
+	@Column(name = "url")
+    private String url;
+
 	public ExportChunk() {}
 	
-	public ExportChunk(String type, String content) {
+	public ExportChunk(String type, String url) {
 		this.type = type;
-		this.content = content;
+		this.url = url;
 	}
 	
-	public ExportChunk(String type, String content, String handle) {
+	public ExportChunk(String type, String url, String handle) {
 		this.type = type;
-		this.content = content;
+		this.url = url;
 		this.handleTitle = handle;
 	}
 
-	public boolean isComplete() {
-		
-		return (type != null && !type.isBlank() && content != null && !content.isBlank());
-	}
-	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

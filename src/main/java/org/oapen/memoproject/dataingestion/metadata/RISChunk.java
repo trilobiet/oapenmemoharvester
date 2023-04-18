@@ -4,6 +4,12 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * A RIS Record representation
+ * 
+ * @author acdhirr
+ *
+ */
 public class RISChunk implements ExportChunkable {
 	
 	private final String content; 

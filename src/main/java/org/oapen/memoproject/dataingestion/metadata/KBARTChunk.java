@@ -3,7 +3,8 @@ package org.oapen.memoproject.dataingestion.metadata;
 import java.util.Optional;
 
 /**
- * A KBART (.tsv) type ExportChunkable.
+ * A KBART (.tsv) Record representation
+ * <br/>
  * This type relies on the handle to be in the 11th column. This may be a bit risky
  * when the data definition changes.
  * 

@@ -19,9 +19,14 @@ import javax.net.ssl.HttpsURLConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * ExportsDownloader imp0lementation
+ * 
+ * @author acdhirr
+ *
+ */
 public class ExportsDownloaderImp implements ExportsDownloader {
 	
-	// TODO: Make this a File path SO we can see by the type what it is supposed to be
 	private final File destination;
 	
 	private Map<ExportType,URL> exportsUrls;

@@ -21,6 +21,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+/**
+ * Implementation of ChunkIngester. Chunks are either read from a large file containing
+ * all chunks (ingestAll) or from a web request per chunk (ingestForHandles) 
+ * containing only chunks for a provided list of handles.
+ * 
+ * After retrieving the chunks they are sent to a PersistenceService instance to be persisted.
+ * 
+ * @author acdhirr
+ *
+ */
 @Component
 public class ChunksIngesterService implements ChunksIngester {
 	
@@ -33,39 +43,62 @@ public class ChunksIngesterService implements ChunksIngester {
 
 	private static final Logger logger = LoggerFactory.getLogger(ChunksIngesterService.class);
 
-	
+	/**
+	 * Constructor 
+	 * 
+	 * @param persistenceService
+	 * @param downloader
+	 */
 	public ChunksIngesterService(PersistenceService persistenceService, ExportsDownloader downloader) {
 		
 		this.persistenceService = persistenceService;
 		this.downloader = downloader;
 	}
 	
+	/** 
+	 * 
+	 * @return number of days after which a new download will be initiated (for ingestAll())
+	 * (default = 5)
+	 */
 	public int getDaysExpiration() {
 		return daysExpiration;
 	}
 
+	/**
+	 * @param daysExpiration sets number of days after which a new download will be initiated (for ingestAll())
+	 */
 	public void setDaysExpiration(int daysExpiration) {
 		this.daysExpiration = daysExpiration;
 	}
 
+	/**
+	 * @return number of records to keep in memory before flushing out to the persistence service
+	 * (default is 1000).
+	 */
 	public int getBatchSize() {
 		return batchSize;
 	}
 
+	/**
+	 * @param batchSize sets number of records to keep in memory before flushing out to the persistence service
+	 */
 	public void setBatchSize(int batchSize) {
 		this.batchSize = batchSize;
 	}
 	
 	
+	/**
+	 * for every ExportType (4) run ingestAll and combine the resulting 
+	 * lists of ingested handles to a single list of unique handles
+	 */
 	@Override
-	// for every type (4) run ingestAll and combine the resulting 
-	// lists of ingested handles to a single list of unique handles
 	public List<String> ingestAll() throws IngestException {
 		
 		Set<String> hndls = new HashSet<>();
 		
 		for (ExportType type: downloader.getExportTypes() ) {
-			System.out.println("Ingesting for " + type);
+			
+			logger.info("Ingesting for {}...", type);
 			List<String> lst = ingestAll(type);
 			hndls.addAll(lst);
 		}
@@ -127,10 +160,11 @@ public class ChunksIngesterService implements ChunksIngester {
 		return ingestedHandles;
 	}
 	
-	
+	/**
+	 * for every ExportType (4) run ingestAll and combine the resulting 
+	 * lists of ingested handles to a single list of unique handles
+	 */
 	@Override
-	// for every type (4) run ingestForhandles and combine the resulting 
-	// lists of ingested handles to a single list of unique handles
 	public List<String> ingestForHandles(List<String> handles) {
 		
 		Set<String> hndls = downloader.getExportTypes().stream()
@@ -156,7 +190,7 @@ public class ChunksIngesterService implements ChunksIngester {
 			if (oc.isPresent()) {
 				try {
 					ExportChunk c = oc.get();
-					URL url = new URL(c.getContent());
+					URL url = new URL(c.getUrl());
 					// Download the content containing the chunk
 					String chunk = downloader.getAsString(url);
 					c.setContent(chunk);

@@ -17,7 +17,7 @@ import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@EnabledIf(expression = "true", loadContext = true)
+@EnabledIf(expression = "${dbreadtests.enabled}", loadContext = true)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @AutoConfigureTestDatabase(replace=Replace.NONE)
 @TestPropertySource(locations="/application.properties")

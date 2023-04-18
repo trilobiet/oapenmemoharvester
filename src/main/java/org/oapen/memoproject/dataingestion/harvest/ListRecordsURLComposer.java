@@ -18,42 +18,52 @@ public final class ListRecordsURLComposer  {
 	// https://library.oapen.org/oai/request?verb=ListRecords&metadataPrefix=xoai&from=2023-01-21
 	// https://library.oapen.org/oai/request?verb=ListRecords&resumptionToken=xoai/2022-01-21T00:00:00Z///100
 	
-	private final String urlPath;
+	private final URL url;
 	
-	public ListRecordsURLComposer(String urlPath) {
+	public ListRecordsURLComposer(String urlPath) throws MalformedURLException {
 
-		this.urlPath = urlPath;
+		this.url = new URL(urlPath);
 	}
 	
-	public URL getUrl() throws MalformedURLException {
+	public URL getUrl() {
 		
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(urlPath);
+		sb.append(url.toString());
 		sb.append("?verb=ListRecords&metadataPrefix=xoai");
-		
-		return new URL(sb.toString());
+
+		try {
+			return new URL(sb.toString());
+		} catch (MalformedURLException e) {
+			// this will never happen since we tested the URL already in the constructor
+			return null;
+		}
 	}
 
-	public URL getUrl(LocalDate fromDate) throws MalformedURLException {
+	public URL getUrl(LocalDate fromDate) {
 		
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(urlPath);
+		sb.append(url.toString());
 		sb.append("?verb=ListRecords&metadataPrefix=xoai");
 		
 		sb.append("&from=");
 		sb.append(fromDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
 
-		return new URL(sb.toString());
+		try {
+			return new URL(sb.toString());
+		} catch (MalformedURLException e) {
+			// this will never happen since we tested the URL already in the constructor
+			return null;
+		}
 	}
 	
 	
-	public URL getUrl(LocalDate fromDate, LocalDate untilDate) throws MalformedURLException {
+	public URL getUrl(LocalDate fromDate, LocalDate untilDate) {
 		
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(urlPath);
+		sb.append(url.toString());
 		sb.append("?verb=ListRecords&metadataPrefix=xoai");
 		
 		sb.append("&from=");
@@ -62,19 +72,29 @@ public final class ListRecordsURLComposer  {
 		sb.append("&until=");
 		sb.append(untilDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
 		
-		return new URL(sb.toString());
+		try {
+			return new URL(sb.toString());
+		} catch (MalformedURLException e) {
+			// this will never happen since we tested the URL already in the constructor
+			return null;
+		}
 	}
 
-	public URL getUrl(ResumptionToken rst) throws MalformedURLException {
+	public URL getUrl(ResumptionToken rst) {
 
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(urlPath);
+		sb.append(url.toString());
 		sb.append("?verb=ListRecords");
 		sb.append("&resumptionToken=");
 		sb.append(rst.token);
 		
-		return new URL(sb.toString());
+		try {
+			return new URL(sb.toString());
+		} catch (MalformedURLException e) {
+			// this will never happen since we tested the URL already in the constructor
+			return null;
+		}
 	}	
 	
 }

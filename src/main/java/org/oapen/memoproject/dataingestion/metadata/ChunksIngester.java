@@ -2,6 +2,12 @@ package org.oapen.memoproject.dataingestion.metadata;
 
 import java.util.List;
 
+/**
+ * Blueprint for a Chunk Ingester service
+ * 
+ * @author acdhirr
+ *
+ */
 public interface ChunksIngester {
 	
 	/**

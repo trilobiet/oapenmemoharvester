@@ -5,11 +5,28 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
+/**
+ * A FileChunker takes a file and chunks its contents
+ * according to the rules of the chosen ExportType (MARCXML, ONIX, RIS, KBART).
+ * <br/>
+ * Chunking is done streaming, no chunks are kept in memory, so there is no limit
+ * to the size of the input file.
+ * <br/>
+ * Every chunk that is encountered is immediately handed over to a String Consumer
+ * for further processing.  
+ * 
+ * @author acdhirr
+ *
+ */
 public class FileChunker {
 	
 	private final File file;
 	private final ExportType type;
 	
+	/**
+	 * @param file File to be chunked
+	 * @param type Expected chunk types to be returned 
+	 */
 	public FileChunker(File file, ExportType type) {
 
 		this.file = file;
@@ -25,7 +42,6 @@ public class FileChunker {
 	public void chunkify(Consumer<String> processor) throws FileNotFoundException {
 	
 		chunkify(processor, 0);
-
 	}
 	
 	/**

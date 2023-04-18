@@ -14,6 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.DefaultPropertiesPersister;
 
+/**
+ * Stores application state in a properties file
+ *  
+ * @author acdhirr
+ *
+ */
 public class PropertiesAppStatusService implements AppStatus {
 	
 	private final String propertiesFileName; 
@@ -61,7 +67,7 @@ public class PropertiesAppStatusService implements AppStatus {
 	public boolean isExportChunksDownloadsIngested() {
 
 		isECDownloadsIngested = readValue(IS_EXPORTCHUNKS_DOWNLOADS_INGESTED);
-		if (isECDownloadsIngested.isPresent()) return isECDownloadsIngested.get()=="true"?true:false;
+		if (isECDownloadsIngested.isPresent()) return isECDownloadsIngested.get().equals("true")?true:false;
 		else return false; 
 	}
 

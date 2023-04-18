@@ -1,5 +1,12 @@
 package org.oapen.memoproject.dataingestion.metadata;
 
+/**
+ * Enum ExportType defines the available export types
+ * and their chunk markers (start and end) as regular expressions.
+ * 
+ * @author acdhirr
+ *
+ */
 public enum ExportType {
 	
 	MARCXML ( 
@@ -39,18 +46,33 @@ public enum ExportType {
 		this.skipLines = skipLines;
 	}
 
+	/**
+	 * @return chunk start regex
+	 */
 	public String chunkStart() {
 		return chunkStart;
 	}
 	
+	/**
+	 * @return chunk end regex
+	 */
 	public String chunkEnd() {
 		return chunkEnd;
 	}
 
+	/**
+	 * when parsing a text file into chunks an optional number of lines 
+	 * can be skipped. Use this feature to skip the header line in .csv type files. 
+	 * 
+	 * @return number of lines to skip
+	 */
 	public int skipLines() {
 		return skipLines;
 	}
 	
+	/**
+	 * @return lowercase name (MARCXML -> marcxml)
+	 */
 	public String lowerCaseName(){
         return name().toLowerCase();
     }

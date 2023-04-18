@@ -16,6 +16,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
+/**
+ * Utilty class for converting Strings to XML and vice versa.
+ * 
+ * @author acdhirr
+ *
+ */
 class XMLStringConverter {
 
 	//Parser that produces DOM object trees from XML content

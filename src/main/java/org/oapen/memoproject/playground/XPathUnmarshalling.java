@@ -87,7 +87,7 @@ public class XPathUnmarshalling {
         // https://stackoverflow.com/questions/63468873/moxy-xpath-unmarshalling-element-is-null
         System.out.println(funderContext.getClass().getName()); 
 
-        Unmarshaller fUnmarshaller = funderContext.createUnmarshaller();
+        //Unmarshaller fUnmarshaller = funderContext.createUnmarshaller();
         Unmarshaller pUnmarshaller = publisherContext.createUnmarshaller();
         
         

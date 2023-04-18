@@ -13,7 +13,7 @@ import lombok.Setter;
 
 
 /**
- * This class represents records in the grant table
+ * This class represents records in the <em>grant</em> table
  * each record has a field 'property' and a field 'value' containing the corresponding property value.
  * <p>
  * properties can be (but are technically not limited to) PROGRAM, PROJECT, NUMBER or ACRONYM 

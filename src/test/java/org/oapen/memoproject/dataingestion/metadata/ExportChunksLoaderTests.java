@@ -1,8 +1,5 @@
 package org.oapen.memoproject.dataingestion.metadata;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.io.IOException;
 
 import org.junit.jupiter.api.Disabled;

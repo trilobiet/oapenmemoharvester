@@ -30,17 +30,196 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+/**
+ * Parses an XOAI Record Element as a Document and produces JPA Entities 
+ * for Classifications, Contributors, Funders, Publisher and Title
+ *  
+ * @author acdhirr
+ *
+ */
 public final class XOAIDocumentParser implements EntitiesSource {
 	
 	private final Element element;
 	private final XPath xpath;
 
+	
 	public XOAIDocumentParser(Element element) {
 		
 		this.element = element;
 		xpath = XPathFactory.newInstance().newXPath();
 	}
 	
+	
+	@Override
+	/**
+	 * Extract Set of Classifications (0..n) from this document 
+	 */
+	public Set<Classification> getClassifications() {
+		
+		final String path = ".//element[@name='classification']//field/text()";
+		Set<Classification> classifications = new HashSet<>();
+		
+		getNodeList(path).ifPresent(nodes -> {
+			
+			List<String> lines = new ArrayList<>(); 
+
+			for (int i=0; i<nodes.getLength(); i++) 
+				lines.add(
+					StringUtils.trimAllSpace(nodes.item(i).getTextContent())
+				);
+			
+			classifications.addAll(XOAIDocumentParserUtils.parseClassifications(lines));
+		}); 
+		
+		return classifications;
+	}
+	
+	
+	@Override
+	/**
+	 * Extract Set of Contributors (0..n) from this document 
+	 */
+	public Set<Contributor> getContributors() {
+		
+		final String path = ".//element[@name='contributor']//field[@name='value']";
+		Set<Contributor> contributors = new HashSet<>();
+		
+		getNodeList(path).ifPresent(nodes -> {
+			for (int i=0; i<nodes.getLength(); i++) 
+				contributors.add( 
+					new Contributor(
+						StringUtils.trimAllSpace(nodes.item(i).getTextContent())
+					)
+				);
+		});
+
+		return contributors;
+	}
+		
+	
+	@Override
+	/**
+	 * Extract Set of Funders from (0..n) this document 
+	 */
+	public Set<Funder> getFunders() {
+		
+		final String path = ".//element[@name='oapen.relation.isFundedBy']"; 
+		Set<Funder> funders = new HashSet<>();
+		
+		getNodeList(path).ifPresent(nodes -> {
+		
+			try {
+				JAXBContext jaxbContext = JAXBContext.newInstance(Funder.class);
+				Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+				
+				for (int i=0; i < nodes.getLength(); i++) {
+		        	
+		        	Node node = nodes.item(i);
+		        	Funder funder = (Funder) unmarshaller.unmarshal(node);
+		        	if (funder.isComplete()) funders.add(funder);
+		        }
+			} catch (JAXBException e) {
+				// TODO log
+			}
+				
+		});
+		
+		return funders;
+	}	
+	
+	
+	@Override
+	/**
+	 * Extract Optional Publisher (0..1) from this document 
+	 */
+	public Optional<Publisher> getPublisher() {
+		
+		final String path = ".//element[@name='oapen.relation.isPublishedBy']";
+		
+		Optional<Publisher> p = Optional.empty();
+		Optional<Node> q = getNode(path);
+		
+		try {
+			if (q.isPresent()) {
+				Node node = q.get();  
+				JAXBContext jaxbContext = JAXBContext.newInstance(Publisher.class);
+				Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+				Publisher publisher = (Publisher) unmarshaller.unmarshal(node);
+				if (publisher.isComplete()) p = Optional.of(publisher);
+			}
+		}
+		catch (Exception e) {
+			// TODO log
+		}
+		
+		return p;
+	}
+	
+	
+	@Override
+	/**
+	 * Extract Optional Title (0..1) from this document. Optional, because theoretically
+	 * a handle could not be unfindable or unparsable.  
+	 */
+	public Optional<Title> getTitle() {
+	
+		Optional<Title> r = Optional.empty();
+
+		Optional<String> handle = getHandle();
+		Optional<String> status = getStatus();
+		
+		if (handle.isPresent()) {
+		
+			Title title = new Title(getHandle().get());
+			
+			// Skip all fields except status for elements that have status "deleted" 
+			if (status.isPresent() && status.get().equals("deleted")) {
+				
+				title.setStatus("deleted");
+			}	
+			else {	
+				
+				getAbstractOtherLanguage().ifPresent(title::setAbstractOtherLanguage);
+				getChapterNumber().ifPresent(title::setChapterNumber);
+				getCollection().ifPresent(title::setCollection);
+				getYearAvailable().ifPresent(title::setYearAvailable);
+				getDescriptionAbstract().ifPresent(title::setDescriptionAbstract);
+				getDescriptionOtherLanguage().ifPresent(title::setDescriptionOtherLanguage);
+				getDownloadUrl().ifPresent(title::setDownloadUrl);
+				getImprint().ifPresent(title::setImprint);
+				getLicense().ifPresent(title::setLicense);
+				getPages().ifPresent(title::setPages);
+				getPartOfBook().ifPresent(title::setPartOfBook);
+				getPartOfSeries().ifPresent(title::setPartOfSeries);
+				getPlacePublication().ifPresent(title::setPlacePublication);
+				getSeriesNumber().ifPresent(title::setSeriesNumber);
+				getSysId().ifPresent(title::setSysId);
+				getTermsAbstract().ifPresent(title::setTermsAbstract);
+				getThumbnail().ifPresent(title::setThumbnail);
+				getTitleTitle().ifPresent(title::setTitle);
+				getTitleAlternative().ifPresent(title::setTitleAlternative);
+				getType().ifPresent(title::setType);
+				getWebshopUrl().ifPresent(title::setWebshopUrl);
+				
+				getPublisher().ifPresent(title::setPublisher);
+				getYearAvailable().ifPresent(title::setYearAvailable);
+				
+				title.setClassifications(getClassifications());
+				title.setContributions(getContributions());
+				title.setExportChunks(getExportChunks());
+				title.setFunders(getFunders());
+				title.setGrantData(getGrantData());
+				title.setIdentifiers(getIdentifiers());
+				title.setLanguages(getLanguages());
+				title.setSubjectsOther(getSubjectsOther());
+			}	
+			
+			r = Optional.of(title);
+		}	
+		
+		return r;
+	}
+		
 	
 	private Optional<Node> getNode(String xpathQuery) {
 		
@@ -97,47 +276,6 @@ public final class XOAIDocumentParser implements EntitiesSource {
 			return Optional.empty();
 	}
 	
-
-	@Override
-	public Set<Classification> getClassifications() {
-		
-		final String path = ".//element[@name='classification']//field/text()";
-		Set<Classification> classifications = new HashSet<>();
-		
-		getNodeList(path).ifPresent(nodes -> {
-			
-			List<String> lines = new ArrayList<>(); 
-
-			for (int i=0; i<nodes.getLength(); i++) 
-				lines.add(
-					StringUtils.trimAllSpace(nodes.item(i).getTextContent())
-				);
-			
-			classifications.addAll(XOAIDocumentParserUtils.parseClassifications(lines));
-		}); 
-		
-		return classifications;
-	}
-	
-	
-	@Override
-	public Set<Contributor> getContributors() {
-		
-		final String path = ".//element[@name='contributor']//field[@name='value']";
-		Set<Contributor> contributors = new HashSet<>();
-		
-		getNodeList(path).ifPresent(nodes -> {
-			for (int i=0; i<nodes.getLength(); i++) 
-				contributors.add( 
-					new Contributor(
-						StringUtils.trimAllSpace(nodes.item(i).getTextContent())
-					)
-				);
-		});
-
-		return contributors;
-	}
-	
 	
 	private Set<Contribution> nodeListToContributionSet(NodeList nodes, String role) {
 		
@@ -175,34 +313,6 @@ public final class XOAIDocumentParser implements EntitiesSource {
 	}
 	
 
-	@Override
-	public Set<Funder> getFunders() {
-		
-		final String path = ".//element[@name='oapen.relation.isFundedBy']"; 
-		Set<Funder> funders = new HashSet<>();
-		
-		getNodeList(path).ifPresent(nodes -> {
-		
-			try {
-				JAXBContext jaxbContext = JAXBContext.newInstance(Funder.class);
-				Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-				
-				for (int i=0; i < nodes.getLength(); i++) {
-		        	
-		        	Node node = nodes.item(i);
-		        	Funder funder = (Funder) unmarshaller.unmarshal(node);
-		        	if (funder.isComplete()) funders.add(funder);
-		        }
-			} catch (JAXBException e) {
-				// TODO log
-			}
-				
-		});
-		
-		return funders;
-	}
-	
-	
 	private Set<GrantData> nodeListToGrantDataSet(NodeList nodes, String property) {
 		
 		Set<GrantData> set = new HashSet<>();
@@ -222,6 +332,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		
 		return set;
 	}
+	
 	
 	// Grant data: grant.number, grant.program, grant.project and grant.acronym
 	private Set<GrantData> getGrantData() {
@@ -347,93 +458,6 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		else return q;
 	}
 
-
-	@Override
-	public Optional<Publisher> getPublisher() {
-		
-		final String path = ".//element[@name='oapen.relation.isPublishedBy']";
-		
-		Optional<Publisher> p = Optional.empty();
-		Optional<Node> q = getNode(path);
-		
-		try {
-			if (q.isPresent()) {
-				Node node = q.get();  
-				JAXBContext jaxbContext = JAXBContext.newInstance(Publisher.class);
-				Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-				Publisher publisher = (Publisher) unmarshaller.unmarshal(node);
-				if (publisher.isComplete()) p = Optional.of(publisher);
-			}
-		}
-		catch (Exception e) {
-			// TODO log
-		}
-		
-		return p;
-	}
-	
-	
-	@Override
-	public Optional<Title> getTitle() {
-	
-		Optional<Title> r = Optional.empty();
-
-		Optional<String> handle = getHandle();
-		Optional<String> status = getStatus();
-		
-		if (handle.isPresent()) {
-		
-			Title title = new Title(getHandle().get());
-			
-			// Skip all fields except status for elements that have status "deleted" 
-			if (status.isPresent() && status.get().equals("deleted")) {
-				
-				title.setStatus("deleted");
-			}	
-			else {	
-				
-				getAbstractOtherLanguage().ifPresent(title::setAbstractOtherLanguage);
-				getChapterNumber().ifPresent(title::setChapterNumber);
-				getCollection().ifPresent(title::setCollection);
-				getYearAvailable().ifPresent(title::setYearAvailable);
-				getDescriptionAbstract().ifPresent(title::setDescriptionAbstract);
-				getDescriptionOtherLanguage().ifPresent(title::setDescriptionOtherLanguage);
-				getDownloadUrl().ifPresent(title::setDownloadUrl);
-				getImprint().ifPresent(title::setImprint);
-				getLicense().ifPresent(title::setLicense);
-				getPages().ifPresent(title::setPages);
-				getPartOfBook().ifPresent(title::setPartOfBook);
-				getPartOfSeries().ifPresent(title::setPartOfSeries);
-				getPlacePublication().ifPresent(title::setPlacePublication);
-				getSeriesNumber().ifPresent(title::setSeriesNumber);
-				getSysId().ifPresent(title::setSysId);
-				getTermsAbstract().ifPresent(title::setTermsAbstract);
-				getThumbnail().ifPresent(title::setThumbnail);
-				getTitleTitle().ifPresent(title::setTitle);
-				getTitleAlternative().ifPresent(title::setTitleAlternative);
-				getType().ifPresent(title::setType);
-				getWebshopUrl().ifPresent(title::setWebshopUrl);
-				
-				getPublisher().ifPresent(title::setPublisher);
-				getYearAvailable().ifPresent(title::setYearAvailable);
-				
-				title.setClassifications(getClassifications());
-				title.setContributions(getContributions());
-				title.setExportChunks(getExportChunks());
-				title.setFunders(getFunders());
-				title.setGrantData(getGrantData());
-				title.setIdentifiers(getIdentifiers());
-				title.setLanguages(getLanguages());
-				title.setSubjectsOther(getSubjectsOther());
-			}	
-			
-			r = Optional.of(title);
-		}	
-		
-		return r;
-		
-	}
-	
 	
 	private Optional<Integer> getYearAvailable() {
 		

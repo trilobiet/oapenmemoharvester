@@ -21,6 +21,12 @@ import javax.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * This class represents records in the <em>title</em> table
+ * 
+ * @author acdhirr
+ *
+ */
 @Getter @Setter 
 @Entity(name = "Title")
 @Table(name="title")
