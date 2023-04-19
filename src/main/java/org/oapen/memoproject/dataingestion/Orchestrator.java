@@ -9,7 +9,6 @@ import org.oapen.memoproject.dataingestion.appstatus.AppStatus;
 import org.oapen.memoproject.dataingestion.appstatus.PropertiesAppStatusService;
 import org.oapen.memoproject.dataingestion.harvest.HarvestException;
 import org.oapen.memoproject.dataingestion.harvest.ListRecordsURLComposer;
-import org.oapen.memoproject.dataingestion.harvest.OAIHarvester;
 import org.oapen.memoproject.dataingestion.harvest.OAIHarvesterImp;
 import org.oapen.memoproject.dataingestion.harvest.RecordListHandler;
 import org.oapen.memoproject.dataingestion.jpa.PersistenceService;
@@ -42,7 +41,7 @@ public class Orchestrator implements CommandLineRunner {
 	
 	private AppStatus status;
 	private ListRecordsURLComposer urlComposer;
-	private OAIHarvester harvester;
+	private OAIHarvesterImp harvester;
 	
 	@Autowired
 	RecordListHandler recordListHandler;
@@ -63,22 +62,25 @@ public class Orchestrator implements CommandLineRunner {
 		urlComposer = new ListRecordsURLComposer(oaiPath);
 		harvester = new OAIHarvesterImp(urlComposer, recordListHandler);
 		
+		// Set the RstHandler to write each resumption token to status, so we can pick up from there in case of failure 
+		harvester.setRstHandler(rst -> {
+			status.setResumptionToken(rst.token);
+		});
+		
 		List<String> harvestedHandles = new ArrayList<>();
 		List<String> ingestedHandles = new ArrayList<>();
 		
 		logger.info("\n======================= Starting Harvest & Ingest Cycle =======================");
 		logger.info(status.toString());
 		
-		if (!status.getResumptionToken().isBlank()) {
-			// Continue from a resumption token
-			logger.info("Harvesting from resumptionToken {}", status.getResumptionToken());
-			harvestedHandles = harvestFromResumptionToken();
-		}	
-		else { 
-			// Continue from the day we left off
-			logger.info("Harvesting from date {}", status.getLastHarvestDay());
-			harvestedHandles = harvestFromlastHarvestDay();
-		}	
+		/* 
+		 * Start harvesting. Always start from lastHarvestDay, even if there is a resumptionToken
+		 * in the status because of an earlier interrupted harvest. We need the full list of 
+		 * handles to download ALL updated export chunks later on, which may not be available on an
+		 * exceptional condition forcing the whole cycle to stop, but still leaving a ResumptionToken. 
+		 */
+		logger.info("Harvesting from date {}", status.getLastHarvestDay());
+		harvestedHandles = harvestFromlastHarvestDay();
 		
 		// at least some handles have been ingested
 		if (!harvestedHandles.isEmpty()) {
@@ -112,7 +114,7 @@ public class Orchestrator implements CommandLineRunner {
 		
 		if (!ingestedHandles.isEmpty()) {
 			
-			logger.info("Ingested export chunks for {} handles.", ingestedHandles.size());
+			logger.info("Ingested export chunks for {} handles (effective number maybe lower due to deleted titles).", ingestedHandles.size());
 			status.setLastChunkIngestionDay(LocalDate.now());
 		}
 		
@@ -122,68 +124,52 @@ public class Orchestrator implements CommandLineRunner {
 	
 	private List<String> harvestFromlastHarvestDay() {
 	
-		List<String> handles = new ArrayList<>();
-		
 		LocalDate fromDate = status.getLastHarvestDay();
 		LocalDate untilDate = LocalDate.now().minusDays(7);
 		
 		try { 
-			handles = harvester.harvest(fromDate, untilDate);
+			
+			List<String> handles = harvester.harvest(fromDate, untilDate);
 			logger.info("Harvested from date " + fromDate);
+			return handles;
 		} 
 		catch (HarvestException e) { 
+			
 			logger.error(e.getMessage());
+			return new ArrayList<>();
 		}
-		
-		return handles;
 	}
 
-	
-	private List<String> harvestFromResumptionToken() {
-		
-		List<String> handles = new ArrayList<>();
-		String token = status.getResumptionToken();
-		
-		try { 
-			handles = harvester.harvest(token);
-			logger.info("Harvested from resumptionToken " + token);
-		} 
-		catch (HarvestException e) {
-			logger.error(e.getMessage());
-		}
 
-		return handles;
-	}
-	
-	
 	private List<String> ingestChunksFromDownload() {
 		
-		List<String> ingestedHandles = new ArrayList<>();
-		
 		try { 
-			ingestedHandles = chunksIngesterService.ingestAll();
-			logger.info("Ingested {} chunks from downloads", ingestedHandles.size());
+			
+			List<String> ingestedHandles = chunksIngesterService.ingestAll();
+			logger.info("Ingested export chunks from downloads");
+			return ingestedHandles;
 		} 
 		catch (IngestException e) {
+			
 			logger.error(e.getMessage());
+			return new ArrayList<>();
 		}
-		
-		return ingestedHandles;
 	}
 
 	
 	private List<String> ingestChunksFromHandleList(List<String> handles) {
 		
-		List<String> ingestedHandles = new ArrayList<>();
-		
 		try {
-			ingestedHandles = chunksIngesterService.ingestForHandles(handles);
-			logger.info("Ingested {} chunks from web requests", ingestedHandles.size());
-		} catch (IngestException e) {
+
+			List<String> ingestedHandles = chunksIngesterService.ingestForHandles(handles);
+			logger.info("Ingested export chunks from web requests");
+			return ingestedHandles;
+		} 
+		catch (IngestException e) {
+			
 			logger.error(e.getMessage());
+			return new ArrayList<>();
 		}
-		
-		return ingestedHandles;
 	}
 	
 	

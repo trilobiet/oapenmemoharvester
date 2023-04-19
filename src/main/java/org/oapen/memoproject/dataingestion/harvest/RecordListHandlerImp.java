@@ -12,7 +12,7 @@ import org.w3c.dom.Element;
 
 /**
  * Implementation of RecordListHandler that parses each element 
- * as an XOAI Document, extracts JPA Entities and sends them to
+ * as an XOAI Record Document, extracts JPA Entities and sends them to
  * a persistence service.   
  * 
  * @author acdhirr

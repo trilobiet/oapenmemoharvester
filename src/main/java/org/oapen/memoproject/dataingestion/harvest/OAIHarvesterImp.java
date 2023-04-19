@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -22,6 +23,7 @@ public final class OAIHarvesterImp implements OAIHarvester {
 	private final ListRecordsURLComposer urlComposer;
 	private final RecordListHandler handler;
 	private final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	private Consumer<ResumptionToken> rstHandler;
 
 	/**
 	 * @param urlPath OAI path without query string, e.g. <em>https://library.oapen.org/oai/request</em>
@@ -30,6 +32,11 @@ public final class OAIHarvesterImp implements OAIHarvester {
 		
 		this.urlComposer = url;
 		this.handler = handler;
+	}
+
+
+	public void setRstHandler(Consumer<ResumptionToken> rstHandler) {
+		this.rstHandler = rstHandler;
 	}
 
 
@@ -70,7 +77,11 @@ public final class OAIHarvesterImp implements OAIHarvester {
 
 			try {
 				
-				if(oRst.isPresent()) url = urlComposer.getUrl(oRst.get());
+				if(oRst.isPresent()) {
+					url = urlComposer.getUrl(oRst.get());
+					// Do whatever you want toi do with the ResumptionToken (for instance log it)
+					rstHandler.accept(oRst.get());
+				}
 				
 				downloadedDoc = fetchDocument(url);
 				
