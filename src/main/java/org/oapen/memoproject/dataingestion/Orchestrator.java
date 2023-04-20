@@ -36,6 +36,9 @@ public class Orchestrator implements CommandLineRunner {
 	@Value("${app.path.oaipath}")
 	private String oaiPath;
 
+	@Value("${app.harvest.daysBack}")
+	private int daysBackUntil;
+	
 	private static final Logger logger = 
 			LoggerFactory.getLogger(Orchestrator.class);
 	
@@ -62,7 +65,7 @@ public class Orchestrator implements CommandLineRunner {
 		urlComposer = new ListRecordsURLComposer(oaiPath);
 		harvester = new OAIHarvesterImp(urlComposer, recordListHandler);
 		
-		// Set the RstHandler to write each resumption token to status, so we can pick up from there in case of failure 
+		// Set the RstHandler to write each resumption token to status (only for information) 
 		harvester.setRstHandler(rst -> {
 			status.setResumptionToken(rst.token);
 		});
@@ -70,63 +73,74 @@ public class Orchestrator implements CommandLineRunner {
 		List<String> harvestedHandles = new ArrayList<>();
 		List<String> ingestedHandles = new ArrayList<>();
 		
-		logger.info("\n======================= Starting Harvest & Ingest Cycle =======================");
-		logger.info(status.toString());
+		// from and until in OAI are inclusive!
+		// http://www.openarchives.org/OAI/openarchivesprotocol.html#Datestamp
+		LocalDate fromDate = status.getLastHarvestDay().plusDays(1);
+		LocalDate untilDate = LocalDate.now().minusDays( daysBackUntil );
 		
-		/* 
-		 * Start harvesting. Always start from lastHarvestDay, even if there is a resumptionToken
-		 * in the status because of an earlier interrupted harvest. We need the full list of 
-		 * handles to download ALL updated export chunks later on, which may not be available on an
-		 * exceptional condition forcing the whole cycle to stop, but still leaving a ResumptionToken. 
-		 */
-		logger.info("Harvesting from date {}", status.getLastHarvestDay());
-		harvestedHandles = harvestFromlastHarvestDay();
-		
-		// at least some handles have been ingested
-		if (!harvestedHandles.isEmpty()) {
+		if ( untilDate.isBefore(fromDate) ) {
 			
-			logger.info("Harvested {} titles", harvestedHandles.size());
-			
-			// update status file
-			status.setLastHarvestDay(LocalDate.now());
-			status.setResumptionToken("");
+			logger.warn("===> 'until' argument {} days back from now is still before lastHarvestDay+1", daysBackUntil);
 		}
-		else {
-			logger.info("Nothing to harvest");
-		}
+		else {	
 		
-		// Now continue with export chunks: first see if the downloaded bulk is ingested
-		if (!status.isExportChunksDownloadsIngested()) {
+			logger.info("\n======================= Starting Harvest & Ingest Cycle =======================");
+			logger.info(status.toString());
 			
-			logger.info("Ingesting export chunks from downloaded files");
-			ingestedHandles = ingestChunksFromDownload();
+			/* 
+			 * Start harvesting. Always start from lastHarvestDay, even if there is a resumptionToken
+			 * in the status because of an earlier interrupted harvest. We need the full list of 
+			 * handles to download ALL updated export chunks later on, which may not be available on an
+			 * exceptional condition forcing the whole cycle to stop, but still leaving a ResumptionToken. 
+			 */
+			logger.info("Harvesting from date {}", fromDate);
+		
+			harvestedHandles = harvestFromlastHarvestDay(fromDate, untilDate);
 			
-			status.setExportChunksDownloadsIngested(true);
-			// consider the download to be the first ingestion
-			status.setLastChunkIngestionDay(LocalDate.now()); 
+			// at least some handles have been ingested
+			if (!harvestedHandles.isEmpty())  
+				logger.info("Harvested {} titles", harvestedHandles.size());
+			else 
+				logger.info("Nothing found to harvest");
+			
+			// Now continue with export chunks: first see if the downloaded bulk is ingested
+			if (!status.isExportChunksDownloadsIngested()) {
+				
+				logger.info("Ingesting export chunks from downloaded files");
+				ingestedHandles = ingestChunksFromDownload();
+				
+				status.setExportChunksDownloadsIngested(true);
+			}	
+			// otherwise get the export chunks only for the titles that have just been ingested
+			else if (!harvestedHandles.isEmpty()) {
+				
+				logger.info("Ingesting export chunks from web requests");
+				ingestedHandles = ingestChunksFromHandleList(harvestedHandles);
+			}	
+			
+			if (!ingestedHandles.isEmpty()) {
+				
+				/* Uupdate status file ONLY when chunks have also been ingested succesfully. In case
+				 * they're not we must reharvest to get the handles for the chunks not yet ingested.
+				 */
+				status.setLastHarvestDay(untilDate);
+				status.setResumptionToken("");
+				status.setLastChunkIngestionDay(LocalDate.now()); // also gets set when chunks are coming from downloads
+				
+				logger.info("Ingested export chunks for {} handles (effective number may be lower due to deleted titles).", ingestedHandles.size());
+			}
+			else {
+				logger.info("No export chunks were ingested");
+			}
+			
+			logger.info("\n======================= Finished Harvest & Ingest Cycle =======================");
+			
 		}	
-		// otherwise get the export chunks only for the titles that have just been ingested
-		else if (!harvestedHandles.isEmpty()) {
-			
-			logger.info("Ingesting export chunks from web requests");
-			ingestedHandles = ingestChunksFromHandleList(harvestedHandles);
-		}	
-		
-		if (!ingestedHandles.isEmpty()) {
-			
-			logger.info("Ingested export chunks for {} handles (effective number maybe lower due to deleted titles).", ingestedHandles.size());
-			status.setLastChunkIngestionDay(LocalDate.now());
-		}
-		
-		logger.info("\n======================= Finished Harvest & Ingest Cycle =======================");
 	}
 	
 	
-	private List<String> harvestFromlastHarvestDay() {
+	private List<String> harvestFromlastHarvestDay(LocalDate fromDate, LocalDate untilDate) {
 	
-		LocalDate fromDate = status.getLastHarvestDay();
-		LocalDate untilDate = LocalDate.now().minusDays(7);
-		
 		try { 
 			
 			List<String> handles = harvester.harvest(fromDate, untilDate);
@@ -171,7 +185,5 @@ public class Orchestrator implements CommandLineRunner {
 			return new ArrayList<>();
 		}
 	}
-	
-	
 
 }

@@ -11,7 +11,9 @@ spring.datasource.url=jdbc:mysql://localhost:3306/oapen_memo?reconnect=true&rewr
 spring.datasource.username=*************
 spring.datasource.password=*************
 
-# beware of trailing spaces!
+# harvesting until days before now
+app.harvest.daysBack = 7
+
 app.path.harvestedfiles=${user.home}/Downloads/XOAI
 app.path.oaipath=https://library.oapen.org/oai/request
 app.path.app-status=${user.home}/oapenmemo/app-state.properties

@@ -34,8 +34,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ChunksIngesterService implements ChunksIngester {
 	
-	// Default value, re-download file after x days
-	private int daysExpiration = 5;
+	/* Default value, re-download file after x days (usually there is no need for this other
+	 * then during development: the file will be downloaded just once).
+	 */
+	private int daysExpiration = 1;
 	private int batchSize = 1000;
 	
 	private final ExportsDownloader downloader;

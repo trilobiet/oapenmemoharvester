@@ -16,6 +16,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.oapen.memoproject.dataingestion.Orchestrator;
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
@@ -26,6 +27,8 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.oapen.memoproject.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -48,6 +51,9 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		this.element = element;
 		xpath = XPathFactory.newInstance().newXPath();
 	}
+	
+	private static final Logger logger = 
+			LoggerFactory.getLogger(XOAIDocumentParser.class);
 	
 	
 	@Override
@@ -119,7 +125,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		        	if (funder.isComplete()) funders.add(funder);
 		        }
 			} catch (JAXBException e) {
-				// TODO log
+				logger.error("Could not unmarshall funder(s). " + e.getMessage());
 			}
 				
 		});
@@ -149,7 +155,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 			}
 		}
 		catch (Exception e) {
-			// TODO log
+			logger.error("Could not unmarshall publisher. " + e.getMessage());
 		}
 		
 		return p;

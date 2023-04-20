@@ -22,7 +22,6 @@ public class ONIXChunk implements ExportChunkable {
 		handle = initHandle();
 	}
 	
-	//TODO
 	private Optional<String> initHandle() {
 		
 		Document record = new XMLStringConverter().stringToXMLDocument(content);
@@ -37,7 +36,6 @@ public class ONIXChunk implements ExportChunkable {
 		
 	}
 
-	// TODO
 	private String parseHandle(String in) {
 		
 		// <- https://library.oapen.org/bitstream/handle/20.500.12657/42289/9783653064650.pdf.jpg?sequence=3
