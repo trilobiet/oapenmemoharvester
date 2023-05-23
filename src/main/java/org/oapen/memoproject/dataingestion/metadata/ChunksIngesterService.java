@@ -190,18 +190,20 @@ public class ChunksIngesterService implements ChunksIngester {
 				.findFirst();
 			
 			if (oc.isPresent()) {
+				ExportChunk c = oc.get();
+				String urlString = c.getUrl();
 				try {
-					ExportChunk c = oc.get();
-					URL url = new URL(c.getUrl());
+					URL url = new URL(urlString);	
 					// Download the content containing the chunk
 					String chunk = downloader.getAsString(url);
 					c.setContent(chunk);
 					// And update the chunk TO
 					completedChunks.add(c);
+					Thread.sleep(500); // Take it easy on the DSpace server
 				}
-				catch (IOException e) {
-					// Apparently there's not a valid url in the contents field, so just skip it
-					logger.warn("Could not ingest {} chunk for {}.", type, handle);
+				catch (IOException | InterruptedException e) {
+					logger.error(e.toString());
+					logger.warn("Could not ingest {} chunk for {} from url {}.", type, handle, urlString);
 				} 
 			}
 		});

@@ -176,7 +176,6 @@ public class JpaPersistenceService implements PersistenceService {
 			contributorRepository.deleteAll();
 			funderRepository.deleteAll();
 			publisherRepository.deleteAll();
-			exportChunkRepository.deleteAll();
 		}
 		catch (Exception e) {
 			logger.error(e.getMessage());

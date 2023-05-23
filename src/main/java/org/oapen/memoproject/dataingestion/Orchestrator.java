@@ -76,6 +76,9 @@ public class Orchestrator implements CommandLineRunner {
 		// from and until in OAI are inclusive!
 		// http://www.openarchives.org/OAI/openarchivesprotocol.html#Datestamp
 		LocalDate fromDate = status.getLastHarvestDay().plusDays(1);
+		
+		daysBackUntil = args.length > 0? Integer.parseInt(args[0]): daysBackUntil;
+		
 		LocalDate untilDate = LocalDate.now().minusDays( daysBackUntil );
 		
 		if ( untilDate.isBefore(fromDate) ) {

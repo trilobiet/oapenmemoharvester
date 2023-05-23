@@ -2,7 +2,7 @@ package org.oapen.memoproject.dataingestion.metadata;
 
 public class TestConstants {
 
-	final static String onixrecord = 
+	final static String onixrecord1 = 
 			  "   <Product>"
 			+ "      <RecordReference>OAPEN-ID_5fd15d8e-628e-4e16-9dd8-f1b07b37efa7</RecordReference>"
 			+ "      <NotificationType>03</NotificationType>"
@@ -34,9 +34,60 @@ public class TestConstants {
 			+ "      <RelatedMaterial>"
 			+ "      </RelatedMaterial>"
 			+ "      <ProductSupply>"
+			+ "        <SupplyDetail>"
+			+ "          <Supplier>"
+			+ "            <SupplierRole>11</SupplierRole>"
+		    + "            <SupplierName>OAPEN Library</SupplierName>"
+		    + "            <Website>"
+		    + "              <WebsiteRole>05</WebsiteRole>"
+		    + "              <WebsiteDescription>OAPEN Library: download the title</WebsiteDescription>"
+		    + "              <WebsiteLink>https://library.oapen.org/bitstream/handle/20.500.12657/42289/9781787447202.pdf?sequence=1</WebsiteLink>"
+		    + "            </Website>"
+		    + "          </Supplier>"
+		    + "          <ProductAvailability>99</ProductAvailability>"
+		    + "          <UnpricedItemType>04</UnpricedItemType>"
+		    + "        </SupplyDetail>"
 			+ "      </ProductSupply>"
 			+ "   </Product>"
 			;
+	
+
+	final static String onixrecord2 = 
+			  "   <Product>"
+			+ "      <RecordReference>OAPEN-ID_5fd15d8e-628e-4e16-9dd8-f1b07b37efa7</RecordReference>"
+			+ "      <NotificationType>03</NotificationType>"
+			+ "      <RecordSourceType>00</RecordSourceType>"
+			+ "      <ProductIdentifier>"
+			+ "         <ProductIDType>01</ProductIDType>"
+			+ "         <IDTypeName>OAPEN Library ID</IDTypeName>"
+			+ "         <IDValue>ONIX_20201001_9783653064650_196</IDValue>"
+			+ "      </ProductIdentifier>"
+			+ "      <ProductIdentifier>"
+			+ "         <ProductIDType>15</ProductIDType>"
+			+ "         <IDValue>9783653064650</IDValue>"
+			+ "      </ProductIdentifier>"
+			+ "      <ProductIdentifier>"
+			+ "         <ProductIDType>06</ProductIDType>"
+			+ "         <IDValue>10.3726/978-3-653-06465-0</IDValue>"
+			+ "      </ProductIdentifier>"
+			+ "      <DescriptiveDetail>"
+			+ "      </DescriptiveDetail>"
+			+ "      <CollateralDetail>"
+			+ "         <SupportingResource>"
+		    + "            <ResourceVersion>"
+		    + "               <ResourceLink>https://library.oapen.org/bitstream/handle/20.500.12657/37344/9783653064650.pdf.jpg?sequence=3</ResourceLink>"
+		    + "            </ResourceVersion>"
+		    + "         </SupportingResource>"
+		    + "      </CollateralDetail>"
+			+ "      <PublishingDetail>"
+			+ "      </PublishingDetail>"
+			+ "      <RelatedMaterial>"
+			+ "      </RelatedMaterial>"
+			+ "      <ProductSupply>"
+			+ "      </ProductSupply>"
+			+ "   </Product>"
+			;
+	
 	
 	
 	final static String marcxmlrecord = 

@@ -28,7 +28,7 @@ import lombok.Setter;
 @IdClass(ExportChunkId.class)
 // handle_title may refer to titles already deleted, ignore the resulting integrity errors and just skip the insert
 // Column order: see https://docs.jboss.org/hibernate/orm/6.2/javadocs/org/hibernate/annotations/SQLInsert.html
-@SQLInsert(sql="INSERT IGNORE INTO export_chunk (url, content, handle_title, type) values (?,?,?,?)")
+@SQLInsert(sql="INSERT IGNORE INTO export_chunk (content, url, handle_title, type) values (?,?,?,?)")
 public class ExportChunk {
 	
 	@Id @Column	@NonNull

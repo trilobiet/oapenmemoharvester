@@ -14,7 +14,6 @@ spring.datasource.password=*************
 # harvesting until days before now
 app.harvest.daysBack = 7
 
-app.path.harvestedfiles=${user.home}/Downloads/XOAI
 app.path.oaipath=https://library.oapen.org/oai/request
 app.path.app-status=${user.home}/oapenmemo/app-state.properties
 app.path.exportsdir=${user.home}/oapenmemo/downloads

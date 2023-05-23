@@ -98,8 +98,15 @@ public class ExportsDownloaderImp implements ExportsDownloader {
 		
 		String text = null;
 		
-		try (InputStream is = getInputStream(url); Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name())) {
+		try (
+			InputStream is = getInputStream(url); 
+			Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name())
+		) {
 			text = scanner.useDelimiter("\\A").next();
+		}
+		catch (IOException e) {
+			logger.error(e.getMessage());
+			throw e;
 		}
 		
 		return text;
@@ -109,10 +116,10 @@ public class ExportsDownloaderImp implements ExportsDownloader {
 	private InputStream getInputStream(URL url) throws IOException {
 		
 		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setConnectTimeout(60_000);
+		con.setConnectTimeout(120_000);
 		int responseCode = con.getResponseCode();
 		if (responseCode == 200) return con.getInputStream();
-		else throw(new IOException("response code " + responseCode));
+		else throw(new IOException("Response code was not 200, but " + responseCode));
 	}
 
 

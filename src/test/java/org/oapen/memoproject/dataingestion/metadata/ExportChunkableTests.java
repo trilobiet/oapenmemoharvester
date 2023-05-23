@@ -9,7 +9,7 @@ public class ExportChunkableTests {
 	@Test
 	public void should_return_ONIX_record_id() {
 		
-		final String record = TestConstants.onixrecord;
+		final String record = TestConstants.onixrecord1;
 		
 		ExportChunkable chunk = new ONIXChunk(record);
 		String expected = "20.500.12657/42289";
@@ -18,6 +18,17 @@ public class ExportChunkableTests {
 		assertEquals(expected,found);
 	}
 	
+	@Test
+	public void should_return_ONIX_record_id_when_only_ResourceLink() {
+		
+		final String record = TestConstants.onixrecord2;
+		
+		ExportChunkable chunk = new ONIXChunk(record);
+		String expected = "20.500.12657/37344";
+		String found = chunk.getHandle().get();
+		
+		assertEquals(expected,found);
+	}
 
 	@Test
 	public void should_return_MARCXML_record_handle() {

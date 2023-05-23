@@ -42,9 +42,6 @@ public class Title {
     @Column(name = "sysid")
     private String sysId;
 
-    @Column(name = "collection")
-    private String collection;
-
     @Column(name = "download_url")
     private String downloadUrl;
 
@@ -107,6 +104,11 @@ public class Title {
     @CollectionTable(name="language", joinColumns= @JoinColumn(name="handle_title", nullable = false))
     @Column(name = "language")
     private Set<String> languages = new HashSet<>();
+
+    @ElementCollection
+    @CollectionTable(name="collection", joinColumns= @JoinColumn(name="handle_title", nullable = false))
+    @Column(name = "collection")
+    private Set<String> collections = new HashSet<>();
     
     @ElementCollection
     @CollectionTable(name="subject_other", joinColumns= @JoinColumn(name="handle_title", nullable = false))

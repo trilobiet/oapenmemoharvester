@@ -170,7 +170,6 @@ public class JpaWriteTests {
 		
 		Title title1 = new Title("hndl4");
 		title1.setTitle("Whatever");
-		title1.setCollection("falderalderee");
 		Set<ExportChunk> chunks =  new HashSet<>();
     	
     	chunks.add( new ExportChunk("marcxml", "HALLObullublublubblublub") );
@@ -180,7 +179,6 @@ public class JpaWriteTests {
     	Title t1saved = titleRepository.save(title1);
     	
 		Title title2 = new Title("hndl5");
-		title2.setCollection("6559559");
 		title2.setTitle("Bonkers");
 
 		title2.addExportChunk( new ExportChunk("onix", "HALLOuh23huhjhewuh") );
@@ -207,7 +205,6 @@ public class JpaWriteTests {
 		title1.setPublisher(pub1);
 		
 		Title title2 = new Title("hndl7");
-		title2.setCollection("6559559");
 		title2.setTitle("Bonkers");
 
 		Publisher pub2 = new Publisher();

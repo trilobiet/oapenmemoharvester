@@ -12,7 +12,6 @@ spring.datasource.username=*******
 spring.datasource.password=*******
 
 # beware of trailing spaces!
-app.path.harvestedfiles=${user.home}/Downloads/XOAI
 app.path.oaipath=https://library.oapen.org/oai/request
 app.path.app-status=${user.home}/oapenmemo/app-state.properties
 app.path.exportsdir=${user.home}/oapenmemo/downloads

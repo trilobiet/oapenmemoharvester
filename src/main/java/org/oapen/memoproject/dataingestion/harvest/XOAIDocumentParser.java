@@ -16,7 +16,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.oapen.memoproject.dataingestion.Orchestrator;
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
@@ -187,7 +186,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 				
 				getAbstractOtherLanguage().ifPresent(title::setAbstractOtherLanguage);
 				getChapterNumber().ifPresent(title::setChapterNumber);
-				getCollection().ifPresent(title::setCollection);
+				//getCollection().ifPresent(title::setCollection);
 				getYearAvailable().ifPresent(title::setYearAvailable);
 				getDescriptionAbstract().ifPresent(title::setDescriptionAbstract);
 				getDescriptionOtherLanguage().ifPresent(title::setDescriptionOtherLanguage);
@@ -218,6 +217,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 				title.setIdentifiers(getIdentifiers());
 				title.setLanguages(getLanguages());
 				title.setSubjectsOther(getSubjectsOther());
+				title.setCollections(getCollections());
 			}	
 			
 			r = Optional.of(title);
@@ -453,6 +453,13 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		return XOAIDocumentParserUtils.parseLanguages(getTextValueSet(path));
 	}
 
+
+	private Set<String> getCollections() {
+		
+		final String path = ".//element[@name='oapen']//element[@name='collection']//field[@name='value']";
+		return getTextValueSet(path);
+	}
+	
 	
 	private Set<String> getSubjectsOther() {
 		
@@ -509,13 +516,6 @@ public final class XOAIDocumentParser implements EntitiesSource {
 	private Optional<String> getSysId() {
 		
 		final String path = ".//element[@name='others']/field[@name='uuid']";
-		return getTextValue(path);
-	}
-
-	
-	private Optional<String> getCollection() {
-
-		final String path = ".//header/setSpec[starts-with(text(),'col')]";
 		return getTextValue(path);
 	}
 

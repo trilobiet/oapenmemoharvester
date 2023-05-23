@@ -1,6 +1,7 @@
 package org.oapen.memoproject.dataingestion.jpa;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -54,6 +55,13 @@ public class EqualityTests {
 	@Test
 	void testCapitalize() {
 		
+		ArrayList<String> expected = new ArrayList<String>(Arrays.asList(
+				"Jan Kees",
+				"Barthélémy, Daniel",
+				"Mcdonald, Old"
+				
+			)); 
+		
 		ArrayList<String> lst = new ArrayList<String>(Arrays.asList(
 			"JAN KEES",
 			"Barthélémy, Daniel",
@@ -61,9 +69,14 @@ public class EqualityTests {
 			
 		));
 		
-		lst.forEach(s ->
-			System.out.println(WordUtils.capitalizeFully(s))
-		);
+		ArrayList<String> resulting = new ArrayList<>();
+		
+		lst.forEach(s -> {
+			// System.out.println(WordUtils.capitalizeFully(s));
+			resulting.add(WordUtils.capitalizeFully(s));
+		});
+		
+		assertIterableEquals(expected, resulting);
 		
 	}
 

@@ -24,16 +24,24 @@ public class ONIXChunk implements ExportChunkable {
 	
 	private Optional<String> initHandle() {
 		
-		Document record = new XMLStringConverter().stringToXMLDocument(content);
-		NodeList nodes = record.getElementsByTagName("ResourceLink");
-        
-        if (nodes.getLength() > 0) {
-        	
-        	String id = parseHandle(nodes.item(0).getTextContent());
-        	return Optional.of(id);
-        }
-        else return Optional.empty();
+		// Try ResourceLink if WebsiteLink cannot be parsed
+		String[] tags = {"WebsiteLink","ResourceLink"}; 
 		
+		Document record = new XMLStringConverter().stringToXMLDocument(content);
+		
+		for (String tag:tags) {
+		
+			NodeList nodes = record.getElementsByTagName(tag);
+	        
+	        if (nodes.getLength() > 0) {
+	        	
+	        	String id = parseHandle(nodes.item(0).getTextContent());
+	        	return Optional.of(id);
+	        }
+		}    	
+
+		// None found: can't connect to Title 
+        return Optional.empty();
 	}
 
 	private String parseHandle(String in) {

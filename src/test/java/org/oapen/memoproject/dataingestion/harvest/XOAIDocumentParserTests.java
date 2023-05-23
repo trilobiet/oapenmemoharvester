@@ -84,9 +84,17 @@ public class XOAIDocumentParserTests {
 	}
 
 	@Test
-	public void should_find_collection() {
+	public void should_find_collections() {
 
-		assertEquals("col_20.500.12657_6", source1.getTitle().get().getCollection());
+		Set<String> expectedCollections = new HashSet<>(
+			Arrays.asList(
+				"Toward an Open Monograph Ecosystem (TOME)",
+				"Knowledge Unlatched (KU)"
+			)	
+		);
+		Set<String> foundCollections = source1.getTitle().get().getCollections();
+		
+		assertTrue(foundCollections.containsAll(expectedCollections));
 	}
 
 	@Test
