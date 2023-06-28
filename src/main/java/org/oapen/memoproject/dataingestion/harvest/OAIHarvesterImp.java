@@ -79,7 +79,9 @@ public final class OAIHarvesterImp implements OAIHarvester {
 				
 				if(oRst.isPresent()) {
 					url = urlComposer.getUrl(oRst.get());
-					// Do whatever you want toi do with the ResumptionToken (for instance log it)
+					// Do whatever you want to do with the ResumptionToken (for instance log it)
+					// resumptionToken is not used: we need all handles for the chunks ingester in case
+					// some process was interrupted
 					rstHandler.accept(oRst.get());
 				}
 				

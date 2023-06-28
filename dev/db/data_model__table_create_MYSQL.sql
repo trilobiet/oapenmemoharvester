@@ -1,11 +1,10 @@
 
-CREATE DATABASE `oapen_memo` CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+CREATE DATABASE `oapen_library` CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 
 
-CREATE TABLE oapen_memo.title (
+CREATE TABLE oapen_library.title (
     handle VARCHAR(25) NOT NULL,
     sysid VARCHAR(36),
-    collection VARCHAR(25),
     handle_publisher VARCHAR(25),
     part_of_book VARCHAR(36),
     type VARCHAR(10),
@@ -30,19 +29,19 @@ CREATE TABLE oapen_memo.title (
     PRIMARY KEY (handle)
 );
 
-CREATE INDEX part_of_handle_publisher ON oapen_memo.title
+CREATE INDEX part_of_handle_publisher ON oapen_library.title
     (handle_publisher);
 
 
 
-CREATE TABLE oapen_memo.language (
-    language VARCHAR(100) NOT NULL,
+CREATE TABLE oapen_library.language (
+    language VARCHAR(25) NOT NULL,
     handle_title VARCHAR(25) NOT NULL,
     PRIMARY KEY (language, handle_title)
 );
 
 
-CREATE TABLE oapen_memo.export_chunk (
+CREATE TABLE oapen_library.export_chunk (
     type VARCHAR(10) NOT NULL,
     handle_title VARCHAR(25) NOT NULL,
     content mediumtext NULL,
@@ -52,7 +51,7 @@ CREATE TABLE oapen_memo.export_chunk (
 );
 
 
-CREATE TABLE oapen_memo.contribution (
+CREATE TABLE oapen_library.contribution (
     role VARCHAR(10) NOT NULL,
     name_contributor VARCHAR(255) NOT NULL,
     handle_title VARCHAR(25) NOT NULL,
@@ -60,38 +59,38 @@ CREATE TABLE oapen_memo.contribution (
 );
 
 
-CREATE TABLE oapen_memo.identifier (
+CREATE TABLE oapen_library.identifier (
     identifier VARCHAR(100) NOT NULL,
     handle_title VARCHAR(25) NOT NULL,
     identifier_type VARCHAR(10) NOT NULL,
     PRIMARY KEY (identifier)
 );
 
-CREATE INDEX part_of_handle_title ON oapen_memo.identifier
+CREATE INDEX part_of_handle_title ON oapen_library.identifier
     (handle_title);
 
-CREATE TABLE oapen_memo.classification (
+CREATE TABLE oapen_library.classification (
     code VARCHAR(10) NOT NULL,
     description text NOT NULL,
     PRIMARY KEY (code)
 );
 
 
-CREATE TABLE oapen_memo.subject_other (
+CREATE TABLE oapen_library.subject_other (
     subject VARCHAR(100) NOT NULL,
     handle_title VARCHAR(25) NOT NULL,
     PRIMARY KEY (subject, handle_title)
 );
 
 
-CREATE TABLE oapen_memo.subject_classification (
+CREATE TABLE oapen_library.subject_classification (
     code_classification VARCHAR(10) NOT NULL,
     handle_title VARCHAR(25) NOT NULL,
     PRIMARY KEY (code_classification, handle_title)
 );
 
 
-CREATE TABLE oapen_memo.funder (
+CREATE TABLE oapen_library.funder (
     handle VARCHAR(25) NOT NULL,
     name text NOT NULL,
     acronyms text,
@@ -100,14 +99,14 @@ CREATE TABLE oapen_memo.funder (
 );
 
 
-CREATE TABLE oapen_memo.funding (
+CREATE TABLE oapen_library.funding (
     handle_title VARCHAR(25) NOT NULL,
     handle_funder VARCHAR(25) NOT NULL,
     PRIMARY KEY (handle_title, handle_funder)
 );
 
 
-CREATE TABLE oapen_memo.publisher (
+CREATE TABLE oapen_library.publisher (
     handle VARCHAR(25) NOT NULL,
     name text NOT NULL,
     website text,
@@ -115,28 +114,28 @@ CREATE TABLE oapen_memo.publisher (
 );
 
 
-CREATE TABLE oapen_memo.contributor (
+CREATE TABLE oapen_library.contributor (
     name VARCHAR(255) NOT NULL,
     orcid char(19),
     PRIMARY KEY (name)
 );
 
-ALTER TABLE oapen_memo.contributor
+ALTER TABLE oapen_library.contributor
     ADD UNIQUE (orcid);
 
 
-CREATE TABLE oapen_memo.institution (
+CREATE TABLE oapen_library.institution (
     id INTEGER NOT NULL,
     name VARCHAR(255) NOT NULL,
     alt_names text NOT NULL,
     PRIMARY KEY (id)
 );
 
-ALTER TABLE oapen_memo.institution
+ALTER TABLE oapen_library.institution
     ADD UNIQUE (name);
 
 
-CREATE TABLE oapen_memo.affiliation (
+CREATE TABLE oapen_library.affiliation (
     id INTEGER NOT NULL,
     id_institution INTEGER NOT NULL,
     orcid char(19) NOT NULL,
@@ -145,11 +144,11 @@ CREATE TABLE oapen_memo.affiliation (
     PRIMARY KEY (id)
 );
 
-ALTER TABLE oapen_memo.affiliation
+ALTER TABLE oapen_library.affiliation
     ADD UNIQUE (id_institution, orcid, from_date, until_date);
 
 
-CREATE TABLE oapen_memo.grant_data (
+CREATE TABLE oapen_library.grant_data (
     property VARCHAR(10) NOT NULL,
     value VARCHAR(255) NOT NULL,
     handle_title VARCHAR(25) NOT NULL,
@@ -157,18 +156,24 @@ CREATE TABLE oapen_memo.grant_data (
 );
 
 
-ALTER TABLE oapen_memo.title ADD CONSTRAINT FK_title__handle_publisher FOREIGN KEY (handle_publisher) REFERENCES oapen_memo.publisher(handle);
-ALTER TABLE oapen_memo.language ADD CONSTRAINT FK_language__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_memo.title(handle) ON DELETE CASCADE;
-ALTER TABLE oapen_memo.export_chunk ADD CONSTRAINT FK_export_chunk__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_memo.title(handle) ON DELETE CASCADE;
-ALTER TABLE oapen_memo.contribution ADD CONSTRAINT FK_contribution__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_memo.title(handle) ON DELETE CASCADE;
-ALTER TABLE oapen_memo.contribution ADD CONSTRAINT FK_contribution__name_contributor FOREIGN KEY (name_contributor) REFERENCES oapen_memo.contributor(name);
-ALTER TABLE oapen_memo.identifier ADD CONSTRAINT FK_identifier__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_memo.title(handle) ON DELETE CASCADE;
-ALTER TABLE oapen_memo.subject_other ADD CONSTRAINT FK_subject_other__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_memo.title(handle) ON DELETE CASCADE;
-ALTER TABLE oapen_memo.subject_classification ADD CONSTRAINT FK_subject_classification__code_classification FOREIGN KEY (code_classification) REFERENCES oapen_memo.classification(code);
-ALTER TABLE oapen_memo.subject_classification ADD CONSTRAINT FK_subject_classification__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_memo.title(handle) ON DELETE CASCADE;
-ALTER TABLE oapen_memo.funding ADD CONSTRAINT FK_funding__handle_funder FOREIGN KEY (handle_funder) REFERENCES oapen_memo.funder(handle) ON DELETE RESTRICT;
-ALTER TABLE oapen_memo.funding ADD CONSTRAINT FK_funding__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_memo.title(handle) ON DELETE CASCADE;
-ALTER TABLE oapen_memo.affiliation ADD CONSTRAINT FK_affiliation__orcid FOREIGN KEY (orcid) REFERENCES oapen_memo.contributor(orcid);
-ALTER TABLE oapen_memo.affiliation ADD CONSTRAINT FK_affiliation__id_institution FOREIGN KEY (id_institution) REFERENCES oapen_memo.institution(id);
-ALTER TABLE oapen_memo.grant_data ADD CONSTRAINT FK_grant_data__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_memo.title(handle) ON DELETE CASCADE;
+CREATE TABLE oapen_library.collection (
+    collection VARCHAR(255) NOT NULL,
+    handle_title VARCHAR(25) NOT NULL,
+    PRIMARY KEY (collection, handle_title)
+);
 
+ALTER TABLE oapen_library.title ADD CONSTRAINT FK_title__handle_publisher FOREIGN KEY (handle_publisher) REFERENCES oapen_library.publisher(handle);
+ALTER TABLE oapen_library.language ADD CONSTRAINT FK_language__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_library.title(handle) ON DELETE CASCADE;
+ALTER TABLE oapen_library.export_chunk ADD CONSTRAINT FK_export_chunk__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_library.title(handle) ON DELETE CASCADE;
+ALTER TABLE oapen_library.contribution ADD CONSTRAINT FK_contribution__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_library.title(handle) ON DELETE CASCADE;
+ALTER TABLE oapen_library.contribution ADD CONSTRAINT FK_contribution__name_contributor FOREIGN KEY (name_contributor) REFERENCES oapen_library.contributor(name);
+ALTER TABLE oapen_library.identifier ADD CONSTRAINT FK_identifier__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_library.title(handle) ON DELETE CASCADE;
+ALTER TABLE oapen_library.subject_other ADD CONSTRAINT FK_subject_other__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_library.title(handle) ON DELETE CASCADE;
+ALTER TABLE oapen_library.subject_classification ADD CONSTRAINT FK_subject_classification__code_classification FOREIGN KEY (code_classification) REFERENCES oapen_library.classification(code);
+ALTER TABLE oapen_library.subject_classification ADD CONSTRAINT FK_subject_classification__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_library.title(handle) ON DELETE CASCADE;
+ALTER TABLE oapen_library.funding ADD CONSTRAINT FK_funding__handle_funder FOREIGN KEY (handle_funder) REFERENCES oapen_library.funder(handle) ON DELETE RESTRICT;
+ALTER TABLE oapen_library.funding ADD CONSTRAINT FK_funding__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_library.title(handle) ON DELETE CASCADE;
+ALTER TABLE oapen_library.affiliation ADD CONSTRAINT FK_affiliation__orcid FOREIGN KEY (orcid) REFERENCES oapen_library.contributor(orcid);
+ALTER TABLE oapen_library.affiliation ADD CONSTRAINT FK_affiliation__id_institution FOREIGN KEY (id_institution) REFERENCES oapen_library.institution(id);
+ALTER TABLE oapen_library.grant_data ADD CONSTRAINT FK_grant_data__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_library.title(handle) ON DELETE CASCADE;
+ALTER TABLE oapen_library.collection ADD CONSTRAINT FK_collection__handle_title FOREIGN KEY (handle_title) REFERENCES oapen_library.title(handle) ON DELETE CASCADE;
