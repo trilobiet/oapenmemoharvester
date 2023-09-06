@@ -2,6 +2,7 @@ package org.oapen.memoproject.dataingestion.harvest;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.time.LocalDate;
@@ -26,14 +27,13 @@ public final class OAIHarvesterImp implements OAIHarvester {
 	private Consumer<ResumptionToken> rstHandler;
 
 	/**
-	 * @param urlPath OAI path without query string, e.g. <em>https://library.oapen.org/oai/request</em>
+	 * @param path OAI path without query string, e.g. <em>https://library.oapen.org/oai/request</em>
 	 */
-	public OAIHarvesterImp(ListRecordsURLComposer url, RecordListHandler handler) {
+	public OAIHarvesterImp(String path, RecordListHandler handler) throws MalformedURLException {
 		
-		this.urlComposer = url;
+		this.urlComposer = new ListRecordsURLComposer(path);
 		this.handler = handler;
 	}
-
 
 	public void setRstHandler(Consumer<ResumptionToken> rstHandler) {
 		this.rstHandler = rstHandler;

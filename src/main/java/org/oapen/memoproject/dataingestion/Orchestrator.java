@@ -8,7 +8,6 @@ import java.util.List;
 import org.oapen.memoproject.dataingestion.appstatus.AppStatus;
 import org.oapen.memoproject.dataingestion.appstatus.PropertiesAppStatusService;
 import org.oapen.memoproject.dataingestion.harvest.HarvestException;
-import org.oapen.memoproject.dataingestion.harvest.ListRecordsURLComposer;
 import org.oapen.memoproject.dataingestion.harvest.OAIHarvesterImp;
 import org.oapen.memoproject.dataingestion.harvest.RecordListHandler;
 import org.oapen.memoproject.dataingestion.jpa.PersistenceService;
@@ -43,7 +42,6 @@ public class Orchestrator implements CommandLineRunner {
 			LoggerFactory.getLogger(Orchestrator.class);
 	
 	private AppStatus status;
-	private ListRecordsURLComposer urlComposer;
 	private OAIHarvesterImp harvester;
 	
 	@Autowired
@@ -62,8 +60,8 @@ public class Orchestrator implements CommandLineRunner {
 	public void run(String... args) throws MalformedURLException {
 
 		status = new PropertiesAppStatusService(propFileName);
-		urlComposer = new ListRecordsURLComposer(oaiPath);
-		harvester = new OAIHarvesterImp(urlComposer, recordListHandler);
+		//urlComposer = new ListRecordsURLComposer(oaiPath);
+		harvester = new OAIHarvesterImp(oaiPath, recordListHandler);
 		
 		// Set the RstHandler to write each resumption token to status (only for information) 
 		harvester.setRstHandler(rst -> {
@@ -89,6 +87,7 @@ public class Orchestrator implements CommandLineRunner {
 		
 			logger.info("\n======================= Starting Harvest & Ingest Cycle =======================");
 			logger.info(status.toString());
+			logger.info("daysBackUntil = {}", daysBackUntil);
 			
 			/* 
 			 * Start harvesting. Always start from lastHarvestDay, even if there is a resumptionToken
@@ -96,7 +95,7 @@ public class Orchestrator implements CommandLineRunner {
 			 * handles to download ALL updated export chunks later on, which may not be available on an
 			 * exceptional condition forcing the whole cycle to stop, but still leaving a ResumptionToken. 
 			 */
-			logger.info("Harvesting from date {}", fromDate);
+			logger.info("Harvesting from {} until {}", fromDate, untilDate);
 		
 			harvestedHandles = harvestFromlastHarvestDay(fromDate, untilDate);
 			
@@ -147,7 +146,7 @@ public class Orchestrator implements CommandLineRunner {
 		try { 
 			
 			List<String> handles = harvester.harvest(fromDate, untilDate);
-			logger.info("Harvested from date " + fromDate);
+			logger.info("Harvested from {} until {}", fromDate, untilDate);
 			return handles;
 		} 
 		catch (HarvestException e) { 
