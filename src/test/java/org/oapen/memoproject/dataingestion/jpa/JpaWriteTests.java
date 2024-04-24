@@ -61,8 +61,8 @@ public class JpaWriteTests {
 		
 	}
 
-	//@Test
-	//@Order(100)
+	@Test
+	@Order(100)
 	public void tearDown() {
 		
 		clearAllData();

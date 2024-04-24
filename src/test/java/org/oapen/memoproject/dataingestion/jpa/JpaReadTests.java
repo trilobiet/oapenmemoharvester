@@ -47,5 +47,13 @@ public class JpaReadTests {
 		assertTrue(q.isPresent());
 	}
 	
+	
+	// @Test
+	public void t1() {
+		
+		Optional<Title> q = titleRepository.findById("hndl3");
+		assertTrue(q.isPresent());
+		assertTrue(q.get().getIdentifiers().size() == 3);
+	}
 
 }

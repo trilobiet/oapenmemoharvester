@@ -113,8 +113,7 @@ public final class XOAIDocumentParserUtils {
 	 */
 	public final static String parseOCN(String ocn) {
 		
-		return ocn.replaceAll("(?i)^ocn:", "").trim();
-		
+		return ocn.replaceAll("(?i)^ocn:\\s*", "").trim();
 	}
 	
 	

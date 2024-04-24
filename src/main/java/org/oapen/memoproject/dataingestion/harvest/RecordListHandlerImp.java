@@ -81,7 +81,7 @@ public final class RecordListHandlerImp implements RecordListHandler {
 					try { perservice.saveTitle(t);} catch (RuntimeException e) { 
 						/* log da shit with t handle */
 						logger.error("saveTitle with handle " + t.getHandle());
-						logger.error(t.getContributions().toString());
+						logger.error(t.getTitle().toString());
 					}
 					
 					insertedHandles.add(t.getHandle());

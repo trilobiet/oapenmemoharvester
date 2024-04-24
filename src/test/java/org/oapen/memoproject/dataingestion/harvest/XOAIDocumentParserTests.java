@@ -26,6 +26,7 @@ import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
 import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
+import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -330,12 +331,18 @@ public class XOAIDocumentParserTests {
 	@Test
 	public void should_find_identifiers() {
 		
-		Set<Identifier> ids = source1.getTitle().get().getIdentifiers();
+		Title title = source1.getTitle().get();
 		
-		Identifier id1 = new Identifier("1000000000000","ISBN");
+		Set<Identifier> ids = title.getIdentifiers();
 		
-		assertEquals(ids.size(), 11);
-		assertTrue(ids.contains(id1));
+		// ids.forEach(System.out::println);
+		
+		assertEquals(4, ids.stream().filter(id -> id.getType().equals("ISBN")).count());
+		assertEquals(2, ids.stream().filter(id -> id.getType().equals("OCN")).count());
+		assertEquals(1, ids.stream().filter(id -> id.getType().equals("ONIX")).count());
+		assertEquals(1, ids.stream().filter(id -> id.getType().equals("ISSN")).count());
+		assertEquals(1, ids.stream().filter(id -> id.getType().equals("DOI")).count());
+		assertEquals(1, ids.stream().filter(id -> id.getType().equals("URI")).count());
 	}
 
 	@Test

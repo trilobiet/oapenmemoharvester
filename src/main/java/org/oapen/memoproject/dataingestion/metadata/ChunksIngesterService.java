@@ -1,7 +1,6 @@
 package org.oapen.memoproject.dataingestion.metadata;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Instant;
@@ -151,7 +150,7 @@ public class ChunksIngesterService implements ChunksIngester {
 				type.skipLines() 
 			);
 			
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			
 			throw new IngestException(e);
 		}

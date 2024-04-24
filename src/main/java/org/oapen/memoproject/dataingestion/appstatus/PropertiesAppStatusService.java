@@ -46,13 +46,20 @@ public class PropertiesAppStatusService implements AppStatus {
 		this.propertiesFileName = propertiesFileName;
 	}
 
-
 	@Override
 	public LocalDate getLastHarvestDay() {
 		
 		lastHarvestDay = readValue(LAST_HARVEST_DAY);
 		if (lastHarvestDay.isPresent()) return LocalDate.parse(lastHarvestDay.get());
 		else return LocalDate.ofEpochDay(0); 
+	}
+
+	@Override
+	public boolean isFullHarvest() {
+		
+		lastHarvestDay = readValue(LAST_HARVEST_DAY);
+		if (lastHarvestDay.isPresent()) return false;
+		else return true; 
 	}
 
 	@Override

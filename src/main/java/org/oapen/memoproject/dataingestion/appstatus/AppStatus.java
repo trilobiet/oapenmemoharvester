@@ -17,6 +17,11 @@ public interface AppStatus {
 	LocalDate getLastHarvestDay();
 	
 	/**
+	 * @return true if this is the first run and there is no lastHarvestDay. 
+	 */
+	boolean isFullHarvest();
+
+	/**
 	 * @return resumptionToken, in case of an interrupted harvest
 	 */
 	String getResumptionToken();

@@ -330,7 +330,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
         	if (!value.isBlank() && !value.equals("[...]")) {  // ignore incomplete data
         		GrantData member = new GrantData(
         			property, 
-        			StringUtils.trimAllSpace(node.getTextContent().trim())
+        			StringUtils.cutOff(StringUtils.trimAllSpace(node.getTextContent().trim()), 255) // max length 255
         		);
         		set.add(member);
         	}	
@@ -363,22 +363,30 @@ public final class XOAIDocumentParser implements EntitiesSource {
 	}
 	
 	
-	private Set<Identifier> nodeListToIdentifierSet(NodeList nodes, String type) {
+	private Set<Identifier> nodeListToIdentifierSet(NodeList nodes, String type, Set<String> ignoreIds) {
 		
 		Set<Identifier> set = new HashSet<>();
 		
 		for (int i=0; i < nodes.getLength(); i++) {
         	
         	Node node = nodes.item(i);
+        	String id = node.getTextContent().trim();
         	
-        	Identifier member = new Identifier(
-        		StringUtils.trimAllSpace(node.getTextContent().trim())
-        		,type
-        	);
-        	set.add(member);
+        	if (!ignoreIds.contains(id)) {
+	        	Identifier member = new Identifier(
+	        		StringUtils.cutOff(StringUtils.trimAllSpace(node.getTextContent().trim()),100)
+	        		,type
+	        	);
+	        	set.add(member);
+        	}
         }
 		
 		return set;
+	}
+	
+	private Set<Identifier> nodeListToIdentifierSet(NodeList nodes, String type) {
+		
+		return nodeListToIdentifierSet(nodes, type, new HashSet<>());
 	}
 	
  	
@@ -389,38 +397,75 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		final String pathURI		= ".//element[@name='uri']//field[@name='value']";
 		final String pathOCN1		= ".//element[@name='identifier']//field[starts-with(text(),'OCN')]";
 		final String pathOCN2		= ".//element[@name='ocn']//field[@name='value']";
-		final String pathISBN		= ".//element[@name='isbn']//field[@name='value']";
+		final String pathISBN1		= ".//element[@name='isbn']//field[@name='value']";
+		final String pathISBN2		= ".//element[@name='bitstream']//field[@name='oapenrelationisbn']";
 		final String pathISSN		= ".//element[@name='issn']//field[@name='value']";
 		final String pathUNKNOWN1	= ".//element[@name='identifier']/element[@name='none']//field[@name='value']";
 		final String pathUNKNOWN2	= ".//element[@name='identifier']//field[@name='value']";
 		
 		Set<Identifier> identifiers = new HashSet<>();
+		Set<String> usedIds = new HashSet<>();
 		
-		getNodeList(pathONIX).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"ONIX")));
-		getNodeList(pathDOI).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"DOI")));
-		getNodeList(pathURI).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"URI")));
-		getNodeList(pathUNKNOWN1).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"UNKNOWN")));
-		getNodeList(pathUNKNOWN2).ifPresent(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"UNKNOWN")));
+		getNodeList(pathONIX).stream().forEach(nodes -> {
+			Set<String> ids = getTextValueSet(pathONIX);
+			usedIds.addAll(ids);
+			identifiers.addAll(nodeListToIdentifierSet(nodes,"ONIX"));
+		});
 		
-		getNodeList(pathOCN1).ifPresent(nodes -> {
+		getNodeList(pathDOI).stream().forEach(nodes -> {
+			Set<String> ids = getTextValueSet(pathDOI);
+			usedIds.addAll(ids);
+			identifiers.addAll(nodeListToIdentifierSet(nodes,"DOI"));
+		});
+		
+		getNodeList(pathURI).stream().forEach(nodes -> {
+			Set<String> ids = getTextValueSet(pathURI);
+			usedIds.addAll(ids);
+			identifiers.addAll(nodeListToIdentifierSet(nodes,"URI"));
+		});
+		
+		getNodeList(pathOCN1).stream().forEach(nodes -> {
 			Set<String> ocns = getTextValueSet(pathOCN1);
+			usedIds.addAll(ocns);
 			ocns.forEach(ocn -> identifiers.add(new Identifier(XOAIDocumentParserUtils.parseOCN(ocn),"OCN")));
 		});
 		
-		getNodeList(pathOCN2).ifPresent(nodes -> {
+		getNodeList(pathOCN2).stream().forEach(nodes -> {
 			Set<String> ocns = getTextValueSet(pathOCN2);
+			usedIds.addAll(ocns);
 			ocns.forEach(ocn -> identifiers.add(new Identifier(XOAIDocumentParserUtils.parseOCN(ocn),"OCN")));
 		});
 
-		getNodeList(pathISBN).ifPresent(nodes -> {
-			Set<String> isbns = XOAIDocumentParserUtils.parseISBNOrISSN(getTextValueSet(pathISBN));
+		getNodeList(pathISBN1).stream().forEach(nodes -> {
+			Set<String> isbns = XOAIDocumentParserUtils.parseISBNOrISSN(getTextValueSet(pathISBN1));
+			usedIds.addAll(isbns);
 			isbns.forEach(isbn -> identifiers.add(new Identifier(isbn,"ISBN")));
 		});
 		
-		getNodeList(pathISSN).ifPresent(nodes -> {
+		getNodeList(pathISBN2).stream().forEach(nodes -> {
+			Set<String> isbns = XOAIDocumentParserUtils.parseISBNOrISSN(getTextValueSet(pathISBN2));
+			usedIds.addAll(isbns);
+			isbns.forEach(isbn -> identifiers.add(new Identifier(isbn,"ISBN")));
+		});
+
+		getNodeList(pathISSN).stream().forEach(nodes -> {
 			Set<String> issns = XOAIDocumentParserUtils.parseISBNOrISSN(getTextValueSet(pathISSN));
+			usedIds.addAll(issns);
 			issns.forEach(issn -> identifiers.add(new Identifier(issn,"ISSN")));
 		});
+		
+		/* pathUNKNOWN1 and pathUNKNOWN2 will return ids that we already have parsed succesfully:
+		 * they are stored in usedIds. Ignore these and what remains will be in UNKNOWN category
+		 */
+		
+		getNodeList(pathUNKNOWN1).stream().forEach(nodes -> {
+			Set<String> ids = getTextValueSet(pathUNKNOWN1);
+			usedIds.addAll(ids);
+			// This is an old OAPEN internal id: ignore
+		});
+		
+		// Now what is left goes in UNKNOWN
+		getNodeList(pathUNKNOWN2).stream().forEach(nodes -> identifiers.addAll(nodeListToIdentifierSet(nodes,"UNKNOWN", usedIds)));
 		
 		return identifiers;
 	}

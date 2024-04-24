@@ -84,6 +84,14 @@ public class Orchestrator implements CommandLineRunner {
 			logger.warn("===> 'until' argument {} days back from now is still before lastHarvestDay+1", daysBackUntil);
 		}
 		else {	
+			
+			if (status.isFullHarvest()) {
+				
+				logger.info("\n=============================== Cleaning DB ===================================");
+				logger.info("\nNo previous harvest date found. This is a full harvest. Starting with a clean database.");
+				persistenceService.deleteAll();
+				logger.info("\nReady cleaning up database.");	
+			}
 		
 			logger.info("\n======================= Starting Harvest & Ingest Cycle =======================");
 			logger.info(status.toString());

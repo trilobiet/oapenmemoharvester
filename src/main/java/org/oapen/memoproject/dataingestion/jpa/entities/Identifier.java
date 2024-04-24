@@ -1,10 +1,14 @@
 package org.oapen.memoproject.dataingestion.jpa.entities;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,16 +21,18 @@ import lombok.Setter;
 @Getter @Setter
 @Entity(name = "Identifier" )
 @Table(name="identifier")
+@IdClass(IdentifierId.class)
+@EqualsAndHashCode
 public class Identifier {
 	
-	@Id
-    @Column(name="identifier", updatable = false, insertable = true)
+	@Id @Column(name="identifier")
+	//@Column(name="identifier", updatable = false, insertable = true)
 	private String id;
 
-    @Column(name="identifier_type", nullable = false)
+    @Id @Column(name="identifier_type", nullable = false)
 	private String type;
 
-    @Column(name = "handle_title", nullable = false)
+    @Id @Column(name = "handle_title", nullable = false)
 	private String handleTitle;
     
 	public Identifier() {}
@@ -36,40 +42,38 @@ public class Identifier {
 		this.type = type;
 	}
     
-	public boolean isComplete() {
+    public Identifier(String id, String type, String handleTitle) {
+		this.id = id;
+		this.type = type;
+		this.handleTitle = handleTitle;
+	}
+
+    public boolean isComplete() {
 		
 		return (id != null && !id.isBlank() && type != null && !type.isBlank());
 	}
-    
 
 	@Override
 	public String toString() {
 		return "Identifier [" + id + ", " + type + "]";
 	}
+}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
+@EqualsAndHashCode
+class IdentifierId implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
+	
+	public String id;
+	public String type;
+	public String handleTitle;
+	
+	public IdentifierId() {}
+	
+	/*public IdentifierId(String id, String type) {
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Identifier other = (Identifier) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
-
+		this.id = id;
+		//this.type =type;
+	}*/
 }	
+

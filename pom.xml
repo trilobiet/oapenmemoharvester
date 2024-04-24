@@ -13,7 +13,7 @@
 	
 	<groupId>org.oapen.memoproject</groupId>
 	<artifactId>harvester</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<packaging>jar</packaging>
 	<name>oai</name>
 	<description>OAI Harvester for OAPEN MEMO Project</description>
