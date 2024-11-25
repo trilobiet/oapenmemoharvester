@@ -1,10 +1,10 @@
 CREATE DATABASE  IF NOT EXISTS `oapen_library` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `oapen_library`;
--- MySQL dump 10.13  Distrib 8.0.35, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.40, for Linux (x86_64)
 --
 -- Host: 104.248.34.253    Database: oapen_library
 -- ------------------------------------------------------
--- Server version	8.0.35-0ubuntu0.20.04.1
+-- Server version	8.0.40-0ubuntu0.20.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -182,7 +182,7 @@ CREATE TABLE `identifier` (
   `identifier` varchar(100) COLLATE utf8mb4_bin NOT NULL,
   `handle_title` varchar(25) COLLATE utf8mb4_bin NOT NULL,
   `identifier_type` varchar(10) COLLATE utf8mb4_bin NOT NULL,
-  PRIMARY KEY (`identifier`, `handle_title`, `identifier_type`),
+  PRIMARY KEY (`identifier`,`handle_title`,`identifier_type`),
   KEY `part_of_handle_title` (`handle_title`),
   CONSTRAINT `FK_identifier__handle_title` FOREIGN KEY (`handle_title`) REFERENCES `title` (`handle`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
@@ -302,6 +302,7 @@ CREATE TABLE `title` (
   `timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`handle`),
   KEY `part_of_handle_publisher` (`handle_publisher`),
+  KEY `year_available_timestamp` (`year_available`,`timestamp`),
   FULLTEXT KEY `idx_fulltext_title` (`title`,`title_alternative`),
   FULLTEXT KEY `idx_fulltext_description` (`description_abstract`),
   FULLTEXT KEY `idx_fulltext_partofseries` (`is_part_of_series`),
@@ -310,6 +311,52 @@ CREATE TABLE `title` (
   CONSTRAINT `FK_title__handle_publisher` FOREIGN KEY (`handle_publisher`) REFERENCES `publisher` (`handle`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Temporary view structure for view `title_combined_fields`
+--
+
+DROP TABLE IF EXISTS `title_combined_fields`;
+/*!50001 DROP VIEW IF EXISTS `title_combined_fields`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `title_combined_fields` AS SELECT 
+ 1 AS `handle_title`,
+ 1 AS `publisher`,
+ 1 AS `authors`,
+ 1 AS `editors`,
+ 1 AS `othercontributors`,
+ 1 AS `advisors`,
+ 1 AS `subject_classifications`,
+ 1 AS `collections`,
+ 1 AS `languages`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Dumping events for database 'oapen_library'
+--
+
+--
+-- Dumping routines for database 'oapen_library'
+--
+
+--
+-- Final view structure for view `title_combined_fields`
+--
+
+/*!50001 DROP VIEW IF EXISTS `title_combined_fields`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`trilobiet`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `title_combined_fields` AS select `title`.`handle` AS `handle_title`,`publisher`.`name` AS `publisher`,group_concat(distinct `author`.`name_contributor` separator '; ') AS `authors`,group_concat(distinct `editor`.`name_contributor` separator '; ') AS `editors`,group_concat(distinct `other`.`name_contributor` separator '; ') AS `othercontributors`,group_concat(distinct `advisor`.`name_contributor` separator '; ') AS `advisors`,group_concat(distinct `subject_classification`.`code_classification` separator '; ') AS `subject_classifications`,group_concat(distinct `collection`.`collection` separator '; ') AS `collections`,group_concat(distinct `language`.`language` separator '; ') AS `languages` from ((((((((`title` left join `publisher` on((`title`.`handle_publisher` = `publisher`.`handle`))) left join `contribution` `author` on(((`title`.`handle` = `author`.`handle_title`) and (`author`.`role` = 'author')))) left join `contribution` `editor` on(((`title`.`handle` = `editor`.`handle_title`) and (`editor`.`role` = 'editor')))) left join `contribution` `other` on(((`title`.`handle` = `other`.`handle_title`) and (`editor`.`role` = 'other')))) left join `contribution` `advisor` on(((`title`.`handle` = `advisor`.`handle_title`) and (`advisor`.`role` = 'advisor')))) left join `subject_classification` on((`subject_classification`.`handle_title` = `title`.`handle`))) left join `collection` on((`collection`.`handle_title` = `title`.`handle`))) left join `language` on((`language`.`handle_title` = `title`.`handle`))) group by `title`.`handle` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -320,4 +367,4 @@ CREATE TABLE `title` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-12-16 21:44:03
+-- Dump completed on 2024-11-25 15:29:56

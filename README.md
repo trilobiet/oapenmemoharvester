@@ -2,7 +2,9 @@
 
 ## What is it?
 
-A harvester service that populates the OAPEN MEMO database with data from the OAPEN DSpace XOAI provider.
+A harvester service that populates a local OAPEN Library database with data from the OAPEN DSpace XOAI provider.
+
+See `/dev/db` for the database create script.
 
 ## What does it do?
  
