@@ -25,24 +25,34 @@ Configuration settings must be provided at `/src/main/resources/application.prop
 
 Copy from `/src/main/resources/application.properties.tpl` and provide settings for:
 
-* `spring.datasource.url`
-* `spring.datasource.username`
-* `spring.datasource.password`
-* `app.path.oaipath`
-* `app.url.exports`
-
-Setting `app.url.exports` points to an array of downloadable files on the OAPEN DSpace server, containing the entire OAPEN collection in a number of formats. See below at 'Harvesting pre-processed exports' for an explanation about how this data is handled.
-
-For this setting to point to the 4 formats MARCXML, ONIX, RIS and KBart, it should be:
-
-    {
-      MARCXML:'https://library.oapen.org/download-export?format=marcxml',
-      ONIX:'https://library.oapen.org/download-export?format=onix',
-      RIS:'https://library.oapen.org/download-export?format=ris',
-      KBART:'https://library.oapen.org/download-export?format=tsv'
-    }
+* `spring.datasource.url`   
+   Points to the library database where harvested data is stored
+* `spring.datasource.username`   
+* `spring.datasource.password`   
+* `app.harvest.daysBack`   
+   Harvest until `daysBack` days before the current date. This settings takes into account that DSpace data
+   may have changed, and therefore is included in OAI output, but still needs to be checked and possibly edited by an OAPEN employee. 
+   Using a buffer time  prevents incomplete data to appear in the local library database.
+* `app.path.oaipath`   
+   OAI provider URL 
+* `app.path.app-status`   
+   Path to a properties file where harvesting status is saved (suggested value: `${user.home}/oapenmemo/harvester-state.properties`) 
+* `app.path.exportsdir`   
+   Path to directory where single file exports are downloaded (suggested value: `${user.home}/oapenmemo/downloads`)
+* `app.url.exports`   
+   An array of downloadable files on the OAPEN DSpace server, containing the entire OAPEN collection in a number of formats. See below at 
+   'Harvesting pre-processed exports' for an explanation about how this data is handled.   
     
-*(Indentation and newlines inserted for readability)*    
+   For setting `app.url.exports` to point to the 4 formats MARCXML, ONIX, RIS and KBart, it should read:
+
+        {
+          MARCXML:'https://library.oapen.org/download-export?format=marcxml',
+          ONIX:'https://library.oapen.org/download-export?format=onix',
+          RIS:'https://library.oapen.org/download-export?format=ris',
+          KBART:'https://library.oapen.org/download-export?format=tsv'
+        }
+    
+   *(Indentation and newlines inserted for readability)*    
     
 
 ## How to run it?
