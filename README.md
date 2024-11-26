@@ -9,7 +9,7 @@ See `/dev/db` for the database create script.
 ## What does it do?
  
 1. Read last harvest date;
-2. harvest XOAI since last harvest date;
+2. harvest OAI since last harvest date;
 3. parse records and save to database;
 4. fetch corresponding export chunks and save to database;
 5. Update last harvest date.
@@ -65,7 +65,7 @@ Add an integer argument to override the `app.harvest.daysBack` value as set in t
 
 	./harvester-x.y.z.jar 5
 
-Typically you want to run this as a cronjob (for the corresponding user) once a day:
+Typically you want to run this as a cronjob (for the corresponding Linux user) once a day:
 
     0 1 * * * ~/harvester-x.y.z.jar >/dev/null 2>&1 
 
