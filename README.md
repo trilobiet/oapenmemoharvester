@@ -93,3 +93,9 @@ From there, on daily OAI synchronization where only a limited number of `title` 
 ![Metadata download on oapen.org](./dev/img/metadata-oai.png)    
 *Figure 2. Links to record representations in specific formats are included in OAI records.*
 
+## Orchestrator Activity Diagram
+
+![Metadata download on oapen.org](./dev/img/orchestrator.jpg)    
+*Figure 3. Orchestrator Activity Diagram*
+
+
