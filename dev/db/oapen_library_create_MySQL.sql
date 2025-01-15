@@ -83,7 +83,8 @@ CREATE TABLE `contribution` (
   KEY `FK_contribution__handle_title` (`handle_title`),
   KEY `FK_contribution__name_contributor` (`name_contributor`),
   CONSTRAINT `FK_contribution__handle_title` FOREIGN KEY (`handle_title`) REFERENCES `title` (`handle`) ON DELETE CASCADE,
-  CONSTRAINT `FK_contribution__name_contributor` FOREIGN KEY (`name_contributor`) REFERENCES `contributor` (`name`)
+  CONSTRAINT `FK_contribution__name_contributor` FOREIGN KEY (`name_contributor`) REFERENCES `contributor` (`name`),
+  INDEX `idx_role` (`role` ASC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -184,7 +185,8 @@ CREATE TABLE `identifier` (
   `identifier_type` varchar(10) COLLATE utf8mb4_bin NOT NULL,
   PRIMARY KEY (`identifier`,`handle_title`,`identifier_type`),
   KEY `part_of_handle_title` (`handle_title`),
-  CONSTRAINT `FK_identifier__handle_title` FOREIGN KEY (`handle_title`) REFERENCES `title` (`handle`) ON DELETE CASCADE
+  CONSTRAINT `FK_identifier__handle_title` FOREIGN KEY (`handle_title`) REFERENCES `title` (`handle`) ON DELETE CASCADE,
+  INDEX `idx_type` (`identifier_type` ASC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -248,7 +250,8 @@ CREATE TABLE `subject_classification` (
   PRIMARY KEY (`code_classification`,`handle_title`),
   KEY `FK_subject_classification__handle_title` (`handle_title`),
   CONSTRAINT `FK_subject_classification__code_classification` FOREIGN KEY (`code_classification`) REFERENCES `classification` (`code`),
-  CONSTRAINT `FK_subject_classification__handle_title` FOREIGN KEY (`handle_title`) REFERENCES `title` (`handle`) ON DELETE CASCADE
+  CONSTRAINT `FK_subject_classification__handle_title` FOREIGN KEY (`handle_title`) REFERENCES `title` (`handle`) ON DELETE CASCADE,
+  INDEX `idx_code` (`code_classification` ASC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
