@@ -2,11 +2,9 @@ package org.oapen.memoproject.dataingestion.jpa;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
-import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -25,20 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class JpaReadTests {
 	
 	@Autowired
-	ExportChunkRepository exportChunkRepository;
-	
-	@Autowired
 	TitleRepository titleRepository;
-	
-	@Test
-	public void test_can_find_exportChunks_for_handle() {
-		
-		JpaPersistenceService service = new JpaPersistenceService();
-		service.setExportChunkRepository(exportChunkRepository);
-		List<ExportChunk> lst = service.getExportChunks("20.500.12657/45638");
-		//lst.forEach(System.out::println);
-		assertTrue(lst.size()==4);
-	}
 	
 	@Test
 	public void test_can_find_title_for_handle() {

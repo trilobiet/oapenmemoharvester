@@ -134,30 +134,6 @@ public final class XOAIDocumentParserUtils {
     }
     
     
-	/**
-	 * Parses the export chunks type from a Url String.
-	 * 
-	 * @param url unparsed input
-	 * @return A String denoting the export chunk type: MARCXML, ONIX, RIS, KBART or UNKNOWN
-	 */
-    public final static String exportChunkType(String url) {
-    	
-    	if (url == null)
-    		return "UNKNOWN";
-    	else if (url.endsWith("marc.xml"))
-    		return "MARCXML";
-    	else if (url.endsWith(".xml") && url.contains("onix"))
-    		return "ONIX";
-    	else if (url.endsWith(".ris"))
-    		return "RIS";
-    	else if (url.endsWith(".tsv"))
-    		return "KBART";
-    	else 
-    		return "UNKNOWN"; 
-    	
-    }
-
-    
     /**
      * Parses a year from a String 
      * 

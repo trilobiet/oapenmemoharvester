@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
-import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
@@ -41,9 +40,6 @@ public class JpaPersistenceService implements PersistenceService {
 	
 	@Autowired
 	ClassificationRepository classificationRepository;
-
-	@Autowired
-	ExportChunkRepository exportChunkRepository;
 	
 	
 	private static final Logger logger = 
@@ -130,30 +126,6 @@ public class JpaPersistenceService implements PersistenceService {
 		return r;
 	}
 	
-	
-	@Override
-	public List<ExportChunk> saveExportChunks(Set<ExportChunk> exportChunks) {
-		
-		List<ExportChunk> r = new ArrayList<>();
-		
-		try {
-			r = exportChunkRepository.saveAll(exportChunks);
-		}
-		catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-		
-		return r;
-	}
-	
-
-	@Override
-	public List<ExportChunk> getExportChunks(String handle) {
-		
-		return exportChunkRepository.findByHandleTitle(handle);
-		
-	}
-
 	
 	@Override
 	public void deleteTitle(Title title) {

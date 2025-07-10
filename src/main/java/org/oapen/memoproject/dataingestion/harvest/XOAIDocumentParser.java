@@ -19,7 +19,6 @@ import javax.xml.xpath.XPathFactory;
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
-import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
 import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
@@ -211,7 +210,6 @@ public final class XOAIDocumentParser implements EntitiesSource {
 				
 				title.setClassifications(getClassifications());
 				title.setContributions(getContributions());
-				title.setExportChunks(getExportChunks());
 				title.setFunders(getFunders());
 				title.setGrantData(getGrantData());
 				title.setIdentifiers(getIdentifiers());
@@ -470,28 +468,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		return identifiers;
 	}
 
-	
-	private Set<ExportChunk> getExportChunks() {
-		
-		String path = ".//*[.='EXPORT']/..//element[@name='bitstream']/field[@name='url']";
-		
-		Set<ExportChunk> set = new HashSet<>();
-		
-		getNodeList(path).ifPresent(nodes -> {
-			
-			for (int i=0; i < nodes.getLength(); i++) {
-	        	
-	        	Node node = nodes.item(i);
-	        	String url = StringUtils.trimAllSpace(node.getTextContent());
-	        	ExportChunk member = new ExportChunk(XOAIDocumentParserUtils.exportChunkType(url), url);
-	        	set.add(member);
-	        }
-		});
-		
-		return set;
-	}
 
-	
 	private Set<String> getLanguages() {
 		
 		final String path = ".//element[@name='language']//field[@name='value']";

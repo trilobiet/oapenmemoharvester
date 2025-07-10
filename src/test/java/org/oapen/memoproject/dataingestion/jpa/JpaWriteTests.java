@@ -17,7 +17,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
-import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
 import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
@@ -163,35 +162,8 @@ public class JpaWriteTests {
 		assertTrue(tSaved.getIdentifiers().size()==3);
 		assertTrue(tSaved.getIdentifiers().contains(id2));
 	}
+
 	
-	
-	@Test @Order(6)
-	public void should_save_export_chunks() {
-		
-		Title title1 = new Title("hndl4");
-		title1.setTitle("Whatever");
-		Set<ExportChunk> chunks =  new HashSet<>();
-    	
-    	chunks.add( new ExportChunk("marcxml", "HALLObullublublubblublub") );
-    	chunks.add( new ExportChunk("kbart", "van HALLO je hup falderiedee") );
-    	title1.setExportChunks(chunks);
-    	
-    	Title t1saved = titleRepository.save(title1);
-    	
-		Title title2 = new Title("hndl5");
-		title2.setTitle("Bonkers");
-
-		title2.addExportChunk( new ExportChunk("onix", "HALLOuh23huhjhewuh") );
-		title2.addExportChunk( new ExportChunk("ris", "rrrrrrHALLOrrrrrrrrrr") );
-		title2.addExportChunk( new ExportChunk("marcxml", "xmxlxmxHALLOxxlx") );
-		
-		Title t2saved = titleRepository.save(title2);
-		
-		assertTrue(t1saved.getExportChunks().size()==2);
-		assertTrue(t2saved.getExportChunks().size()==3);
-	}
-
-
 	@Test @Order(7)
 	public void should_share_a_publisher() {
 		

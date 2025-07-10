@@ -2,11 +2,6 @@ package org.oapen.memoproject.dataingestion.jpa.entities;
 
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -14,6 +9,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.eclipse.persistence.oxm.annotations.XmlPath;
 import org.springframework.lang.NonNull;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 

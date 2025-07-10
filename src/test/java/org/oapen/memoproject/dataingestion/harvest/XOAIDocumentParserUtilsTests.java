@@ -139,17 +139,6 @@ public class XOAIDocumentParserUtilsTests {
 	}
 	
 	
-	@Test 
-	void testExportChunkType() {
-		
-		assertTrue(XOAIDocumentParserUtils.exportChunkType("https://path.to/12345.ris").equals("RIS"));
-		assertTrue(XOAIDocumentParserUtils.exportChunkType("https://path.to/12345.tsv").equals("KBART"));
-		assertTrue(XOAIDocumentParserUtils.exportChunkType("https://path.to/12345.onix_3.0.xml").equals("ONIX"));
-		assertTrue(XOAIDocumentParserUtils.exportChunkType("https://path.to/12345.marc.xml").equals("MARCXML"));
-		assertTrue(XOAIDocumentParserUtils.exportChunkType("https://path.to/12345.abc").equals("UNKNOWN"));
-	}
-	
-	
 	@Test
 	void testYearFromString() {
 		

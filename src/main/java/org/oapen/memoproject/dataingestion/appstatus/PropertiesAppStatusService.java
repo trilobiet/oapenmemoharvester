@@ -25,13 +25,9 @@ public class PropertiesAppStatusService implements AppStatus {
 	private final String propertiesFileName; 
 	private final String LAST_HARVEST_DAY = "last_harvest_day";
 	private final String RESUMPTION_TOKEN = "resumption_token";
-	private final String IS_EXPORTCHUNKS_DOWNLOADS_INGESTED = "is_exportchunks_downloads_ingested";
-	private final String LAST_CHUNK_INGESTION_DAY = "last_chunk_ingestion_day";
 	
 	private Optional<String> lastHarvestDay; 
 	private Optional<String> resumptionToken;
-	private Optional<String> isECDownloadsIngested;
-	private Optional<String> lastChunkIngestionDay; 
 	
 	private static final Logger logger = 
 		LoggerFactory.getLogger(PropertiesAppStatusService.class);
@@ -69,22 +65,6 @@ public class PropertiesAppStatusService implements AppStatus {
 		if (resumptionToken.isPresent()) return resumptionToken.get();
 		else return ""; 
 	}
-
-	@Override
-	public boolean isExportChunksDownloadsIngested() {
-
-		isECDownloadsIngested = readValue(IS_EXPORTCHUNKS_DOWNLOADS_INGESTED);
-		if (isECDownloadsIngested.isPresent()) return isECDownloadsIngested.get().equals("true")?true:false;
-		else return false; 
-	}
-
-	@Override
-	public LocalDate getLastChunkIngestionDay() {
-		
-		lastChunkIngestionDay = readValue(LAST_CHUNK_INGESTION_DAY);
-		if (lastChunkIngestionDay.isPresent()) return LocalDate.parse(lastChunkIngestionDay.get());
-		else return LocalDate.ofEpochDay(0); 
-	}
 	
 	@Override
 	public void setLastHarvestDay(LocalDate d) {
@@ -99,21 +79,6 @@ public class PropertiesAppStatusService implements AppStatus {
 		resumptionToken = Optional.of(rst.toString());
 		saveProperties();
 	}
-
-	@Override
-	public void setExportChunksDownloadsIngested(boolean b) {
-		
-		isECDownloadsIngested = Optional.of(b?"true":"false");
-		saveProperties();
-	}
-	
-	@Override
-	public void setLastChunkIngestionDay(LocalDate d) {
-		
-		lastChunkIngestionDay = Optional.of(d.toString());
-		saveProperties();
-	}
-	
 	
 	private void saveProperties() {
 		
@@ -132,16 +97,6 @@ public class PropertiesAppStatusService implements AppStatus {
 		    resumptionToken.ifPresentOrElse( 
 		    	prop -> props.setProperty(RESUMPTION_TOKEN, prop), 
 		    	() -> props.remove(RESUMPTION_TOKEN)
-		    );
-		    
-		    isECDownloadsIngested.ifPresentOrElse( 
-		    	prop -> props.setProperty(IS_EXPORTCHUNKS_DOWNLOADS_INGESTED, prop), 
-		    	() -> props.remove(IS_EXPORTCHUNKS_DOWNLOADS_INGESTED)
-		    );
-		    
-		    lastChunkIngestionDay.ifPresentOrElse(
-		    	prop -> props.setProperty(LAST_CHUNK_INGESTION_DAY, prop),	
-		    	() -> props.remove(LAST_CHUNK_INGESTION_DAY)
 		    );
 		    
 		    p.store(props, out, "OAPEN-MEMO xoai harvester application state");
@@ -191,12 +146,7 @@ public class PropertiesAppStatusService implements AppStatus {
 		return "PropertiesAppStatusService [propertiesFileName=" + propertiesFileName 
 				+ " lastHarvestDay=" + getLastHarvestDay()
 				+ " resumptionToken=" + getResumptionToken()
-				+ " isExportChunksDownloadsIngested=" + isExportChunksDownloadsIngested()
-				+ " lastChunkIngestionDay=" + getLastChunkIngestionDay()
 				+ "]";
 	}
-	
-
-	
 	
 }

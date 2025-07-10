@@ -1,7 +1,7 @@
 package org.oapen.memoproject.dataingestion.jpa.entities;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 import org.oapen.memoproject.util.StringUtils;
 

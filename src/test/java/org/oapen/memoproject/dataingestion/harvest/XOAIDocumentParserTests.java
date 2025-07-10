@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
-import org.oapen.memoproject.dataingestion.jpa.entities.ExportChunk;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
 import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
@@ -345,13 +344,4 @@ public class XOAIDocumentParserTests {
 		assertEquals(1, ids.stream().filter(id -> id.getType().equals("URI")).count());
 	}
 
-	@Test
-	public void should_find_exportChunks() {
-		
-		Set<ExportChunk> chunks = source1.getTitle().get().getExportChunks();
-
-		assertEquals(chunks.size(),4);
-	}
-	
-	
 }

@@ -3,21 +3,20 @@ package org.oapen.memoproject.dataingestion.jpa.entities;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -131,24 +130,6 @@ public class Title {
     	}	
     }
 
-    @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL) // an ExportChunkId!
-    private Set<ExportChunk> exportChunks = new HashSet<>();
-    
-    public void setExportChunks(Set<ExportChunk> values) {
-    	exportChunks.clear();
-    	values.forEach(this::addExportChunk);
-    }
-    
-    public void addExportChunk(ExportChunk chunk) {
-    	
-    	if (chunk != null) {
-    		chunk.setHandleTitle(this.handle);
-    		exportChunks.add(chunk);
-    	}
-    	
-    }
-
-    
     @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<GrantData> grantData = new HashSet<>();
     
@@ -280,7 +261,7 @@ public class Title {
 	public String toString() {
 		return "Title [handle=" + handle + ", publisher:" + (publisher!=null)
 				+ ", identifiers:" + identifiers.size()
-				+ ", exportChunks:" + exportChunks.size() + ", grantdata:" + grantData.size() + ", funders:" + funders.size()
+				+ ", grantdata:" + grantData.size() + ", funders:" + funders.size()
 				+ ", contributions:" + contributions.size() + ", classifications:"
 				+ classifications.size() + "]";
 	}

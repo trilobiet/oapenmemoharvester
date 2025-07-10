@@ -11,8 +11,6 @@ import org.oapen.memoproject.dataingestion.harvest.HarvestException;
 import org.oapen.memoproject.dataingestion.harvest.OAIHarvesterImp;
 import org.oapen.memoproject.dataingestion.harvest.RecordListHandler;
 import org.oapen.memoproject.dataingestion.jpa.PersistenceService;
-import org.oapen.memoproject.dataingestion.metadata.ChunksIngester;
-import org.oapen.memoproject.dataingestion.metadata.IngestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,11 +48,7 @@ public class Orchestrator implements CommandLineRunner {
 	@Autowired
 	PersistenceService persistenceService;
 	
-	@Autowired
-	ChunksIngester chunksIngesterService;
-	
 	public Orchestrator() {}
-
 
 	@Override
 	public void run(String... args) throws MalformedURLException {
@@ -69,7 +63,6 @@ public class Orchestrator implements CommandLineRunner {
 		});
 		
 		List<String> harvestedHandles = new ArrayList<>();
-		List<String> ingestedHandles = new ArrayList<>();
 		
 		// from and until in OAI are inclusive!
 		// http://www.openarchives.org/OAI/openarchivesprotocol.html#Datestamp
@@ -113,35 +106,9 @@ public class Orchestrator implements CommandLineRunner {
 			else 
 				logger.info("Nothing found to harvest");
 			
-			// Now continue with export chunks: first see if the downloaded bulk is ingested
-			if (!status.isExportChunksDownloadsIngested()) {
-				
-				logger.info("Ingesting export chunks from downloaded files");
-				ingestedHandles = ingestChunksFromDownload();
-				
-				status.setExportChunksDownloadsIngested(true);
-			}	
-			// otherwise get the export chunks only for the titles that have just been ingested
-			else if (!harvestedHandles.isEmpty()) {
-				
-				logger.info("Ingesting export chunks from web requests");
-				ingestedHandles = ingestChunksFromHandleList(harvestedHandles);
-			}	
-			
-			if (!ingestedHandles.isEmpty()) {
-				
-				/* Uupdate status file ONLY when chunks have also been ingested succesfully. In case
-				 * they're not we must reharvest to get the handles for the chunks not yet ingested.
-				 */
-				status.setLastHarvestDay(untilDate);
-				status.setResumptionToken("");
-				status.setLastChunkIngestionDay(LocalDate.now()); // also gets set when chunks are coming from downloads
-				
-				logger.info("Ingested export chunks for {} handles (effective number may be lower due to deleted titles).", ingestedHandles.size());
-			}
-			else {
-				logger.info("No export chunks were ingested");
-			}
+			/* Update status */
+			status.setLastHarvestDay(untilDate);
+			status.setResumptionToken("");
 			
 			logger.info("\n======================= Finished Harvest & Ingest Cycle =======================");
 			
@@ -158,38 +125,6 @@ public class Orchestrator implements CommandLineRunner {
 			return handles;
 		} 
 		catch (HarvestException e) { 
-			
-			logger.error(e.getMessage());
-			return new ArrayList<>();
-		}
-	}
-
-
-	private List<String> ingestChunksFromDownload() {
-		
-		try { 
-			
-			List<String> ingestedHandles = chunksIngesterService.ingestAll();
-			logger.info("Ingested export chunks from downloads");
-			return ingestedHandles;
-		} 
-		catch (IngestException e) {
-			
-			logger.error(e.getMessage());
-			return new ArrayList<>();
-		}
-	}
-
-	
-	private List<String> ingestChunksFromHandleList(List<String> handles) {
-		
-		try {
-
-			List<String> ingestedHandles = chunksIngesterService.ingestForHandles(handles);
-			logger.info("Ingested export chunks from web requests");
-			return ingestedHandles;
-		} 
-		catch (IngestException e) {
 			
 			logger.error(e.getMessage());
 			return new ArrayList<>();
