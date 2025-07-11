@@ -1,5 +1,6 @@
 package org.oapen.memoproject.dataingestion.jpa.entities;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -94,6 +95,15 @@ public class Title {
 
     @Column(name = "series_number")
     private String seriesNumber;
+    
+    @Column(name = "date_accessioned")
+    private LocalDate dateAccessioned;
+    
+    @Column(name = "date_available")
+    private LocalDate dateAvailable;
+
+    @Column(name = "year_issued")
+    private Integer yearIssued;
     
     // no need for mapping here as long as the data is inserted we need no object reference
     @Column(name = "part_of_book") 

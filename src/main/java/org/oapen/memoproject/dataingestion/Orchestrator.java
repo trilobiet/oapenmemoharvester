@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.oapen.memoproject.dataingestion.appstatus.AppStatus;
 import org.oapen.memoproject.dataingestion.appstatus.PropertiesAppStatusService;
@@ -72,33 +73,31 @@ public class Orchestrator implements CommandLineRunner {
 		
 		LocalDate untilDate = LocalDate.now().minusDays( daysBackUntil );
 		
+		Optional<String> resumptionToken = status.getResumptionToken() == null 
+			? Optional.empty() 
+			: Optional.of(status.getResumptionToken().trim()); 
+		
 		if ( untilDate.isBefore(fromDate) ) {
 			
 			logger.warn("===> 'until' argument {} days back from now is still before lastHarvestDay+1", daysBackUntil);
 		}
 		else {	
 			
-			if (status.isFullHarvest()) {
-				
-				logger.info("\n=============================== Cleaning DB ===================================");
-				logger.info("\nNo previous harvest date found. This is a full harvest. Starting with a clean database.");
-				persistenceService.deleteAll();
-				logger.info("\nReady cleaning up database.");	
-			}
+			if (status.isFullHarvest()) deleteAllData(); // start with empty DB
 		
 			logger.info("\n======================= Starting Harvest & Ingest Cycle =======================");
 			logger.info(status.toString());
 			logger.info("daysBackUntil = {}", daysBackUntil);
 			
-			/* 
-			 * Start harvesting. Always start from lastHarvestDay, even if there is a resumptionToken
-			 * in the status because of an earlier interrupted harvest. We need the full list of 
-			 * handles to download ALL updated export chunks later on, which may not be available on an
-			 * exceptional condition forcing the whole cycle to stop, but still leaving a ResumptionToken. 
-			 */
-			logger.info("Harvesting from {} until {}", fromDate, untilDate);
-		
-			harvestedHandles = harvestFromlastHarvestDay(fromDate, untilDate);
+			// Start harvesting either from resumptionToken or last harvest day. 
+			if (resumptionToken.isPresent()) {
+				logger.info("Harvesting from resumptionToken {}", resumptionToken.get());
+				harvestedHandles = harvestFromResumptionToken(resumptionToken.get());
+			}
+			else {
+				logger.info("Harvesting from {} until {}", fromDate, untilDate);
+				harvestedHandles = harvestFromlastHarvestDay(fromDate, untilDate);
+			}
 			
 			// at least some handles have been ingested
 			if (!harvestedHandles.isEmpty())  
@@ -111,8 +110,18 @@ public class Orchestrator implements CommandLineRunner {
 			status.setResumptionToken("");
 			
 			logger.info("\n======================= Finished Harvest & Ingest Cycle =======================");
-			
 		}	
+	}
+	
+	
+	private void deleteAllData() {
+		
+		logger.info("\n=============================== Cleaning DB ===================================");
+		logger.info("\nNo previous harvest date found. This is a full harvest. Starting with a clean database.");
+		
+		persistenceService.deleteAll();
+		
+		logger.info("\nReady cleaning up database.");	
 	}
 	
 	
@@ -131,4 +140,20 @@ public class Orchestrator implements CommandLineRunner {
 		}
 	}
 
+	
+	private List<String> harvestFromResumptionToken(String rst) {
+		
+		try { 
+			
+			List<String> handles = harvester.harvest(rst);
+			logger.info("Harvested from resumptionToken {}", rst);
+			return handles;
+		} 
+		catch (HarvestException e) { 
+			
+			logger.error(e.getMessage());
+			return new ArrayList<>();
+		}
+	}
+	
 }

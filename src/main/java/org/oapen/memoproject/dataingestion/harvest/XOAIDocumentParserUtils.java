@@ -126,6 +126,7 @@ public final class XOAIDocumentParserUtils {
 	public final static Optional<LocalDate> parseDate(String d) {
     	
 	     try {
+	    	 // 2024-03-06T14:07:56Z -> 2024-03-06
 	        return Optional.of(LocalDate.parse(d.substring(0,10)));
 	     }
 	     catch(Exception e){

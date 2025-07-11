@@ -1,8 +1,10 @@
 package org.oapen.memoproject.dataingestion.harvest;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +56,76 @@ public final class XOAIDocumentParser implements EntitiesSource {
 			LoggerFactory.getLogger(XOAIDocumentParser.class);
 	
 	
+	
+	@Override
+	/**
+	 * Extract Optional Title (0..1) from this document. Optional, because theoretically
+	 * a handle could be unfindable or unparsable.  
+	 */
+	public Optional<Title> getTitle() {
+	
+		Optional<Title> r = Optional.empty();
+
+		Optional<String> handle = getHandle();
+		Optional<String> status = getStatus();
+		
+		if (handle.isPresent()) {
+		
+			Title title = new Title(getHandle().get());
+			
+			// Skip all fields except status for elements that have status "deleted" 
+			if (status.isPresent() && status.get().equals("deleted")) {
+				
+				title.setStatus("deleted");
+			}	
+			else {	
+				
+				getAbstractOtherLanguage().ifPresent(title::setAbstractOtherLanguage);
+				getChapterNumber().ifPresent(title::setChapterNumber);
+				//getCollection().ifPresent(title::setCollection);
+				getYearAvailable().ifPresent(title::setYearAvailable);
+				getDescriptionAbstract().ifPresent(title::setDescriptionAbstract);
+				getDescriptionOtherLanguage().ifPresent(title::setDescriptionOtherLanguage);
+				getDownloadUrl().ifPresent(title::setDownloadUrl);
+				getImprint().ifPresent(title::setImprint);
+				getLicense().ifPresent(title::setLicense);
+				getPages().ifPresent(title::setPages);
+				getPartOfBook().ifPresent(title::setPartOfBook);
+				getPartOfSeries().ifPresent(title::setPartOfSeries);
+				getPlacePublication().ifPresent(title::setPlacePublication);
+				getSeriesNumber().ifPresent(title::setSeriesNumber);
+				getSysId().ifPresent(title::setSysId);
+				getTermsAbstract().ifPresent(title::setTermsAbstract);
+				getThumbnail().ifPresent(title::setThumbnail);
+				getTitleTitle().ifPresent(title::setTitle);
+				getTitleAlternative().ifPresent(title::setTitleAlternative);
+				getType().ifPresent(title::setType);
+				getWebshopUrl().ifPresent(title::setWebshopUrl);
+				
+				getPublisher().ifPresent(title::setPublisher);
+				getYearAvailable().ifPresent(title::setYearAvailable);
+				
+				getAccessionedDate().ifPresent(title::setDateAccessioned);
+				getAvailableDate().ifPresent(title::setDateAvailable);
+				getIssuedYear().ifPresent(title::setYearIssued);
+				
+				title.setClassifications(getClassifications());
+				title.setContributions(getContributions());
+				title.setFunders(getFunders());
+				title.setGrantData(getGrantData());
+				title.setIdentifiers(getIdentifiers());
+				title.setLanguages(getLanguages());
+				title.setSubjectsOther(getSubjectsOther());
+				title.setCollections(getCollections());
+			}	
+			
+			r = Optional.of(title);
+		}	
+		
+		return r;
+	}
+	
+	
 	@Override
 	/**
 	 * Extract Set of Classifications (0..n) from this document 
@@ -99,7 +171,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 
 		return contributors;
 	}
-		
+	
 	
 	@Override
 	/**
@@ -159,71 +231,6 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		return p;
 	}
 	
-	
-	@Override
-	/**
-	 * Extract Optional Title (0..1) from this document. Optional, because theoretically
-	 * a handle could not be unfindable or unparsable.  
-	 */
-	public Optional<Title> getTitle() {
-	
-		Optional<Title> r = Optional.empty();
-
-		Optional<String> handle = getHandle();
-		Optional<String> status = getStatus();
-		
-		if (handle.isPresent()) {
-		
-			Title title = new Title(getHandle().get());
-			
-			// Skip all fields except status for elements that have status "deleted" 
-			if (status.isPresent() && status.get().equals("deleted")) {
-				
-				title.setStatus("deleted");
-			}	
-			else {	
-				
-				getAbstractOtherLanguage().ifPresent(title::setAbstractOtherLanguage);
-				getChapterNumber().ifPresent(title::setChapterNumber);
-				//getCollection().ifPresent(title::setCollection);
-				getYearAvailable().ifPresent(title::setYearAvailable);
-				getDescriptionAbstract().ifPresent(title::setDescriptionAbstract);
-				getDescriptionOtherLanguage().ifPresent(title::setDescriptionOtherLanguage);
-				getDownloadUrl().ifPresent(title::setDownloadUrl);
-				getImprint().ifPresent(title::setImprint);
-				getLicense().ifPresent(title::setLicense);
-				getPages().ifPresent(title::setPages);
-				getPartOfBook().ifPresent(title::setPartOfBook);
-				getPartOfSeries().ifPresent(title::setPartOfSeries);
-				getPlacePublication().ifPresent(title::setPlacePublication);
-				getSeriesNumber().ifPresent(title::setSeriesNumber);
-				getSysId().ifPresent(title::setSysId);
-				getTermsAbstract().ifPresent(title::setTermsAbstract);
-				getThumbnail().ifPresent(title::setThumbnail);
-				getTitleTitle().ifPresent(title::setTitle);
-				getTitleAlternative().ifPresent(title::setTitleAlternative);
-				getType().ifPresent(title::setType);
-				getWebshopUrl().ifPresent(title::setWebshopUrl);
-				
-				getPublisher().ifPresent(title::setPublisher);
-				getYearAvailable().ifPresent(title::setYearAvailable);
-				
-				title.setClassifications(getClassifications());
-				title.setContributions(getContributions());
-				title.setFunders(getFunders());
-				title.setGrantData(getGrantData());
-				title.setIdentifiers(getIdentifiers());
-				title.setLanguages(getLanguages());
-				title.setSubjectsOther(getSubjectsOther());
-				title.setCollections(getCollections());
-			}	
-			
-			r = Optional.of(title);
-		}	
-		
-		return r;
-	}
-		
 	
 	private Optional<Node> getNode(String xpathQuery) {
 		
@@ -667,4 +674,45 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		return getTextValue(path);
 	}
 
+	
+	private Optional<LocalDate> getAvailableDate() {
+		
+		// See also getYearAvailable()
+		final String pathDateAvailable = ".//element[@name='dc']/element[@name='date']/element[@name='available']//field[@name='value']";
+		
+		Optional<String> q = getTextValue(pathDateAvailable);
+		
+		if (!q.isEmpty()) return XOAIDocumentParserUtils.parseDate(q.get());
+		else return Optional.empty();
+	}
+	
+	
+	private Optional<LocalDate> getAccessionedDate() {
+		
+		// See also getYearAvailable()
+		final String pathDateAccessioned = ".//element[@name='dc']/element[@name='date']/element[@name='accessioned']//field[@name='value']";
+
+		Set<String> dateStrings = getTextValueSet(pathDateAccessioned); // Can have multiple occurrences
+				
+		return dateStrings.stream()
+			.map(XOAIDocumentParserUtils::parseDate)
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			// We only want the first (oldest) date
+			.min(Comparator.naturalOrder());
+	}
+	
+
+	private Optional<Integer> getIssuedYear() {
+		
+		// See also getYearAvailable()
+		final String pathDateIssued = ".//element[@name='dc']/element[@name='date']/element[@name='issued']//field[@name='value']";
+
+		Optional<String> q = getTextValue(pathDateIssued);
+		
+		if (!q.isEmpty()) return XOAIDocumentParserUtils.yearFromString(q.get());
+		else return Optional.empty();
+	}
+	
+	
 }

@@ -103,24 +103,6 @@ CREATE TABLE `contributor` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `export_chunk`
---
-
-DROP TABLE IF EXISTS `export_chunk`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `export_chunk` (
-  `type` varchar(10) COLLATE utf8mb4_bin NOT NULL,
-  `handle_title` varchar(25) COLLATE utf8mb4_bin NOT NULL,
-  `content` mediumtext COLLATE utf8mb4_bin,
-  `url` text COLLATE utf8mb4_bin,
-  `timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`type`,`handle_title`),
-  KEY `FK_export_chunk__handle_title` (`handle_title`),
-  CONSTRAINT `FK_export_chunk__handle_title` FOREIGN KEY (`handle_title`) REFERENCES `title` (`handle`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `funder`
@@ -302,6 +284,9 @@ CREATE TABLE `title` (
   `pages` text COLLATE utf8mb4_bin,
   `place_publication` text COLLATE utf8mb4_bin,
   `series_number` text COLLATE utf8mb4_bin,
+  `date_accessioned` DATE NULL DEFAULT NULL,
+  `date_available` DATE NULL DEFAULT NULL,
+  `year_issued` int DEFAULT NULL,
   `timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`handle`),
   KEY `part_of_handle_publisher` (`handle_publisher`),

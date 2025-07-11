@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -344,4 +345,31 @@ public class XOAIDocumentParserTests {
 		assertEquals(1, ids.stream().filter(id -> id.getType().equals("URI")).count());
 	}
 
+	
+	@Test
+	public void should_find_availableDate() {
+		
+		Title title = source1.getTitle().get();
+		
+		assertEquals(LocalDate.of(2023,1,20), title.getDateAvailable());
+	}	
+	
+
+	@Test
+	public void should_find_issuedYear() {
+		
+		Title title = source1.getTitle().get();
+		
+		assertEquals(2023, title.getYearIssued());
+	}	
+	
+	
+	@Test
+	public void should_find_accessionedDate() {
+		
+		Title title = source1.getTitle().get();
+		
+		assertEquals(LocalDate.of(2010,12,31), title.getDateAccessioned());
+	}	
+	
 }
