@@ -54,8 +54,16 @@ public class PropertiesAppStatusService implements AppStatus {
 	public boolean isFullHarvest() {
 		
 		lastHarvestDay = readValue(LAST_HARVEST_DAY);
-		if (lastHarvestDay.isPresent()) return false;
-		else return true; 
+		resumptionToken = readValue(RESUMPTION_TOKEN);
+		
+		if (
+			lastHarvestDay.isPresent() 
+			|| 
+			(resumptionToken.isPresent() && !resumptionToken.get().isBlank())
+		) 
+			return false;
+		else 
+			return true; 
 	}
 
 	@Override

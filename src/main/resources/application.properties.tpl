@@ -16,8 +16,6 @@ app.harvest.daysBack = 7
 
 app.path.oaipath=https://library.oapen.org/oai/request
 app.path.app-status=${user.home}/oapenmemo/harvester-state.properties
-app.path.exportsdir=${user.home}/oapenmemo/downloads
-app.url.exports={MARCXML:'https://library.oapen.org/download-export?format=marcxml',ONIX:'https://library.oapen.org/download-export?format=onix',RIS:'https://library.oapen.org/download-export?format=ris',KBART:'https://library.oapen.org/download-export?format=tsv'}
 
 dbwritetests.enabled=FALSE
 dbreadtests.enabled=FALSE

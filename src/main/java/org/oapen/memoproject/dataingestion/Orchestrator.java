@@ -69,6 +69,9 @@ public class Orchestrator implements CommandLineRunner {
 		// http://www.openarchives.org/OAI/openarchivesprotocol.html#Datestamp
 		LocalDate fromDate = status.getLastHarvestDay().plusDays(1);
 		
+		System.out.println(propFileName);
+		System.out.println("FROM " + fromDate);
+		
 		daysBackUntil = args.length > 0? Integer.parseInt(args[0]): daysBackUntil;
 		
 		LocalDate untilDate = LocalDate.now().minusDays( daysBackUntil );
@@ -83,14 +86,22 @@ public class Orchestrator implements CommandLineRunner {
 		}
 		else {	
 			
-			if (status.isFullHarvest()) deleteAllData(); // start with empty DB
+			if (status.isFullHarvest()) {
+				
+				logger.info("\n=============================== Cleaning DB ===================================");
+				logger.info("\nNo previous harvest date found. This is a full harvest. Starting with a clean database.");
+				
+				persistenceService.deleteAll();
+				
+				logger.info("\nReady cleaning up database.");	
+			}
 		
 			logger.info("\n======================= Starting Harvest & Ingest Cycle =======================");
 			logger.info(status.toString());
 			logger.info("daysBackUntil = {}", daysBackUntil);
 			
 			// Start harvesting either from resumptionToken or last harvest day. 
-			if (resumptionToken.isPresent()) {
+			if (resumptionToken.isPresent() && !resumptionToken.get().isBlank()) {
 				logger.info("Harvesting from resumptionToken {}", resumptionToken.get());
 				harvestedHandles = harvestFromResumptionToken(resumptionToken.get());
 			}
@@ -112,18 +123,6 @@ public class Orchestrator implements CommandLineRunner {
 			logger.info("\n======================= Finished Harvest & Ingest Cycle =======================");
 		}	
 	}
-	
-	
-	private void deleteAllData() {
-		
-		logger.info("\n=============================== Cleaning DB ===================================");
-		logger.info("\nNo previous harvest date found. This is a full harvest. Starting with a clean database.");
-		
-		persistenceService.deleteAll();
-		
-		logger.info("\nReady cleaning up database.");	
-	}
-	
 	
 	private List<String> harvestFromlastHarvestDay(LocalDate fromDate, LocalDate untilDate) {
 	

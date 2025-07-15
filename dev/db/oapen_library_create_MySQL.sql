@@ -1,8 +1,7 @@
-CREATE DATABASE  IF NOT EXISTS `oapen_library` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `oapen_library`;
+CREATE DATABASE  IF NOT EXISTS `[name]_library` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `[name]_library`;
 -- MySQL dump 10.13  Distrib 8.0.40, for Linux (x86_64)
 --
--- Host: 104.248.34.253    Database: oapen_library
 -- ------------------------------------------------------
 -- Server version	8.0.40-0ubuntu0.20.04.1
 
@@ -162,7 +161,7 @@ DROP TABLE IF EXISTS `identifier`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `identifier` (
-  `identifier` varchar(100) COLLATE utf8mb4_bin NOT NULL,
+  `identifier` varchar(255) COLLATE utf8mb4_bin NOT NULL,
   `handle_title` varchar(25) COLLATE utf8mb4_bin NOT NULL,
   `identifier_type` varchar(10) COLLATE utf8mb4_bin NOT NULL,
   PRIMARY KEY (`identifier`,`handle_title`,`identifier_type`),
