@@ -1,6 +1,8 @@
 package org.oapen.memoproject.dataingestion.harvest;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -20,9 +22,9 @@ public final class ListRecordsURLComposer  {
 	
 	private final URL url;
 	
-	public ListRecordsURLComposer(String urlPath) throws MalformedURLException {
+	public ListRecordsURLComposer(String urlPath) throws MalformedURLException, URISyntaxException {
 
-		this.url = new URL(urlPath);
+		this.url = new URI(urlPath).toURL();
 	}
 	
 	public URL getUrl() {
@@ -33,9 +35,8 @@ public final class ListRecordsURLComposer  {
 		sb.append("?verb=ListRecords&metadataPrefix=xoai");
 
 		try {
-			return new URL(sb.toString());
-		} catch (MalformedURLException e) {
-			// this will never happen since we tested the URL already in the constructor
+			return new URI(sb.toString()).toURL();
+		} catch (MalformedURLException | URISyntaxException e) {
 			return null;
 		}
 	}
@@ -51,9 +52,8 @@ public final class ListRecordsURLComposer  {
 		sb.append(fromDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
 
 		try {
-			return new URL(sb.toString());
-		} catch (MalformedURLException e) {
-			// this will never happen since we tested the URL already in the constructor
+			return new URI(sb.toString()).toURL();
+		} catch (MalformedURLException | URISyntaxException e) {
 			return null;
 		}
 	}
@@ -73,9 +73,8 @@ public final class ListRecordsURLComposer  {
 		sb.append(untilDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
 		
 		try {
-			return new URL(sb.toString());
-		} catch (MalformedURLException e) {
-			// this will never happen since we tested the URL already in the constructor
+			return new URI(sb.toString()).toURL();
+		} catch (MalformedURLException | URISyntaxException e) {
 			return null;
 		}
 	}
@@ -90,9 +89,8 @@ public final class ListRecordsURLComposer  {
 		sb.append(rst.token);
 		
 		try {
-			return new URL(sb.toString());
-		} catch (MalformedURLException e) {
-			// this will never happen since we tested the URL already in the constructor
+			return new URI(sb.toString()).toURL();
+		} catch (MalformedURLException | URISyntaxException e) {
 			return null;
 		}
 	}	

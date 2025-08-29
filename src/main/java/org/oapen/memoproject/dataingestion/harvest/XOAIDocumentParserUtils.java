@@ -16,7 +16,7 @@ import org.oapen.memoproject.util.StringUtils;
  * @author acdhirr
  *
  */
-public final class XOAIDocumentParserUtils {
+public class XOAIDocumentParserUtils {
 		
 	private final static String SPLIT_CHARS = "[,;:/|]|--";
 	
@@ -141,7 +141,7 @@ public final class XOAIDocumentParserUtils {
      * @param s unparsed input
      * @return an Optional Integer containing a year when successfully parsed, else empty.
      */
-    public static Optional<Integer> yearFromString(String s) {
+    public final static Optional<Integer> yearFromString(String s) {
     	
     	Optional<Integer> r = Optional.empty();
     	
@@ -160,7 +160,7 @@ public final class XOAIDocumentParserUtils {
      * @param s unparsed input
      * @return an Optional String containing a handle when successfully parsed, else empty.
      */
-    public static Optional<String> extractHandleFromIdentifier(String s) {
+    public final static Optional<String> extractHandleFromIdentifier(String s) {
     	
     	Optional<String> handle = Optional.empty();
     	

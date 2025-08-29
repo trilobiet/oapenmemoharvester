@@ -14,6 +14,8 @@ spring.datasource.password=*************
 # harvesting until days before now
 app.harvest.daysBack = 7
 
+# pick the right parser 
+app.domain=doabooks 
 app.path.oaipath=https://library.oapen.org/oai/request
 app.path.app-status=${user.home}/oapenmemo/harvester-state.properties
 

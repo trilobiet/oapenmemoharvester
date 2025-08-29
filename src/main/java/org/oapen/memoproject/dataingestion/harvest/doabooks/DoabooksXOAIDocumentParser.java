@@ -1,4 +1,4 @@
-package org.oapen.memoproject.dataingestion.harvest;
+package org.oapen.memoproject.dataingestion.harvest.doabooks;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,12 +18,14 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.oapen.memoproject.dataingestion.harvest.EntitiesSource;
 import org.oapen.memoproject.dataingestion.jpa.entities.Classification;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contribution;
 import org.oapen.memoproject.dataingestion.jpa.entities.Contributor;
 import org.oapen.memoproject.dataingestion.jpa.entities.Funder;
 import org.oapen.memoproject.dataingestion.jpa.entities.GrantData;
 import org.oapen.memoproject.dataingestion.jpa.entities.Identifier;
+import org.oapen.memoproject.dataingestion.jpa.entities.PeerReview;
 import org.oapen.memoproject.dataingestion.jpa.entities.Publisher;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.oapen.memoproject.util.StringUtils;
@@ -40,20 +42,21 @@ import org.w3c.dom.NodeList;
  * @author acdhirr
  *
  */
-public final class XOAIDocumentParser implements EntitiesSource {
+public final class DoabooksXOAIDocumentParser implements EntitiesSource {
 	
 	private final Element element;
 	private final XPath xpath;
 
 	
-	public XOAIDocumentParser(Element element) {
+	public DoabooksXOAIDocumentParser(Element element) {
 		
 		this.element = element;
 		xpath = XPathFactory.newInstance().newXPath();
+		// System.out.print(element.getNodeName() + " " + getHandle() + " ");
 	}
 	
 	private static final Logger logger = 
-			LoggerFactory.getLogger(XOAIDocumentParser.class);
+			LoggerFactory.getLogger(DoabooksXOAIDocumentParser.class);
 	
 	
 	
@@ -82,11 +85,9 @@ public final class XOAIDocumentParser implements EntitiesSource {
 				
 				getAbstractOtherLanguage().ifPresent(title::setAbstractOtherLanguage);
 				getChapterNumber().ifPresent(title::setChapterNumber);
-				//getCollection().ifPresent(title::setCollection);
 				getYearAvailable().ifPresent(title::setYearAvailable);
 				getDescriptionAbstract().ifPresent(title::setDescriptionAbstract);
 				getDescriptionOtherLanguage().ifPresent(title::setDescriptionOtherLanguage);
-				getDownloadUrl().ifPresent(title::setDownloadUrl);
 				getImprint().ifPresent(title::setImprint);
 				getLicense().ifPresent(title::setLicense);
 				getPages().ifPresent(title::setPages);
@@ -108,7 +109,9 @@ public final class XOAIDocumentParser implements EntitiesSource {
 				getAccessionedDate().ifPresent(title::setDateAccessioned);
 				getAvailableDate().ifPresent(title::setDateAvailable);
 				getIssuedYear().ifPresent(title::setYearIssued);
-				
+
+				title.setPeerReviews(getPeerReviews());
+				title.setDownloadUrl(getDownloadUrls());
 				title.setClassifications(getClassifications());
 				title.setContributions(getContributions());
 				title.setFunders(getFunders());
@@ -144,7 +147,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 					StringUtils.trimAllSpace(nodes.item(i).getTextContent())
 				);
 			
-			classifications.addAll(XOAIDocumentParserUtils.parseClassifications(lines));
+			classifications.addAll(DoabooksXOAIDocumentParserUtils.parseClassifications(lines));
 		}); 
 		
 		return classifications;
@@ -229,6 +232,36 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		}
 		
 		return p;
+	}
+	
+
+	@Override
+	/**
+	 * Extract PeerReviews (0..1) from this document 
+	 */
+	public Set<PeerReview> getPeerReviews() {
+		
+		final String path = ".//element[@name='peerreview']";
+		Set<PeerReview> peerreviews = new HashSet<>();
+		
+		getNodeList(path).ifPresent(nodes -> {
+		
+			try {
+				JAXBContext jaxbContext = JAXBContext.newInstance(PeerReview.class);
+				Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+				
+				for (int i=0; i < nodes.getLength(); i++) {
+		        	
+		        	Node node = nodes.item(i);
+		        	PeerReview peerReview = (PeerReview) unmarshaller.unmarshal(node);
+		        	if (peerReview.isComplete()) peerreviews.add(peerReview);
+		        }
+			} catch (JAXBException e) {
+				logger.error("Could not unmarshall peerreview(s). " + e.getMessage());
+			}
+		});
+		
+		return peerreviews;
 	}
 	
 	
@@ -432,29 +465,29 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		getNodeList(pathOCN1).stream().forEach(nodes -> {
 			Set<String> ocns = getTextValueSet(pathOCN1);
 			usedIds.addAll(ocns);
-			ocns.forEach(ocn -> identifiers.add(new Identifier(XOAIDocumentParserUtils.parseOCN(ocn),"OCN")));
+			ocns.forEach(ocn -> identifiers.add(new Identifier(DoabooksXOAIDocumentParserUtils.parseOCN(ocn),"OCN")));
 		});
 		
 		getNodeList(pathOCN2).stream().forEach(nodes -> {
 			Set<String> ocns = getTextValueSet(pathOCN2);
 			usedIds.addAll(ocns);
-			ocns.forEach(ocn -> identifiers.add(new Identifier(XOAIDocumentParserUtils.parseOCN(ocn),"OCN")));
+			ocns.forEach(ocn -> identifiers.add(new Identifier(DoabooksXOAIDocumentParserUtils.parseOCN(ocn),"OCN")));
 		});
 
 		getNodeList(pathISBN1).stream().forEach(nodes -> {
-			Set<String> isbns = XOAIDocumentParserUtils.parseISBNOrISSN(getTextValueSet(pathISBN1));
+			Set<String> isbns = DoabooksXOAIDocumentParserUtils.parseISBNOrISSN(getTextValueSet(pathISBN1));
 			usedIds.addAll(isbns);
 			isbns.forEach(isbn -> identifiers.add(new Identifier(isbn,"ISBN")));
 		});
 		
 		getNodeList(pathISBN2).stream().forEach(nodes -> {
-			Set<String> isbns = XOAIDocumentParserUtils.parseISBNOrISSN(getTextValueSet(pathISBN2));
+			Set<String> isbns = DoabooksXOAIDocumentParserUtils.parseISBNOrISSN(getTextValueSet(pathISBN2));
 			usedIds.addAll(isbns);
 			isbns.forEach(isbn -> identifiers.add(new Identifier(isbn,"ISBN")));
 		});
 
 		getNodeList(pathISSN).stream().forEach(nodes -> {
-			Set<String> issns = XOAIDocumentParserUtils.parseISBNOrISSN(getTextValueSet(pathISSN));
+			Set<String> issns = DoabooksXOAIDocumentParserUtils.parseISBNOrISSN(getTextValueSet(pathISSN));
 			usedIds.addAll(issns);
 			issns.forEach(issn -> identifiers.add(new Identifier(issn,"ISSN")));
 		});
@@ -479,7 +512,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 	private Set<String> getLanguages() {
 		
 		final String path = ".//element[@name='language']//field[@name='value']";
-		return XOAIDocumentParserUtils.parseLanguages(getTextValueSet(path));
+		return DoabooksXOAIDocumentParserUtils.parseLanguages(getTextValueSet(path));
 	}
 
 
@@ -496,7 +529,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		
 		Set<String> q = getTextValueSet(path);
 		
-		if (!q.isEmpty()) return XOAIDocumentParserUtils.parseSubjects(q);
+		if (!q.isEmpty()) return DoabooksXOAIDocumentParserUtils.parseSubjects(q);
 		else return q;
 	}
 
@@ -516,7 +549,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 				
 				for (int i=0; i < nodes.getLength(); i++) {
 					String datetext = StringUtils.trimAllSpace(nodes.item(i).getTextContent()); 
-					XOAIDocumentParserUtils.yearFromString(datetext).ifPresent(years::add);
+					DoabooksXOAIDocumentParserUtils.yearFromString(datetext).ifPresent(years::add);
 				}	
 			});
 		}
@@ -538,7 +571,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		
 		final String path = "./header/identifier";
 		// Monadish isn't it?
-		return getTextValue(path).flatMap(n -> XOAIDocumentParserUtils.extractHandleFromIdentifier(n));
+		return getTextValue(path).flatMap(n -> DoabooksXOAIDocumentParserUtils.extractHandleFromIdentifier(n));
 	}
 
 	
@@ -549,10 +582,11 @@ public final class XOAIDocumentParser implements EntitiesSource {
 	}
 
 	
-	private Optional<String> getDownloadUrl() {
-		
-		final String path = ".//*[.='ORIGINAL']/..//element[@name='bitstream']/field[@name='url']";
-		return getTextValue(path);
+	private Set<String> getDownloadUrls() {
+
+		// Can be multiple (unique) values	
+		final String path = ".//field[@name='oapenidentifierdownloadUrl']";
+		return getTextValueSet(path);
 	}
 
 	
@@ -682,7 +716,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		
 		Optional<String> q = getTextValue(pathDateAvailable);
 		
-		if (!q.isEmpty()) return XOAIDocumentParserUtils.parseDate(q.get());
+		if (!q.isEmpty()) return DoabooksXOAIDocumentParserUtils.parseDate(q.get());
 		else return Optional.empty();
 	}
 	
@@ -695,7 +729,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 		Set<String> dateStrings = getTextValueSet(pathDateAccessioned); // Can have multiple occurrences
 				
 		return dateStrings.stream()
-			.map(XOAIDocumentParserUtils::parseDate)
+			.map(DoabooksXOAIDocumentParserUtils::parseDate)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			// We only want the first (oldest) date
@@ -710,7 +744,7 @@ public final class XOAIDocumentParser implements EntitiesSource {
 
 		Optional<String> q = getTextValue(pathDateIssued);
 		
-		if (!q.isEmpty()) return XOAIDocumentParserUtils.yearFromString(q.get());
+		if (!q.isEmpty()) return DoabooksXOAIDocumentParserUtils.yearFromString(q.get());
 		else return Optional.empty();
 	}
 	

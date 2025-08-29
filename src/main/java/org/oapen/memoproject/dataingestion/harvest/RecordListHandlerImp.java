@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.oapen.memoproject.config.Domain;
+import org.oapen.memoproject.dataingestion.harvest.doabooks.DoabooksXOAIDocumentParser;
+import org.oapen.memoproject.dataingestion.harvest.oapen.OapenXOAIDocumentParser;
 import org.oapen.memoproject.dataingestion.jpa.PersistenceService;
 import org.oapen.memoproject.dataingestion.jpa.entities.Title;
 import org.slf4j.Logger;
@@ -21,13 +24,28 @@ import org.w3c.dom.Element;
 public final class RecordListHandlerImp implements RecordListHandler {
 	
 	private final PersistenceService perservice;
+	private final Domain domain;
 	
-	public RecordListHandlerImp(PersistenceService perservice) {
+	public RecordListHandlerImp(PersistenceService perservice, Domain domain) {
 		this.perservice = perservice;
+		this.domain = domain;
 	}
 
 	private static final Logger logger = 
 		LoggerFactory.getLogger(RecordListHandlerImp.class);
+	
+	
+	// Get the document parser for this domain (OAPEN, DOABOOKS)
+	protected EntitiesSource getDocumentParser(Element el) {
+		
+		switch(domain) {
+			case Domain.DOABOOKS: 
+				return new DoabooksXOAIDocumentParser(el);
+			case Domain.OAPEN:
+			default: 
+				return new OapenXOAIDocumentParser(el);
+		}
+	}
 	
 	
 	/**
@@ -41,7 +59,7 @@ public final class RecordListHandlerImp implements RecordListHandler {
 		
 		elements.forEach(el -> { 
 			
-			EntitiesSource m = new XOAIDocumentParser(el);
+			EntitiesSource m = getDocumentParser(el);
 			
 			Optional<Title> title = m.getTitle();
 			

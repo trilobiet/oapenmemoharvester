@@ -204,6 +204,30 @@ CREATE TABLE `language` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `peerreview`
+--
+
+DROP TABLE IF EXISTS `peerreview`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `peerreview` (
+  `id` char(36) COLLATE utf8mb4_bin NOT NULL,
+  `handle_title` varchar(25) COLLATE utf8mb4_bin NOT NULL,
+  `title` VARCHAR(255) COLLATE utf8mb4_bin DEFAULT NULL,
+  `anonymity` varchar(100) COLLATE utf8mb4_bin DEFAULT NULL,
+  `is_open_review` tinyint(1) DEFAULT NULL,
+  `responsibilities` text COLLATE utf8mb4_bin,
+  `stage` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
+  `type` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
+  `reviewer_type` text COLLATE utf8mb4_bin,
+  `comments` text COLLATE utf8mb4_bin,
+  PRIMARY KEY (`id`),
+  KEY `handle_title` (`handle_title`),
+  CONSTRAINT `FK_peerreview__handle_title` FOREIGN KEY (`handle_title`) REFERENCES `title` (`handle`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `publisher`
 --
 

@@ -19,7 +19,10 @@ public class AppConfig {
 	
 	@Bean
 	RecordListHandler getRecordlistHandler() {
-		return new RecordListHandlerImp(getPersistenceService());
+		
+		// OAPEN or DOABOOKS, default OAPEN
+		Domain domain = env.getProperty("app.domain", Domain.class, Domain.OAPEN);
+		return new RecordListHandlerImp(getPersistenceService(), domain);
 	}
 	
 	@Bean

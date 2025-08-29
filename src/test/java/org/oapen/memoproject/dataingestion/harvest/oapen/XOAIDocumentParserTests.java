@@ -1,4 +1,4 @@
-package org.oapen.memoproject.dataingestion.harvest;
+package org.oapen.memoproject.dataingestion.harvest.oapen;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,8 +37,8 @@ public class XOAIDocumentParserTests {
 	private final String xmlrecord1 = TestConstants.xmlrecord1;
 	private final String xmlrecordDelete = TestConstants.xmlrecordDelete;
 	
-	private XOAIDocumentParser source1;
-	private XOAIDocumentParser sourceDelete;
+	private OapenXOAIDocumentParser source1;
+	private OapenXOAIDocumentParser sourceDelete;
 
 	
 	@BeforeEach
@@ -51,12 +51,12 @@ public class XOAIDocumentParserTests {
 		Document doc1 = db.parse(new InputSource( new StringReader( xmlrecord1 ) ));
 		Element el1 = (Element) doc1.getElementsByTagName("record").item(0);
 		
-		source1 = new XOAIDocumentParser(el1);
+		source1 = new OapenXOAIDocumentParser(el1);
 		
 		Document doc2 = db.parse(new InputSource( new StringReader( xmlrecordDelete ) ));
 		Element el2 = (Element) doc2.getElementsByTagName("record").item(0);
 		
-		sourceDelete = new XOAIDocumentParser(el2);
+		sourceDelete = new OapenXOAIDocumentParser(el2);
 	}	
 	
 
@@ -99,9 +99,17 @@ public class XOAIDocumentParserTests {
 	}
 
 	@Test
-	public void should_find_downloadUrl() {
+	public void should_find_downloadUrls() {
 
-		assertEquals("https://library.oapen.org/bitstream/20.500.12657/60840/1/978-981-19-5170-1.pdf", source1.getTitle().get().getDownloadUrl());
+		Set<String> expectedDownloadUrls = new HashSet<>(
+			Arrays.asList(
+				"https://library.oapen.org/bitstream/20.500.12657/60840/1/978-981-19-5170-1.pdf",
+				"https://library.oapen.org/bitstream/20.500.12657/57773/14/9780943184210.epub"
+			)	
+		);
+		Set<String> foundDownloadUrls = source1.getTitle().get().getDownloadUrl();
+		
+		assertTrue(foundDownloadUrls.containsAll(expectedDownloadUrls));
 	}
 	
 	@Test
@@ -211,8 +219,6 @@ public class XOAIDocumentParserTests {
 
 		assertEquals("20.500.12657/48278", source1.getTitle().get().getPartOfBook());
 	}
-	
-	
 	
 	@Test
 	public void should_find_publisher() {

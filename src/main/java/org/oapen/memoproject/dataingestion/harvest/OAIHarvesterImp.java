@@ -3,6 +3,7 @@ package org.oapen.memoproject.dataingestion.harvest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.time.LocalDate;
@@ -25,16 +26,30 @@ public final class OAIHarvesterImp implements OAIHarvester {
 	private final RecordListHandler handler;
 	private final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 	private Consumer<ResumptionToken> rstHandler;
+	private int delay = 1000;
 
 	/**
 	 * @param path OAI path without query string, e.g. <em>https://library.oapen.org/oai/request</em>
+	 * @throws URISyntaxException 
 	 */
-	public OAIHarvesterImp(String path, RecordListHandler handler) throws MalformedURLException {
+	public OAIHarvesterImp(String path, RecordListHandler handler) throws MalformedURLException, URISyntaxException {
 		
 		this.urlComposer = new ListRecordsURLComposer(path);
 		this.handler = handler;
 	}
-
+	
+	/**
+	 * @param path OAI path without query string, e.g. <em>https://library.oapen.org/oai/request</em>
+	 * @param delay time between requests (when resumption token not empty) so as not to overload the OAI server.
+	 * @throws URISyntaxException 
+	 */
+	public OAIHarvesterImp(String path, RecordListHandler handler, int delay) throws MalformedURLException, URISyntaxException {
+		
+		this.urlComposer = new ListRecordsURLComposer(path);
+		this.handler = handler;
+		this.delay = delay;
+	}
+	
 	public void setRstHandler(Consumer<ResumptionToken> rstHandler) {
 		this.rstHandler = rstHandler;
 	}
@@ -95,7 +110,7 @@ public final class OAIHarvesterImp implements OAIHarvester {
 				
 				oRst = lrDocument.getResumptionToken();
 	
-				Thread.sleep(500); // Do not DDOS the OAI Provider
+				Thread.sleep(this.delay); // Do not DDOS the OAI Provider
 				
 			} catch (Exception e) {	
 				throw new HarvestException(e, oRst);

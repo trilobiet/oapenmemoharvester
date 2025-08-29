@@ -7,6 +7,7 @@ import java.util.Set;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -43,7 +44,9 @@ public class Title {
     private String sysId;
 
     @Column(name = "download_url")
-    private String downloadUrl;
+    // Multiple download URLs are stored as (delimited) values in a single field
+    @Convert(converter = SetToStringConverter.class)
+    private Set<String> downloadUrl;
 
     @Column(name = "thumbnail")
     private String thumbnail;
@@ -156,6 +159,21 @@ public class Title {
     	}	
     }
     
+    @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<PeerReview> peerReviews = new HashSet<>();
+    
+    public void setPeerReviews(Set<PeerReview> values) {
+    	peerReviews.clear();
+    	values.forEach(this::addPeerReview);
+    }
+    
+    public void addPeerReview(PeerReview peerReview) {
+    	
+    	if (peerReview != null) {
+    		peerReview.setHandleTitle(this.handle);
+    		peerReviews.add(peerReview);
+    	}	
+    }
     
     @ManyToMany(
     	fetch = FetchType.EAGER, // Eager, because there are only a few.	

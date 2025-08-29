@@ -1,6 +1,7 @@
 package org.oapen.memoproject.dataingestion;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,9 @@ public class Orchestrator implements CommandLineRunner {
 
 	@Value("${app.harvest.daysBack}")
 	private int daysBackUntil;
+
+	@Value("${app.harvest.delay}")
+	private int delay;
 	
 	private static final Logger logger = 
 			LoggerFactory.getLogger(Orchestrator.class);
@@ -52,11 +56,11 @@ public class Orchestrator implements CommandLineRunner {
 	public Orchestrator() {}
 
 	@Override
-	public void run(String... args) throws MalformedURLException {
+	public void run(String... args) throws MalformedURLException, URISyntaxException {
 
 		status = new PropertiesAppStatusService(propFileName);
 		//urlComposer = new ListRecordsURLComposer(oaiPath);
-		harvester = new OAIHarvesterImp(oaiPath, recordListHandler);
+		harvester = new OAIHarvesterImp(oaiPath, recordListHandler, delay);
 		
 		// Set the RstHandler to write each resumption token to status (only for information) 
 		harvester.setRstHandler(rst -> {

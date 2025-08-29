@@ -3,6 +3,7 @@ package org.oapen.memoproject.dataingestion.harvest;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.Test;
 public class ListRecordsUrlComposerTests {
 	
 	@Test
-	public void initial_url_should_match_arguments_complete_harvest() throws MalformedURLException {
+	public void initial_url_should_match_arguments_complete_harvest() throws MalformedURLException, URISyntaxException {
 		
 		ListRecordsURLComposer url = new ListRecordsURLComposer("https://www.test.com");
 
@@ -25,7 +26,7 @@ public class ListRecordsUrlComposerTests {
 	
 
 	@Test
-	public void initial_url_should_match_arguments_from_date() throws MalformedURLException {
+	public void initial_url_should_match_arguments_from_date() throws MalformedURLException, URISyntaxException {
 		
 		LocalDate date1 = LocalDate.now();
 		String from = date1.format(DateTimeFormatter.ISO_LOCAL_DATE);
@@ -41,7 +42,7 @@ public class ListRecordsUrlComposerTests {
 
 	
 	@Test
-	public void initial_url_should_match_arguments_from_until_date() throws MalformedURLException {
+	public void initial_url_should_match_arguments_from_until_date() throws MalformedURLException, URISyntaxException {
 		
 		LocalDate date1 = LocalDate.now();
 		LocalDate date2 = date1.plusDays(7);
@@ -60,7 +61,7 @@ public class ListRecordsUrlComposerTests {
 	
 
 	@Test
-	public void resumption_url_should_match_arguments() throws MalformedURLException {
+	public void resumption_url_should_match_arguments() throws MalformedURLException, URISyntaxException {
 		
 		ResumptionToken rst = new ResumptionToken("xoai/2022-01-21T00:00:00Z///100", 100, 0);
 		
