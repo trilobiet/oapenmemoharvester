@@ -13,6 +13,8 @@ spring.datasource.password=*************
 
 # harvesting until days before now
 app.harvest.daysBack = 7
+# delay between requests (so as not to overload the OAI server)
+app.harvest.delay = 5000
 
 # pick the right parser 
 app.domain=doabooks 

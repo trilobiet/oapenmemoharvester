@@ -14,7 +14,7 @@ CHANGE COLUMN `identifier` `identifier` VARCHAR(255) CHARACTER SET 'utf8mb4' COL
 
 # New table peerreview
 CREATE TABLE peerreview (
-    id CHAR(36) NOT NULL,
+    id CHAR(100) NOT NULL,
     handle_title VARCHAR(25) NOT NULL,
     title VARCHAR(255),
     anonymity VARCHAR(100),

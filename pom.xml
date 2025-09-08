@@ -104,6 +104,18 @@
 					<executable>true</executable>
 				</configuration>		
 			</plugin>
+			
+			<!-- To prevent sensitive data from ending up in the jar, exclude application.properties file. 
+			We will use an external application.properties instead. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>**/application.properties</exclude>
+					</excludes>
+				</configuration>
+			</plugin>			
 	
 		</plugins>
 	

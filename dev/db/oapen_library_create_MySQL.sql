@@ -211,7 +211,7 @@ DROP TABLE IF EXISTS `peerreview`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `peerreview` (
-  `id` char(36) COLLATE utf8mb4_bin NOT NULL,
+  `id` char(100) COLLATE utf8mb4_bin NOT NULL,
   `handle_title` varchar(25) COLLATE utf8mb4_bin NOT NULL,
   `title` VARCHAR(255) COLLATE utf8mb4_bin DEFAULT NULL,
   `anonymity` varchar(100) COLLATE utf8mb4_bin DEFAULT NULL,
@@ -342,14 +342,6 @@ SET @saved_cs_client     = @@character_set_client;
  1 AS `collections`,
  1 AS `languages`*/;
 SET character_set_client = @saved_cs_client;
-
---
--- Dumping events for database 'oapen_library'
---
-
---
--- Dumping routines for database 'oapen_library'
---
 
 --
 -- Final view structure for view `title_combined_fields`
