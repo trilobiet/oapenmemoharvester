@@ -107,7 +107,7 @@ public class PropertiesAppStatusService implements AppStatus {
 		    	() -> props.remove(RESUMPTION_TOKEN)
 		    );
 		    
-		    p.store(props, out, "OAPEN-MEMO xoai harvester application state");
+		    p.store(props, out, "MEMO xoai harvester application state");
 		    
 		} catch (IOException e) {
 			logger.warn("Could not save properties at " +	f.getAbsolutePath()	);
