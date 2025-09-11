@@ -33,13 +33,13 @@ These settings must be provided:
    Harvest until `daysBack` days before the current date. This settings takes into account that DSpace data
    may have changed, and therefore is included in OAI output, but still needs to be checked and possibly edited by an OAPEN employee. 
    Using a buffer time  prevents incomplete data to appear in the local library database.
+* `app.domain`
+   Choose which parser to use. Currently there are 2 parsers: `oapen` and `doabooks`.
 * `app.path.oaipath`   
    OAI provider URL 
 * `app.path.app-status`   
    Path to a properties file where harvesting status is saved (suggested value: `${user.home}/oapenmemo/harvester-state.properties`) 
-    
-   *(Indentation and newlines inserted for readability)*    
-    
+
 
 ## How to run it?
 
