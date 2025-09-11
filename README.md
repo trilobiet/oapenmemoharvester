@@ -23,6 +23,8 @@ Use `app.harvest.daysBack = 7` to set an offset period of 7 days.
 
 Configuration settings are excluded from the jar artifact and must be provided externally. An example can be found at `/src/main/resources/application.properties.tpl`. For development copy this file to `src/main/resources/application.properties`.
 
+For production put the harvester application jar executable and `application.properties` in the same directory.
+
 These settings must be provided:
 
 * `spring.datasource.url`   
@@ -33,12 +35,12 @@ These settings must be provided:
    Harvest until `daysBack` days before the current date. This settings takes into account that DSpace data
    may have changed, and therefore is included in OAI output, but still needs to be checked and possibly edited by an OAPEN employee. 
    Using a buffer time  prevents incomplete data to appear in the local library database.
-* `app.domain`
+* `app.domain`   
    Choose which parser to use. Currently there are 2 parsers: `oapen` and `doabooks`.
 * `app.path.oaipath`   
    OAI provider URL 
 * `app.path.app-status`   
-   Path to a properties file where harvesting status is saved (suggested value: `${user.home}/oapenmemo/harvester-state.properties`) 
+   Path to a properties file where harvesting status is saved (e.g. `${user.home}/oapenmemo/harvester/harvester-state.properties`) 
 
 
 ## How to run it?
@@ -58,9 +60,9 @@ Typically you want to run this as a cronjob (for the corresponding Linux user) o
 
 ## Anything else?
 
-- Application status (last harvest date etc.) is saved to a directory `[user.home]/oapenmemo`;
+- Application status (last harvest date etc.) is saved to a file as set in field `harvester-state.properties` in `application.properties`;
 
-- logs are saved to a directory `[user.home]/oapenmemo/logs`
+- Logs are saved to a file as set in field `logging.file.name` in `application.properties`;
 
 ---
 
