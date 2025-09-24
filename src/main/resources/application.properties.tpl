@@ -11,7 +11,7 @@ spring.datasource.url=jdbc:mysql://localhost:3306/oapen_library?reconnect=true&r
 spring.datasource.username=*************
 spring.datasource.password=*************
 
-# harvesting until days before now
+# harvesting until days before now (choose >= 1 or you might harvest before the repo is updated!)
 app.harvest.daysBack = 7
 # delay between requests (so as not to overload the OAI server)
 app.harvest.delay = 5000

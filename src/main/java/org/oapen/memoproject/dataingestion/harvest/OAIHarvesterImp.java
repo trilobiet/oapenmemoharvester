@@ -16,6 +16,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.oapen.memoproject.dataingestion.Orchestrator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -27,6 +30,9 @@ public final class OAIHarvesterImp implements OAIHarvester {
 	private final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 	private Consumer<ResumptionToken> rstHandler;
 	private int delay = 1000;
+	
+	private static final Logger logger = 
+			LoggerFactory.getLogger(Orchestrator.class);
 
 	/**
 	 * @param path OAI path without query string, e.g. <em>https://library.oapen.org/oai/request</em>
@@ -111,6 +117,8 @@ public final class OAIHarvesterImp implements OAIHarvester {
 				oRst = lrDocument.getResumptionToken();
 	
 				Thread.sleep(this.delay); // Do not DDOS the OAI Provider
+				
+				logger.info("URL=" + url);
 				
 			} catch (Exception e) {	
 				throw new HarvestException(e, oRst);
