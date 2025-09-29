@@ -2,7 +2,7 @@
 
 ## What is it?
 
-A harvester service that populates a local OAPEN Library database with data from the OAPEN DSpace XOAI provider.
+A harvester service that populates a local Library database with data from the DSpace XOAI provider.
 
 See `/dev/db` for the database create script.
 
@@ -17,7 +17,7 @@ See `/dev/db` for the database create script.
 Configuration settings are read from `application.properties`.
 
 Harvesting may use a negative amount of offset days from the current date, to ensure only redacted and matured data is harvested.  
-Use `app.harvest.daysBack = 7` to set an offset period of 7 days.
+Use `app.harvest.daysBack = 7` to set an offset period of 7 days. 
 
 ## What to configure
 
@@ -34,7 +34,9 @@ These settings must be provided:
 * `app.harvest.daysBack`   
    Harvest until `daysBack` days before the current date. This settings takes into account that DSpace data
    may have changed, and therefore is included in OAI output, but still needs to be checked and possibly edited by an OAPEN employee. 
-   Using a buffer time  prevents incomplete data to appear in the local library database.
+   Using a buffer time prevents incomplete data to appear in the local library database. **Note**: data may be published in OAI on a later day 
+   than their last modified date indicates, so be sure to take this into account when setting `daysBack`. A value of `0` is a bad idea, because 
+   it would ignore any edits made on the same day *after* the moment of harvesting.
 * `app.domain`   
    Choose which parser to use. Currently there are 2 parsers: `oapen` and `doabooks`.
 * `app.path.oaipath`   
@@ -74,7 +76,7 @@ Typically you want to run this as a cronjob (for the corresponding Linux user) o
 
 ## Database 
 
-A script to create the empty OAPEN Library database is included in directory [/dev/db/](./dev/db/). 
+A script to create the empty OAPEN or DOAB Library database is included in directory [/dev/db/](./dev/db/). 
 
 The view definition `vw_title_combined_fields.sql` in the same directory serves to abstract away some frequently used SQL joins, allowing for more compact query SQL where desired, but it can be ignored if there is no such wish.
 

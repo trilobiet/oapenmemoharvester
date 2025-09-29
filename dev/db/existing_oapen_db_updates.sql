@@ -12,7 +12,7 @@ ADD COLUMN `date_available` DATE NULL DEFAULT NULL AFTER `date_accessioned`;
 ALTER TABLE `oapen_library`.`identifier` 
 CHANGE COLUMN `identifier` `identifier` VARCHAR(255) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_bin' NOT NULL ;
 
-# New table peerreview
+# New table peerreview (currently not used for OAPEN - will remain empty, but we need it for Hibernate)
 CREATE TABLE peerreview (
     id CHAR(100) NOT NULL,
     handle_title VARCHAR(25) NOT NULL,

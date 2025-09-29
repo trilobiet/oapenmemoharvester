@@ -1,5 +1,5 @@
-CREATE DATABASE  IF NOT EXISTS `oapen_library` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `oapen_library`;
+CREATE DATABASE  IF NOT EXISTS `doab_library` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `doab_library`;
 -- MySQL dump 10.13  Distrib 8.0.40, for Linux (x86_64)
 --
 -- ------------------------------------------------------
