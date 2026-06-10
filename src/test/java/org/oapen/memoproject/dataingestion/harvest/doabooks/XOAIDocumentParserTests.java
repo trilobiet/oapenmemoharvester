@@ -25,10 +25,12 @@ import org.xml.sax.SAXException;
 public class XOAIDocumentParserTests {
 	
 	private final String xmlrecord1 = TestConstants.xmlrecord1;
+	private final String xmlrecord2 = TestConstants.xmlrecord2;
 	private DoabooksXOAIDocumentParser source1;
+	private DoabooksXOAIDocumentParser source2;
 	
 	/*
-	 * Tests here only where DOAB XOAI differs from OAPEB XOAI
+	 * Tests here only where DOAB XOAI differs from OAPEN XOAI
 	 */
 	
 	@BeforeEach
@@ -40,8 +42,11 @@ public class XOAIDocumentParserTests {
 		
 		Document doc1 = db.parse(new InputSource( new StringReader( xmlrecord1 ) ));
 		Element el1 = (Element) doc1.getElementsByTagName("record").item(0);
-		
 		source1 = new DoabooksXOAIDocumentParser(el1);
+
+		Document doc2 = db.parse(new InputSource( new StringReader( xmlrecord2 ) ));
+		Element el2 = (Element) doc2.getElementsByTagName("record").item(0);
+		source2 = new DoabooksXOAIDocumentParser(el2);
 	}	
 
 	
@@ -58,6 +63,27 @@ public class XOAIDocumentParserTests {
 		assertTrue(foundDownloadUrls.containsAll(expectedDownloadUrls));
 	}
 	
+	@Test
+	public void should_find_license() {
+
+		// 'rightsuri' being available in doc1	
+		assertEquals("http://creativecommons.org/licenses/by/4.0/", source1.getTitle().get().getLicense());
+	}
+	
+	@Test
+	public void should_find_license_fallback() {
+
+		// 'rightsuri' being absent in doc2, should default to 'dc.rights'	
+		assertEquals("open access", source2.getTitle().get().getLicense());
+	}
+	
+
+	@Test
+	public void should_find_webshopUrl() {
+
+		assertEquals("https://www.test.nl/test.html", source1.getTitle().get().getWebshopUrl());
+	}
+
 	
 	@Test
 	public void should_find_peerreview() {

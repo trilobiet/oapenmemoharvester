@@ -1,5 +1,5 @@
-CREATE DATABASE  IF NOT EXISTS `oapen_library` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `oapen_library`;
+CREATE DATABASE  IF NOT EXISTS `oapen_library_x` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `oapen_library_x`;
 -- MySQL dump 10.13  Distrib 8.0.40, for Linux (x86_64)
 --
 -- ------------------------------------------------------
@@ -115,6 +115,7 @@ CREATE TABLE `funder` (
   `name` text COLLATE utf8mb4_bin NOT NULL,
   `acronyms` text COLLATE utf8mb4_bin,
   `number` text COLLATE utf8mb4_bin,
+  `doi` text COLLATE utf8mb4_bin,
   PRIMARY KEY (`handle`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -212,8 +213,7 @@ DROP TABLE IF EXISTS `peerreview`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `peerreview` (
   `id` char(100) COLLATE utf8mb4_bin NOT NULL,
-  `handle_title` varchar(25) COLLATE utf8mb4_bin NOT NULL,
-  `title` VARCHAR(255) COLLATE utf8mb4_bin DEFAULT NULL,
+  `title` text COLLATE utf8mb4_bin DEFAULT NULL,
   `anonymity` varchar(100) COLLATE utf8mb4_bin DEFAULT NULL,
   `is_open_review` tinyint(1) DEFAULT NULL,
   `responsibilities` text COLLATE utf8mb4_bin,
@@ -221,9 +221,7 @@ CREATE TABLE `peerreview` (
   `type` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
   `reviewer_type` text COLLATE utf8mb4_bin,
   `comments` text COLLATE utf8mb4_bin,
-  PRIMARY KEY (`id`),
-  KEY `handle_title` (`handle_title`),
-  CONSTRAINT `FK_peerreview__handle_title` FOREIGN KEY (`handle_title`) REFERENCES `title` (`handle`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -310,6 +308,7 @@ CREATE TABLE `title` (
   `date_accessioned` DATE NULL DEFAULT NULL,
   `date_available` DATE NULL DEFAULT NULL,
   `year_issued` int DEFAULT NULL,
+  `id_peerreview` VARCHAR(36) NULL DEFAULT NULL,
   `timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`handle`),
   KEY `part_of_handle_publisher` (`handle_publisher`),
@@ -319,7 +318,8 @@ CREATE TABLE `title` (
   FULLTEXT KEY `idx_fulltext_partofseries` (`is_part_of_series`),
   FULLTEXT KEY `idx_fulltext_abstract_ol` (`abstract_other_language`),
   FULLTEXT KEY `idx_fulltext_description_ol` (`description_other_language`),
-  CONSTRAINT `FK_title__handle_publisher` FOREIGN KEY (`handle_publisher`) REFERENCES `publisher` (`handle`)
+  CONSTRAINT `FK_title__handle_publisher` FOREIGN KEY (`handle_publisher`) REFERENCES `publisher` (`handle`),
+  CONSTRAINT `FK_title__id_peerreview` FOREIGN KEY (`id_peerreview`) REFERENCES `peerreview` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

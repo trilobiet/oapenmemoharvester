@@ -9,7 +9,7 @@ package org.oapen.memoproject.util;
 public final class StringUtils {
 
 	/**
-	 * @param s
+	 * @param s Input string
 	 * @return s without all repeated whitespace (spaces, tabs, newlines etc.)
 	 */
 	public final static String trimAllSpace(String s) {
@@ -20,7 +20,23 @@ public final class StringUtils {
 			// then trim
 			.trim(); 
 	}
-
+	
+	/**
+	 * @param s Input string
+	 * @param size Maximum length
+	 * @return s without all repeated whitespace (spaces, tabs, newlines etc.) and cut off at size
+	 */
+	public final static String trimAllSpace(String s, int size) {
+		
+		return cutOff(
+			// replace all whitespace-like sh*t with a single space				
+			s.replaceAll("[ \\h\\t\\n\\x0B\\f\\r]+", " ")
+			// then trim
+			.trim(),
+			size);
+	}
+	
+	
 	/**
 	 * 
 	 * @param s

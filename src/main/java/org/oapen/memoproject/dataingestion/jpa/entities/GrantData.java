@@ -17,6 +17,8 @@ import lombok.Setter;
  * each record has a field 'property' and a field 'value' containing the corresponding property value.
  * <p>
  * properties can be (but are technically not limited to) PROGRAM, PROJECT, NUMBER or ACRONYM 
+ * 
+ * NB This entity serves to collect data in XML nodes of name 'grant' (not 'grantor', these go to Funder)   
  *  
  * @author acdhirr
  *

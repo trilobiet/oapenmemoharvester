@@ -35,10 +35,13 @@ public class Orchestrator implements CommandLineRunner {
 	@Value("${app.path.oaipath}")
 	private String oaiPath;
 
-	@Value("${app.harvest.daysBack}")
+	@Value("${app.harvest.daysBack:1}")
 	private int daysBackUntil;
 
-	@Value("${app.harvest.delay}")
+	@Value("${app.harvest.daysOverlay:0}")
+	private int daysOverlay;
+	
+	@Value("${app.harvest.delay:1000}")
 	private int delay;
 	
 	private static final Logger logger = 
@@ -69,18 +72,22 @@ public class Orchestrator implements CommandLineRunner {
 		
 		List<String> harvestedHandles = new ArrayList<>();
 		
+		daysOverlay = args.length > 0? Integer.parseInt(args[0]): daysOverlay;
+		
 		// from and until in OAI are inclusive!
 		// http://www.openarchives.org/OAI/openarchivesprotocol.html#Datestamp
-		LocalDate fromDate = status.getLastHarvestDay().plusDays(1);
+		LocalDate fromDate = status.getLastHarvestDay()
+			.minusDays(daysOverlay)
+			.plusDays(1);
 		
 		// System.out.println(propFileName);
-		// System.out.println("FROM " + fromDate);
+		System.out.println("FROM " + fromDate);
 		
-		daysBackUntil = args.length > 0? Integer.parseInt(args[0]): daysBackUntil;
+		daysBackUntil = args.length > 0? Integer.parseInt(args[1]): daysBackUntil;
 		
 		LocalDate untilDate = LocalDate.now().minusDays( daysBackUntil );
 		
-		// System.out.println("TO " + untilDate);
+		System.out.println("UNTIL " + untilDate);
 		
 		Optional<String> resumptionToken = status.getResumptionToken() == null 
 			? Optional.empty() 
@@ -122,15 +129,25 @@ public class Orchestrator implements CommandLineRunner {
 				harvestedHandles = harvestFromlastHarvestDay(fromDate, untilDate);
 			}
 			
-			// at least some handles have been ingested
-			if (!harvestedHandles.isEmpty())  
-				logger.info("Harvested {} titles", harvestedHandles.size());
-			else 
+			// Is anything ingested?
+			if (harvestedHandles.isEmpty()) {  
+				
+				// Nothing ingested: do not update lastHarvestDay nor resumptionToken. 
+				// We will keep starting from this day until anything is found. Why is that?
+				// Sometimes updates are posted after the date to which they relate and they will be
+				// skipped 
 				logger.info("Nothing found to harvest");
-			
-			/* Update status */
-			status.setLastHarvestDay(untilDate);
-			status.setResumptionToken("");
+			}	
+			else {
+				
+				// At least some handles have been ingested
+				
+				logger.info("Harvested {} titles", harvestedHandles.size());
+
+				// Update status 
+				status.setLastHarvestDay(untilDate);
+				status.setResumptionToken("");
+			}
 			
 			logger.info("\n======================= Finished Harvest & Ingest Cycle =======================");
 		}	

@@ -47,7 +47,7 @@ public class PropertiesAppStatusService implements AppStatus {
 		
 		lastHarvestDay = readValue(LAST_HARVEST_DAY);
 		if (lastHarvestDay.isPresent()) return LocalDate.parse(lastHarvestDay.get());
-		else return LocalDate.ofEpochDay(0); 
+		else return LocalDate.ofEpochDay(0); // 1970-01-01
 	}
 
 	@Override

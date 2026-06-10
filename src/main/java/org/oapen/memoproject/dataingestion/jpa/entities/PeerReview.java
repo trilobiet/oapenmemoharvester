@@ -24,15 +24,15 @@ import lombok.ToString;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PeerReview {
 	
+	/*
+	 * Look for element root.peerreview, 
+	 *              NOT root.oapen.peerreview
+	 */
 	@Id
 	@Column(name = "id")
 	@XmlPath("element[@name='id']/element/field[@name='value']/text()")
 	private String id;
 	
-	@Column(name = "handle_title")
-	// handleTitle is set when PeerReview is joined to a Title 
-	private String handleTitle;
-
 	@Column(name = "title")
 	@XmlPath("element[@name='title']/element/field/text()")
 	private String title;
@@ -70,6 +70,7 @@ public class PeerReview {
 	@XmlPath("element[@name='reviewer']/element[@name='type']/element/field/text()")
     @Convert(converter = SetToStringConverter.class)
 	private Set<String> reviewerTypes;
+	
 
 	public boolean isComplete() {
 		

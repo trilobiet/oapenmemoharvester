@@ -67,7 +67,12 @@ public final class RecordListHandlerImp implements RecordListHandler {
 
 				if (t.isDeleted()) {
 					
-					try { perservice.deleteTitle(t);} catch (RuntimeException e) { 
+					try { 
+							logger.info("Found status='deleted' for title with handle " + t.getHandle());
+							perservice.deleteTitle(t);
+							logger.info("Deleted title " + t.getHandle());
+							
+						} catch (RuntimeException e) { 
 						/* log da shit with t handle */
 						logger.error("Could not delete title with handle " + t.getHandle());
 					}

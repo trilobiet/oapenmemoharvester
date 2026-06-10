@@ -105,12 +105,13 @@ public final class DoabooksXOAIDocumentParser implements EntitiesSource {
 				
 				getPublisher().ifPresent(title::setPublisher);
 				getYearAvailable().ifPresent(title::setYearAvailable);
+				// At most 1 Peer review
+				getPeerReviews().stream().findFirst().ifPresent(title::setPeerreview);
 				
 				getAccessionedDate().ifPresent(title::setDateAccessioned);
 				getAvailableDate().ifPresent(title::setDateAvailable);
 				getIssuedYear().ifPresent(title::setYearIssued);
 
-				title.setPeerReviews(getPeerReviews());
 				title.setDownloadUrl(getDownloadUrls());
 				title.setClassifications(getClassifications());
 				title.setContributions(getContributions());
@@ -167,7 +168,7 @@ public final class DoabooksXOAIDocumentParser implements EntitiesSource {
 			for (int i=0; i<nodes.getLength(); i++) 
 				contributors.add( 
 					new Contributor(
-						StringUtils.trimAllSpace(nodes.item(i).getTextContent())
+						StringUtils.trimAllSpace(nodes.item(i).getTextContent(),255)
 					)
 				);
 		});
@@ -238,6 +239,7 @@ public final class DoabooksXOAIDocumentParser implements EntitiesSource {
 	@Override
 	/**
 	 * Extract PeerReviews (0..1) from this document 
+	 * Note: There can only be 1 peer review at most and we want the one that is directly beneath the root element.
 	 */
 	public Set<PeerReview> getPeerReviews() {
 		
@@ -327,13 +329,13 @@ public final class DoabooksXOAIDocumentParser implements EntitiesSource {
 		
 		for (int i=0; i < nodes.getLength(); i++) {
         	
-        	Node node = nodes.item(i);
-        	Contribution member = new Contribution(
-        		StringUtils.trimAllSpace(node.getTextContent().trim())
-        		,role
-        	);
-        	set.add(member);
-        }
+			Node node = nodes.item(i);
+			Contribution member = new Contribution(
+				 StringUtils.trimAllSpace(node.getTextContent().trim(),255)
+				,StringUtils.cutOff(role, 10)
+			);
+			set.add(member);
+		}
 		
 		return set;
 	}
@@ -368,7 +370,7 @@ public final class DoabooksXOAIDocumentParser implements EntitiesSource {
         	if (!value.isBlank() && !value.equals("[...]")) {  // ignore incomplete data
         		GrantData member = new GrantData(
         			property, 
-        			StringUtils.cutOff(StringUtils.trimAllSpace(node.getTextContent().trim()), 255) // max length 255
+        			StringUtils.trimAllSpace(node.getTextContent().trim(), 255) // max length 255
         		);
         		set.add(member);
         	}	
@@ -412,10 +414,11 @@ public final class DoabooksXOAIDocumentParser implements EntitiesSource {
         	
         	if (!ignoreIds.contains(id)) {
 	        	Identifier member = new Identifier(
-	        		StringUtils.cutOff(StringUtils.trimAllSpace(node.getTextContent().trim()),100)
+	        		StringUtils.trimAllSpace(node.getTextContent().trim(),100)
 	        		,type
 	        	);
-	        	set.add(member);
+	        	// Only non-blank identifiers
+	        	if (!member.getId().isBlank()) set.add(member);
         	}
         }
 		
@@ -599,14 +602,16 @@ public final class DoabooksXOAIDocumentParser implements EntitiesSource {
 	
 	private Optional<String> getLicense() {
 		
-		final String path = ".//*[.='ORIGINAL']/..//element[@name='bitstream']/field[@name='rightsuri']";
-		return getTextValue(path);
+		final String path1 = ".//*[.='THUMBNAIL']/..//element[@name='bitstream']/field[@name='rightsuri']";
+		final String path2 = ".//element[@name='dc']/element[@name='rights']//field[@name='value']";
+		
+		return getTextValue(path1).or(() -> getTextValue(path2));
 	}
 
 	
 	private Optional<String> getWebshopUrl() {
 		
-		final String path = ".//*[.='ORIGINAL']/..//element[@name='bitstream']/field[@name='dcidentifierurlwebshop']";
+		final String path = ".//*[.='THUMBNAIL']/..//element[@name='bitstream']/field[@name='dcidentifierurlwebshop']";
 		return getTextValue(path);
 	}
 

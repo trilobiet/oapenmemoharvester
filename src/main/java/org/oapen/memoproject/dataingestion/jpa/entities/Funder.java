@@ -20,6 +20,8 @@ import lombok.Setter;
 /**
  * This class represents records in the <em>funder</em> table
  * 
+ * NB This entity serves to collect data in XML nodes of name 'grantor' (not 'grant', these go to GrantData)
+ * 
  * @author acdhirr
  *
  */
@@ -48,6 +50,11 @@ public class Funder {
     @Column(name = "number")
     @XmlPath("element[@name='grantor.number']/field/text()")
     private String number;  // a list
+
+    @Column(name = "doi")
+    @XmlPath("element[@name='grantor.doi']/field/text()")
+    private String doi; 
+ 
     
 	public Funder() {}
 	

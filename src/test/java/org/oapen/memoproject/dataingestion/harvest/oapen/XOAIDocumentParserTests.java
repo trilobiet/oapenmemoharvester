@@ -259,6 +259,16 @@ public class XOAIDocumentParserTests {
 		assertEquals(foundFunders.get(0).getAcronyms().size(), 5);
 	}
 	
+	@Test
+	public void should_find_funder_doi() {
+		
+		Set<Funder> funderSet = source1.getFunders();
+		ArrayList<Funder> foundFunders = new ArrayList<Funder>(funderSet);
+		
+		System.out.println(foundFunders);
+		
+		assertEquals("10.123/456789A", foundFunders.get(0).getDoi());
+	}
 	
 	
 	@Test

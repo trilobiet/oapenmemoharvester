@@ -99,6 +99,7 @@ public class XOAIDocumentParserUtils {
 			.flatMap(List::stream)
 			.map(s -> StringUtils.trimAllSpace(s))
 			.map(String::toLowerCase)
+			.filter(s -> !s.isBlank())
 			.collect(Collectors.toSet());
 		
 		return p;

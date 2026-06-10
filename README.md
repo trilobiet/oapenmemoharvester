@@ -37,12 +37,25 @@ These settings must be provided:
    Using a buffer time prevents incomplete data to appear in the local library database. **Note**: data may be published in OAI on a later day 
    than their last modified date indicates, so be sure to take this into account when setting `daysBack`. A value of `0` is a bad idea, because 
    it would ignore any edits made on the same day *after* the moment of harvesting.
+* `app.harvest.daysOverlay`   
+   Number of days that already harvested dates are re-harvested. See `daysBack` argument.
 * `app.domain`   
    Choose which parser to use. Currently there are 2 parsers: `oapen` and `doabooks`.
 * `app.path.oaipath`   
    OAI provider URL 
 * `app.path.app-status`   
    Path to a properties file where harvesting status is saved (e.g. `${user.home}/oapenmemo/harvester/harvester-state.properties`) 
+   
+   
+### Harvesting cycle
+
+The OAI provider seems to sometimes lag behind with its updates. Requesting data for a certain fixed period in the past (both `until` and `from` arguments are dates in the past) may yield more results being returned when the request is repeated on a later moment.
+
+Some measures have been taken to mitigate the risk of data loss on the harvester side. The harvester issues OAI requests with `from`, `until` or `resumptionToken` arguments. When no data is available for a day, the from argument is locked on that day, while the until argument increases each following day. The from argument will be updated again, once data becomes available for the requested period `from`-`until`. This way empty days, that may be caused by data updates lagging behind, are retried until any data appears. It is assumed that data being available on a later day implies the dataset on the previous days to be complete;   
+
+However when a multi day harvest yields data, the parser will update the `until` argument to the last day of that interval, but perhaps the last day(s) in the interval did not have any data at all and should be retried later. The `daysOverlay` argument ensures that previously harvested days are harvested again on `daysOverlay` consecutive days afterwards. This guarantees that updates on a certain day that resulted in data not being available, or available though incomplete, are re-harvested to ensure that later added updates are included as well.
+
+These measures will never completely rule out the possibility of data loss, but they try to minimize the risk of skipped updates coming from a in itself faulty OAI provider.
 
 
 ## How to run it?
@@ -51,9 +64,14 @@ Run as an executable jar:
 
 	./harvester-x.y.z.jar
 
-Add an integer argument to override the `app.harvest.daysBack` value as set in the properties file:
+Add an integer argument to override the `app.harvest.daysOverlay` value as set in the properties file:
 
-	./harvester-x.y.z.jar 5
+	./harvester-x.y.z.jar 2
+
+Add another integer argument to override the `app.harvest.daysBack` value as set in the properties file:
+
+	./harvester-x.y.z.jar 2 7
+
 
 Typically you want to run this as a cronjob (for the corresponding Linux user) once a day:
 

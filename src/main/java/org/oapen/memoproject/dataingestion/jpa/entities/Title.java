@@ -127,7 +127,8 @@ public class Title {
     @Column(name = "subject")
     private Set<String> subjectsOther = new HashSet<>();
 
-    @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    // TODO check other props for orphanRemoval  
+    @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Identifier> identifiers = new HashSet<>();
     
     public void setIdentifiers(Set<Identifier> values) {
@@ -143,7 +144,7 @@ public class Title {
     	}	
     }
 
-    @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<GrantData> grantData = new HashSet<>();
     
     public void setGrantData(Set<GrantData> values) {
@@ -156,22 +157,6 @@ public class Title {
     	if (grantfield != null) {
     		grantfield.setHandleTitle(this.handle);
     		grantData.add(grantfield);
-    	}	
-    }
-    
-    @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Set<PeerReview> peerReviews = new HashSet<>();
-    
-    public void setPeerReviews(Set<PeerReview> values) {
-    	peerReviews.clear();
-    	values.forEach(this::addPeerReview);
-    }
-    
-    public void addPeerReview(PeerReview peerReview) {
-    	
-    	if (peerReview != null) {
-    		peerReview.setHandleTitle(this.handle);
-    		peerReviews.add(peerReview);
     	}	
     }
     
@@ -196,7 +181,7 @@ public class Title {
     }
     
     
-    @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "handleTitle", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Contribution> contributions = new HashSet<>();
     
     public void setContributions(Set<Contribution> values) {
@@ -213,14 +198,24 @@ public class Title {
     }
     
     
+    
     @ManyToOne(
        	fetch = FetchType.EAGER,
        	cascade = {CascadeType.PERSIST,CascadeType.MERGE} 
     )
     @JoinColumn(name = "handle_publisher", nullable = true)
     private Publisher publisher;
+
     
-   
+    @ManyToOne(
+       	fetch = FetchType.EAGER,
+       	cascade = {CascadeType.PERSIST,CascadeType.MERGE} 
+    )
+    @JoinColumn(name = "id_peerreview", nullable = true)
+	private PeerReview peerreview;
+
+    
+    
     @ManyToMany(
     	fetch = FetchType.EAGER, // Eager, because there are only a few.	
     	cascade = {CascadeType.PERSIST,CascadeType.MERGE} 

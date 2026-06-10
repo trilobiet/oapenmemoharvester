@@ -116,7 +116,7 @@ public final class OAIHarvesterImp implements OAIHarvester {
 				
 				oRst = lrDocument.getResumptionToken();
 	
-				Thread.sleep(this.delay); // Do not DDOS the OAI Provider
+				Thread.sleep(this.delay); // Do not overload the OAI Provider
 				
 				logger.info("URL=" + url);
 				
