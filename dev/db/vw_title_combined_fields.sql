@@ -1,6 +1,6 @@
 CREATE
     ALGORITHM = UNDEFINED
-    DEFINER = trilobiet@localhost
+    DEFINER = root@localhost
     SQL SECURITY DEFINER
 VIEW title_combined_fields AS
 SELECT
